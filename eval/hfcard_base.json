@@ -1,0 +1,43 @@
+{
+  "tag": "base",
+  "passed": 3,
+  "total": 6,
+  "results": [
+    {
+      "task": "斐波那契闭包",
+      "pass": true,
+      "err": "",
+      "code_len": 222
+    },
+    {
+      "task": "去重保序",
+      "pass": false,
+      "err": "s\\admin\\AppData\\Local\\Temp\\tmpq_m1p8xh.py\", line 4, in <module>\n    assert dedup([3,1,3,2,1]) == [3,1,2]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError",
+      "code_len": 41
+    },
+    {
+      "task": "字典计数",
+      "pass": false,
+      "err": "l\\Temp\\tmpr1afiy5n.py\", line 4, in <module>\n    assert count_words('a b a B') == {'a':2,'b':2}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError",
+      "code_len": 99
+    },
+    {
+      "task": "二分查找",
+      "pass": true,
+      "err": "",
+      "code_len": 355
+    },
+    {
+      "task": "分组聚合",
+      "pass": false,
+      "err": "  assert sorted(r)==sorted([['ate','eat','tea'],['nat','tan'],['bat']])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError",
+      "code_len": 298
+    },
+    {
+      "task": "带默认值的配置合并",
+      "pass": true,
+      "err": "",
+      "code_len": 71
+    }
+  ]
+}

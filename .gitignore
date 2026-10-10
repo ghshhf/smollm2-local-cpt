@@ -1,0 +1,30 @@
+# === 权重 / checkpoint (大文件, 不入库) ===
+out_*/
+nul
+/NUL
+*.bin
+*.safetensors
+*.pt
+*.ckpt
+
+# === 语料 (大文件 + 训练数据, 不入库) ===
+pretrain_corpus/
+*.jsonl
+*.jsonl.*
+
+# === Python 运行环境 ===
+venv/
+__pycache__/
+*.pyc
+.env
+
+# === 日志 / 诊断产物 ===
+*.log
+_syntest/
+_console.log
+_syntax_test.bat
+
+# === 杂项 ===
+.workbuddy/
+.DS_Store
+thumbs.db

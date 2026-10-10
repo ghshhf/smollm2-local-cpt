@@ -1,0 +1,1 @@
+C:\Users\admin\.cache\modelscope\models\google--embeddinggemma-2\snapshots\master

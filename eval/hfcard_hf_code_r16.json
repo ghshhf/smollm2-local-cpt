@@ -1,0 +1,43 @@
+{
+  "tag": "hf_code_r16",
+  "passed": 4,
+  "total": 6,
+  "results": [
+    {
+      "task": "斐波那契闭包",
+      "pass": true,
+      "err": "",
+      "code_len": 247
+    },
+    {
+      "task": "去重保序",
+      "pass": true,
+      "err": "",
+      "code_len": 94
+    },
+    {
+      "task": "字典计数",
+      "pass": false,
+      "err": "hlh.py\", line 1\n    {'the': 2, 'is': 1, 'a': 1, 'python': 1} def count_words(text):\n                                             ^^^\nSyntaxError: invalid syntax",
+      "code_len": 331
+    },
+    {
+      "task": "二分查找",
+      "pass": true,
+      "err": "",
+      "code_len": 473
+    },
+    {
+      "task": "分组聚合",
+      "pass": false,
+      "err": "转换为列表并返回。这个函数实现了题目要求的功能。\n                                                                                          ^\nSyntaxError: invalid character '。' (U+3002)",
+      "code_len": 549
+    },
+    {
+      "task": "带默认值的配置合并",
+      "pass": true,
+      "err": "",
+      "code_len": 71
+    }
+  ]
+}
