@@ -1,0 +1,80 @@
+{
+  "name": "0.1B",
+  "desc": "SmolLM2-135M base + R2 trained weights + R2 corpus",
+  "created": "2026-10-10T20:57:28",
+  "combined_file": "0.1B.zip",
+  "combined_size": 745921261,
+  "combined_sha256": "8fc401132452756c42c1b5803ad6d921e8a0d6e78d0078a9faa285464dd564c9",
+  "chunk_size": 99614720,
+  "chunks": [
+    {
+      "name": "0.1B_part_00.zip",
+      "size": 99614720,
+      "sha256": "fab47018d5ffa73f721f40112cf8fb13ef6e3b5fce5cc4c7f7b6f32ad042cf68"
+    },
+    {
+      "name": "0.1B_part_01.zip",
+      "size": 99614720,
+      "sha256": "857f3651f981e413ebe70d4ae87d0e83cc69c2c77133a2bd35d152f91c3bd710"
+    },
+    {
+      "name": "0.1B_part_02.zip",
+      "size": 99614720,
+      "sha256": "062d1329abb1c730a5efbadb170a5c3cfa0b53bc8074f5388c560d3f626cdfd8"
+    },
+    {
+      "name": "0.1B_part_03.zip",
+      "size": 99614720,
+      "sha256": "364cd44db913fb4d15a567f20244e1bab195aa347f63d52abb6d62c6c8f63b99"
+    },
+    {
+      "name": "0.1B_part_04.zip",
+      "size": 99614720,
+      "sha256": "7ea5ecff11d1c43705f98459aa31019480d8cf24cb2c81bc765a35dc6eaf4754"
+    },
+    {
+      "name": "0.1B_part_05.zip",
+      "size": 99614720,
+      "sha256": "fdca6f8a640c46a2eee6ba29fcdb9c3ec571c634058327734e9bdbfda7dc581f"
+    },
+    {
+      "name": "0.1B_part_06.zip",
+      "size": 99614720,
+      "sha256": "1bac030279129e80a2da9b2123078e89b8bc6f41a73d996e0862eb6ef351d3f9"
+    },
+    {
+      "name": "0.1B_part_07.zip",
+      "size": 48618221,
+      "sha256": "c38e0f1a860f585f2c679a6bacb4155eecd41af1fe010f33110db9c652528d5b"
+    }
+  ],
+  "contents": [
+    "base/.gitattributes",
+    "base/README.md",
+    "base/config.json",
+    "base/generation_config.json",
+    "base/merges.txt",
+    "base/model.safetensors",
+    "base/special_tokens_map.json",
+    "base/tokenizer.json",
+    "base/tokenizer_config.json",
+    "base/vocab.json",
+    "base/.cache/huggingface/.gitignore",
+    "base/.cache/huggingface/CACHEDIR.TAG",
+    "base/.cache/huggingface/download/.gitattributes.metadata",
+    "base/.cache/huggingface/download/README.md.metadata",
+    "base/.cache/huggingface/download/config.json.metadata",
+    "base/.cache/huggingface/download/generation_config.json.metadata",
+    "base/.cache/huggingface/download/merges.txt.metadata",
+    "base/.cache/huggingface/download/model.safetensors.metadata",
+    "base/.cache/huggingface/download/special_tokens_map.json.metadata",
+    "base/.cache/huggingface/download/tokenizer.json.metadata",
+    "base/.cache/huggingface/download/tokenizer_config.json.metadata",
+    "base/.cache/huggingface/download/vocab.json.metadata",
+    "base/.cache/huggingface/trees/93efa2f097d58c2a74874c7e644dbc9b0cee75a2.json",
+    "model/pytorch_model.bin",
+    "model/step.txt",
+    "corpus/zh_text_r2_cat.jsonl",
+    "README.md"
+  ]
+}

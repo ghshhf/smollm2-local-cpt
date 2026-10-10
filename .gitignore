@@ -28,3 +28,5 @@ _syntax_test.bat
 .workbuddy/
 .DS_Store
 thumbs.db
+*.parquet
+next_corpus_raw/
