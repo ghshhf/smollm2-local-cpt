@@ -12,64 +12,81 @@
 set -u
 
 TUNNEL="${TUNNEL:-}"
-[ -z "$TUNNEL" ] && { echo "ERR: TUNNEL env required"; exit 2; }
-TUNNEL="${TUNNEL%/}"
-
+ECS="http://47.99.131.12:8081"
 WORKDIR="/mnt/workspace/node1/r4train"
 GH_REPO="/mnt/workspace/node1/gh_repo"
-ECS="http://47.99.131.12:8081"
 LOG="$WORKDIR/train_r4.log"
 PY="$(command -v python3 || command -v python)"
 mkdir -p "$WORKDIR/r4_base" "$WORKDIR/corpus" "$WORKDIR/bin"
+
+# 隧道地址自愈: 从 ECS 信箱取最新的 TUNNEL_URL= 消息(本机看门狗在隧道重建时发布)
+resolve_tunnel() {
+  local u
+  u=$(curl -s -m 15 "${ECS}/mail?from=local" 2>/dev/null | "$PY" -c "
+import sys, json
+try:
+    ms = [m for m in json.load(sys.stdin).get('messages', []) if 'TUNNEL_URL=' in str(m.get('text', ''))]
+    print(str(ms[-1]['text']).split('TUNNEL_URL=')[1].split()[0] if ms else '')
+except Exception:
+    print('')
+" 2>/dev/null)
+  [ -n "$u" ] && TUNNEL="${u%%/}"
+  return 0
+}
 
 mail() {
   printf '%s' "$1" | "$PY" -c "import sys,json,urllib.request;m=sys.stdin.read();req=urllib.request.Request('$ECS/mail',data=json.dumps({'from':'node1','text':m}).encode(),headers={'Content-Type':'application/json'},method='POST');urllib.request.urlopen(req,timeout=20)" >/dev/null 2>&1 || true
 }
 
+resolve_tunnel
+[ -z "$TUNNEL" ] && { echo "ERR: no TUNNEL (env empty and mailbox has none)"; exit 2; }
+
 echo "=== [$(date '+%F %T')] train_r4 v2 start TUNNEL=$TUNNEL ===" | tee -a "$LOG"
 mail "train_r4 v2 start tunnel=$TUNNEL"
 
-# ---------- 0. 可选代理(VMESS 提供时给 git 用; 任何失败静默回退直连) ----------
+# ---------- 0. Clash(mihomo) 代理：内核+订阅YAML均经隧道获取, 任何失败静默回退直连 ----------
+# mihomo = Clash.Meta 官方 Linux 内核; sub_clash.yaml = 用户机场订阅(flag=clash 原生导出)
 PROXY=""
-if [ -n "${VMESS:-}" ]; then
-  if curl -fsSL -m 180 --retry 3 -C - -o "$WORKDIR/bin/sing-box" "$TUNNEL/bin/sing-box" \
-     && chmod +x "$WORKDIR/bin/sing-box"; then
-    cat > "$WORKDIR/bin/mksb.py" <<'PYEOF'
-import base64, json, os
-j = json.loads(os.environ["VMESS"])
-out = {
-  "log": {"level": "warn"},
-  "inbounds": [{"type": "socks", "tag": "in", "listen": "127.0.0.1", "listen_port": 1080}],
-  "outbounds": [{
-    "type": "vmess", "server": j["add"], "server_port": int(j["port"]),
-    "uuid": j["id"], "alter_id": int(j.get("aid") or 0),
-    "security": j.get("scy") or "auto",
-    "transport": {"type": "ws", "path": j.get("path", "/"),
-                  "headers": {"Host": j.get("host") or j["add"]}}
-  }]
-}
-if j.get("tls"):
-    out["outbounds"][0]["tls"] = {"enabled": True, "server_name": j.get("sni") or ""}
-print(json.dumps(out))
-PYEOF
-    if VMESS="$VMESS" "$PY" "$WORKDIR/bin/mksb.py" > "$WORKDIR/bin/sbconfig.json" 2>/dev/null; then
-      ( nohup "$WORKDIR/bin/sing-box" run -c "$WORKDIR/bin/sbconfig.json" \
-          > "$WORKDIR/bin/sb.log" 2>&1 < /dev/null & )
-      sleep 2
-      if "$WORKDIR/bin/sing-box" version >/dev/null 2>&1; then
-        PROXY="socks5://127.0.0.1:1080"
-        mail "proxy up (git use only)"
-      fi
+MH="$WORKDIR/bin/mihomo"
+MHD="$WORKDIR/bin/mihomo_cfg"
+if [ ! -x "$MH" ]; then
+  curl -fsSL -m 300 --retry 3 -C - -o "$WORKDIR/bin/mihomo.gz" "$TUNNEL/bin/mihomo.gz" \
+    && gunzip -c "$WORKDIR/bin/mihomo.gz" > "$MH" && chmod +x "$MH" \
+    || mail "mihomo binary fetch fail, direct mode"
+fi
+if [ -x "$MH" ] && [ ! -f "$MHD/config.yaml" ]; then
+  mkdir -p "$MHD"
+  curl -fsSL -m 120 --retry 3 -o "$MHD/config.yaml" "$TUNNEL/bin/sub_clash.yaml" \
+    || mail "clash yaml fetch fail, direct mode"
+fi
+if [ -x "$MH" ] && [ -f "$MHD/config.yaml" ]; then
+  pkill -f "bin/mihomo -d" 2>/dev/null; sleep 1
+  ( nohup "$MH" -d "$MHD" > "$MHD/mihomo.log" 2>&1 < /dev/null & )
+  PROXY_OK=0
+  for i in $(seq 1 20); do
+    if curl -s -m 3 -x http://127.0.0.1:7890 -o /dev/null -w "%{http_code}" http://www.gstatic.com/generate_204 2>/dev/null | grep -q "204"; then
+      PROXY_OK=1; break
     fi
+    sleep 1
+  done
+  if [ "$PROXY_OK" = "1" ]; then
+    PROXY="http://127.0.0.1:7890"
+    mail "mihomo proxy up :7890"
+  else
+    mail "mihomo started but proxy check fail, direct mode; tail: $(tail -c 150 "$MHD/mihomo.log" 2>/dev/null)"
   fi
-  [ -z "$PROXY" ] && mail "proxy unavailable, direct mode"
 fi
 
 # ---------- 1. 同步脚本仓库(失败不影响主流程, 主脚本走隧道) ----------
+# SSH 经 HTTP 代理需 ProxyCommand(nc -X connect); 无 nc 则直连兜底
+if [ -n "$PROXY" ] && command -v nc >/dev/null 2>&1; then
+  export GIT_SSH_COMMAND="ssh -i /root/.ssh/id_github -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand='nc -X connect -x 127.0.0.1:7890 %h %p'"
+fi
 if [ -d "$GH_REPO/.git" ]; then
-  if [ -n "$PROXY" ]; then
-    ( cd "$GH_REPO" && git -c http.proxy="$PROXY" pull -q origin main ) \
-      && mail "git pull ok(proxy)" || mail "git pull fail(non-fatal)"
+  if [ -n "$PROXY" ] && command -v nc >/dev/null 2>&1; then
+    ( cd "$GH_REPO" && GIT_SSH_COMMAND="$GIT_SSH_COMMAND" git pull -q origin main ) \
+      && mail "git pull ok(ssh via clash)" \
+      || { ( cd "$GH_REPO" && git pull -q origin main ) && mail "git pull ok(direct fallback)" || mail "git pull fail(non-fatal)"; }
   else
     ( cd "$GH_REPO" && git pull -q origin main ) \
       && mail "git pull ok" || mail "git pull fail(non-fatal)"
@@ -98,7 +115,7 @@ dl_verify() { # <route/file> <bytes> <sha256|->
   local rel="$1" want="$2" sha="$3"
   local dir; dir=$(dir_for "$rel")
   [ -z "$dir" ] && return 1
-  local out="$dir/$(basename "$rel")" url="$TUNNEL/$rel" cur tries=0
+  local out="$dir/$(basename "$rel")" cur tries=0 url
   while :; do
     cur=$(stat -c%s "$out" 2>/dev/null || echo 0)
     [ "$cur" = "$want" ] && break
@@ -108,6 +125,8 @@ dl_verify() { # <route/file> <bytes> <sha256|->
       echo "DL_FAIL $rel cur=$cur want=$want" | tee -a "$LOG"
       return 1
     fi
+    resolve_tunnel          # 隧道被回收换址时, 重试自动跟到新地址
+    url="$TUNNEL/$rel"
     aria2c -c -x8 -s8 -k1M --file-allocation=none --auto-file-renaming=false \
       --allow-overwrite=true --max-tries=0 --retry-wait=3 --timeout=40 \
       --connect-timeout=15 --summary-interval=60 --console-log-level=warn \
@@ -147,6 +166,7 @@ mail "all downloads verified"
 if pgrep -f "train_remote_v2.py" >/dev/null 2>&1; then
   mail "train already running, skip launch"
 else
+  resolve_tunnel   # 上传地址取最新隧道
   ( nohup "$PY" "$GH_REPO/node/train_remote_v2.py" \
       --base_dir "$WORKDIR/r4_base" \
       --corpus_dir "$WORKDIR/corpus" \
