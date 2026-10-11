@@ -22,6 +22,12 @@ mail "dispatch start base=$BASE"
 cd "$WORKDIR" || { mail "NO WORKDIR $WORKDIR"; exit 3; }
 mkdir -p r4_base corpus r4_run
 
+# 防止重复启动训练(同节点可能收到重复任务)
+if [ -f r4_run/train.pid ] && kill -0 "$(cat r4_run/train.pid 2>/dev/null)" 2>/dev/null; then
+  mail "ALREADY_TRAINING pid=$(cat r4_run/train.pid) skip"
+  echo "already training, skip"; exit 0
+fi
+
 # 预检环境
 if "$PY" -c "import torch,transformers" 2>/dev/null; then
   VER=$("$PY" -c "import torch,transformers;print('torch',torch.__version__,'tf',transformers.__version__)" 2>/dev/null)
@@ -32,7 +38,7 @@ fi
 
 # 确保训练脚本仓库(SSH deploy key)
 if [ ! -f gh_repo/node/train_remote_v2.py ]; then
-  export GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+  export GIT_SSH_COMMAND='ssh -i /root/.ssh/id_github -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
   git clone git@github.com:ghshhf/smollm2-local-cpt.git gh_repo 2>&1 | tail -2 | while read l; do mail "CLONE $l"; done
 fi
 ( cd gh_repo && git pull --ff-only 2>&1 | tail -2 ) | while read l; do mail "PULL $l"; done
