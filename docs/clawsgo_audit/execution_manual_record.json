@@ -1,0 +1,1636 @@
+{
+ "schema_version": "2.0",
+ "project_id": "HG-LADDER-EXEC-002",
+ "status": "draft",
+ "updated_on": "2026-10-14",
+ "human_owner": "路线负责人（用户本人，姓名待补）",
+ "observation": {
+  "statement": "用户为一条本地小参数模型逐级扩容路线（0.1B→0.2B→0.3B→0.4B→0.5B→1B→3B→8B）下单了一份可直接执行的训练手册，并提供了基准实测（64 核 CPU 上 214M 模型 18.7~29.1 s/step；语料 35 亿 token；三值宽度扩容跳变 1.70%）与十道决策门。",
+  "provenance": "用户在本会话中提供的路线自述与实测数据；本次新增对 9 篇来源的 arXiv HTML 全文级核验（见 evidence_ledger_v3.csv）。",
+  "source_ids": [
+   "SRC-ROUTE-DESC",
+   "SRC-HOFFMANN-2022",
+   "SRC-DELETANG-2023",
+   "SRC-BITNET158-2024",
+   "SRC-MEMLAYERS-2024",
+   "SRC-TITANS-2025",
+   "SRC-GERSTGRASSER-2024",
+   "SRC-SHUMAILOV-2023",
+   "SRC-NET2NET-2015",
+   "SRC-BERT2BERT-2021",
+   "SRC-LIGO-2023"
+  ],
+  "uncertainties": [
+   "量化尺度粒度、embedding/lm_head 是否三值、记忆层数据政策、蒸馏损失构成、tokens/step、t_step 对 N 的斜率均未提供。",
+   "1.70% 跳变对应的加宽比例与度量口径未记录，无法外推。",
+   "10M 记忆层指参数量还是字节数未说明，两种解读相差约 4 倍。"
+  ]
+ },
+ "research_question": {
+  "statement": "在用户已锁定的路线主干与已实测基准下，逐级扩容应在何处从『放大参数』切换为『插入能力模块』，该切换点的位置如何由语料总量与三值记账口径显式决定，以及三个模块插入点（认主头、记忆层、蒸馏桥接）的最小可执行设计规格是什么？",
+  "framework": "构造-情境-结果（construct-context-outcome），按『依赖已提供 vs 依赖缺失配置』分层",
+  "question_type": "predictive",
+  "population_or_system": "该路线各阶段的模型产物、检查点，以及 64 核 CPU 与目标端侧硬件上的训练/推理运行",
+  "intervention_or_exposure": "结构扩容（MLP 加宽/零输出恒等层）、词表 append、架构从零加蒸馏、记忆层插入与自进化闭环更新",
+  "comparator": "直接训练同规模模型、空记忆挂载、换教师蒸馏、fp32 扩展后量化、打乱标签语料",
+  "outcome": "各档位的单步耗时与单遍墙钟、adjusted rate 极小点位置、部署函数逐位一致性、探针准确率相对打乱基线的超出量、删除演练通过情况",
+  "timeframe": "单级扩容内部（50~2000 步）与整条阶梯（0.1B 至 8B）"
+ },
+ "hypotheses": [
+  {
+   "hypothesis_id": "H-NSTAR-BINDING",
+   "statement": "在现有 3.5e9 token 与三值记账口径下，压缩最优点 N* 落在 0.2B~0.4B，0.4B 之后的每一级参数放大都位于 adjusted rate 上升段。",
+   "mechanism": "两支码长中模型体积项随 N 线性增长，而数据编码项的边际下降按 N^-1.34 衰减，两者交点即 N*。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-DELETANG-2023",
+    "SRC-HOFFMANN-2022"
+   ],
+   "assumptions": [
+    "Hoffmann 拟合式可外推到 0.1B~1B 与本语料/分词器。"
+   ],
+   "boundary_conditions": [
+    "仅在 embedding 量化范围与尺度粒度确定后定量成立。"
+   ],
+   "uncertainties": [
+    "embedding 若保持 fp16，N* 减半。"
+   ],
+   "prediction_ids": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "rival_hypothesis_ids": [
+    "H-NSTAR-NONBINDING"
+   ]
+  },
+  {
+   "hypothesis_id": "H-NSTAR-NONBINDING",
+   "statement": "Hoffmann 式在用户语料与分词器上外推失效，0.4B 之后继续扩容仍能降低 adjusted rate。",
+   "mechanism": "拟合式在 <100M 参数与不同分词器上的常数漂移，或语料熵密度高于拟合集。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-HOFFMANN-2022"
+   ],
+   "assumptions": [
+    "外推失效是可检测的，而非只能事后归因。"
+   ],
+   "boundary_conditions": [
+    "需要至少两级实测 adjusted rate 才能判定。"
+   ],
+   "uncertainties": [
+    "缺少语料的原始比特密度估计。"
+   ],
+   "prediction_ids": [
+    "P2"
+   ],
+   "rival_hypothesis_ids": [
+    "H-NSTAR-BINDING"
+   ]
+  },
+  {
+   "hypothesis_id": "H-EMB-SCOPE-DOMINANT",
+   "statement": "embedding 是否三值量化会改变有效 bits/param 至少 2 倍，从而把 N* 移动至少 2 倍。",
+   "mechanism": "BitNet b1.58 原配方保持 embedding 全精度；在 0.1B~0.4B 规模上 embedding 占总参数 15%~31%，其 fp16 存储比特超过三值权重部分。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-BITNET158-2024"
+   ],
+   "assumptions": [
+    "embedding 参数占比按 12Ld^2 + Vd 的形状族估计。"
+   ],
+   "boundary_conditions": [
+    "仅在 vocab 与 d_model 固定时定量。"
+   ],
+   "uncertainties": [
+    "实际 vocab 与 d_model 未提供。"
+   ],
+   "prediction_ids": [
+    "P4"
+   ],
+   "rival_hypothesis_ids": [
+    "H-EMB-SCOPE-NEGLIGIBLE"
+   ]
+  },
+  {
+   "hypothesis_id": "H-EMB-SCOPE-NEGLIGIBLE",
+   "statement": "embedding 是否量化对 bits/param 与 N* 的影响可忽略（<30%）。",
+   "mechanism": "embedding 参数占比在目标规模上足够小，或其比特开销被其他项抵消。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-BITNET158-2024"
+   ],
+   "assumptions": [
+    "形状族估计成立。"
+   ],
+   "boundary_conditions": [
+    "在 1B 以上更可能成立。"
+   ],
+   "uncertainties": [
+    "未提供形状。"
+   ],
+   "prediction_ids": [
+    "P4"
+   ],
+   "rival_hypothesis_ids": [
+    "H-EMB-SCOPE-DOMINANT"
+   ]
+  },
+  {
+   "hypothesis_id": "H-FREEZE-NECESSARY-AND-SUFFICIENT",
+   "statement": "『在 fp32 潜变量上做结构操作』单独不充分；必须同时冻结旧坐标的三值符号与该行的 α，才能使部署函数逐位不变。",
+   "mechanism": "共享 α 是组统计量，加入 k 个零行后 α' = α·n/(n+k)，所有旧坐标重新取整；潜变量坐标不变不保证量化值不变。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-BITNET158-2024",
+    "SRC-NET2NET-2015"
+   ],
+   "assumptions": [
+    "α 为组/全局共享。"
+   ],
+   "boundary_conditions": [
+    "若尺度已是逐行且新行不参与该行统计，则稀释项消失。"
+   ],
+   "uncertainties": [
+    "尺度粒度未提供。"
+   ],
+   "prediction_ids": [
+    "P5",
+    "P6"
+   ],
+   "rival_hypothesis_ids": [
+    "H-LATENT-ONLY-SUFFICIENT"
+   ]
+  },
+  {
+   "hypothesis_id": "H-LATENT-ONLY-SUFFICIENT",
+   "statement": "只在 fp32 潜变量上操作即可保证部署函数不变，无需冻结符号与行内 α。",
+   "mechanism": "若尺度按行独立且新行不进入旧行统计，α 不随加宽改变。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-BITNET158-2024"
+   ],
+   "assumptions": [
+    "尺度为逐行且统计不含新增零行。"
+   ],
+   "boundary_conditions": [
+    "该假设本身就是待核验的配置项。"
+   ],
+   "uncertainties": [
+    "尺度粒度未提供。"
+   ],
+   "prediction_ids": [
+    "P5"
+   ],
+   "rival_hypothesis_ids": [
+    "H-FREEZE-NECESSARY-AND-SUFFICIENT"
+   ]
+  },
+  {
+   "hypothesis_id": "H-EPOCH-REPEAT-DEGRADES",
+   "statement": "在固定语料上做多轮重复采样训练，会表现出与『替换式坍塌』同类但更弱的分布尾部收缩，因为这是两份文献都未覆盖的第三种情形。",
+   "mechanism": "重复采样使有效样本独立性下降，梯度噪声的时间相关性上升，长尾事件在每轮中重复出现而非被新样本补充。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-GERSTGRASSER-2024",
+    "SRC-SHUMAILOV-2023"
+   ],
+   "assumptions": [
+    "尾部覆盖可以用留出分布的分位数或低频 token 上的 NLL 度量。"
+   ],
+   "boundary_conditions": [
+    "仅在单遍数据量不足、需要 3× 以上 epoch 时被触发。"
+   ],
+   "uncertainties": [
+    "文献未覆盖该区间，本假设为外推。"
+   ],
+   "prediction_ids": [
+    "P7"
+   ],
+   "rival_hypothesis_ids": [
+    "H-EPOCH-REPEAT-SAFE"
+   ]
+  },
+  {
+   "hypothesis_id": "H-EPOCH-REPEAT-SAFE",
+   "statement": "多轮重复采样固定语料不会导致尾部收缩，累积原则同样覆盖该情形。",
+   "mechanism": "只要真实数据不被合成数据替换，误差上界与迭代次数无关的结论对重复采样同样成立。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-GERSTGRASSER-2024"
+   ],
+   "assumptions": [
+    "重复采样不改变数据分布的支撑。"
+   ],
+   "boundary_conditions": [
+    "在 epoch 数远大于 1 时需要单独核验。"
+   ],
+   "uncertainties": [
+    "文献结论针对的是『新增代际』而非重复采样。"
+   ],
+   "prediction_ids": [
+    "P7"
+   ],
+   "rival_hypothesis_ids": [
+    "H-EPOCH-REPEAT-DEGRADES"
+   ]
+  },
+  {
+   "hypothesis_id": "H-HEAD-LEAKS-IDENTITY",
+   "statement": "联合训练认主对比头会使主干激活线性编码作者身份，可被线性探针以高于打乱标签基线的准确率读出。",
+   "mechanism": "对比损失对共享表示的梯度把作者判别方向写入主干。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "assumptions": [
+    "探针容量足以排除『测不出』与『无信息』的混淆。"
+   ],
+   "boundary_conditions": [
+    "仅在共享主干且解冻主干时预期成立。"
+   ],
+   "uncertainties": [
+    "梯度冲突程度未知。"
+   ],
+   "prediction_ids": [
+    "P8",
+    "P9"
+   ],
+   "rival_hypothesis_ids": [
+    "H-HEAD-CONTAINED"
+   ]
+  },
+  {
+   "hypothesis_id": "H-HEAD-CONTAINED",
+   "statement": "通过梯度隔离与参数分离，对比头可在不向主干写入身份信息的前提下达到同等判别力。",
+   "mechanism": "头独占参数子集，主任务与对比任务的梯度在主干上正交化。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "assumptions": [
+    "判别力不依赖主干被改写。"
+   ],
+   "boundary_conditions": [
+    "若判别力必须依赖主干改写，则该假设失败。"
+   ],
+   "uncertainties": [
+    "未提供 owner_corpus 规模。"
+   ],
+   "prediction_ids": [
+    "P8"
+   ],
+   "rival_hypothesis_ids": [
+    "H-HEAD-LEAKS-IDENTITY"
+   ]
+  },
+  {
+   "hypothesis_id": "H-MEM-DELETION-EXCLUDES-NEURAL",
+   "statement": "『写一条→删一条→查权重』删除演练构成 0/1 判据，测试时在线更新自身参数的记忆方案会在该判据上失败，外置可寻址记忆可过。",
+   "mechanism": "前者把数据写入参数，删除需从参数中移除信息；后者删除条目即移除信息。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-TITANS-2025",
+    "SRC-MEMLAYERS-2024"
+   ],
+   "assumptions": [
+    "删除演练在选型阶段即可执行。"
+   ],
+   "boundary_conditions": [
+    "仅在数据政策允许个人数据进入闭环时构成硬需求。"
+   ],
+   "uncertainties": [
+    "记忆层数据政策未提供。"
+   ],
+   "prediction_ids": [
+    "P10",
+    "P11"
+   ],
+   "rival_hypothesis_ids": [
+    "H-MEM-NEURAL-DELETABLE"
+   ]
+  },
+  {
+   "hypothesis_id": "H-MEM-NEURAL-DELETABLE",
+   "statement": "测试时在线更新的记忆方案可通过重训或撤销路径满足删除演练，因此不必在选型阶段淘汰。",
+   "mechanism": "权重级血统加有限重训预算可在可接受成本内撤销单条数据的贡献。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-TITANS-2025"
+   ],
+   "assumptions": [
+    "撤销成本可被限制在可接受区间。"
+   ],
+   "boundary_conditions": [
+    "取决于重训预算与条目数。"
+   ],
+   "uncertainties": [
+    "未提供端侧硬件与预算。"
+   ],
+   "prediction_ids": [
+    "P10"
+   ],
+   "rival_hypothesis_ids": [
+    "H-MEM-DELETION-EXCLUDES-NEURAL"
+   ]
+  },
+  {
+   "hypothesis_id": "H-BW-BOUND-NOT-FLOPS",
+   "statement": "在目标端侧硬件上，记忆方案的端到端首 token 延迟由内存搬运而非 FLOPs 决定，因此『不增 FLOPs』不能预测延迟。",
+   "mechanism": "原文明确记忆层为稀疏激活、几乎完全受内存带宽限制；稠密层才是 FLOP 受限。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-MEMLAYERS-2024"
+   ],
+   "assumptions": [
+    "目标端侧内存带宽与实测环境可比。"
+   ],
+   "boundary_conditions": [
+    "仅在实测硬件上成立。"
+   ],
+   "uncertainties": [
+    "端侧硬件型号未提供。"
+   ],
+   "prediction_ids": [
+    "P12"
+   ],
+   "rival_hypothesis_ids": [
+    "H-FLOPS-BOUND"
+   ]
+  },
+  {
+   "hypothesis_id": "H-FLOPS-BOUND",
+   "statement": "减少 FLOPs 即可线性降低端到端延迟，记忆层的『不增 FLOPs』足以预测其部署表现。",
+   "mechanism": "计算量与延迟成正比。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-MEMLAYERS-2024"
+   ],
+   "assumptions": [
+    "实测环境与端侧硬件一致。"
+   ],
+   "boundary_conditions": [
+    "在计算受限实现中可能成立。"
+   ],
+   "uncertainties": [
+    "未提供端侧硬件。"
+   ],
+   "prediction_ids": [
+    "P12"
+   ],
+   "rival_hypothesis_ids": [
+    "H-BW-BOUND-NOT-FLOPS"
+   ]
+  },
+  {
+   "hypothesis_id": "H-TRUNK-FROZEN-SUFFICES",
+   "statement": "冻结主干、只更新记忆与 adapter，即可复现全部个性化增益；主干权重不承载个性化。",
+   "mechanism": "个性化信息以检索条目与低秩适配的形式存在于主干之外。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-MEMLAYERS-2024"
+   ],
+   "assumptions": [
+    "个性化增益可在个人域留出集上度量。"
+   ],
+   "boundary_conditions": [
+    "若增益必须依赖主干改写，则该假设失败。"
+   ],
+   "uncertainties": [
+    "10M 记忆的容量口径未说明。"
+   ],
+   "prediction_ids": [
+    "P13"
+   ],
+   "rival_hypothesis_ids": [
+    "H-TRUNK-REWRITE-NEEDED"
+   ]
+  },
+  {
+   "hypothesis_id": "H-TRUNK-REWRITE-NEEDED",
+   "statement": "个性化增益需要主干权重参与改写，冻结主干的方案会触及能力天花板。",
+   "mechanism": "新能力需要在主干表示空间中重新组织，低秩适配与检索不足以表达。",
+   "status": "candidate",
+   "source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "assumptions": [
+    "天花板可被观测为增益饱和。"
+   ],
+   "boundary_conditions": [
+    "在增益未饱和前无法判定。"
+   ],
+   "uncertainties": [
+    "未提供记忆容量口径。"
+   ],
+   "prediction_ids": [
+    "P13"
+   ],
+   "rival_hypothesis_ids": [
+    "H-TRUNK-FROZEN-SUFFICES"
+   ]
+  }
+ ],
+ "causal_estimands": [
+  {
+   "estimand_id": "E1",
+   "linked_hypothesis_ids": [
+    "H-FREEZE-NECESSARY-AND-SUFFICIENT",
+    "H-LATENT-ONLY-SUFFICIENT"
+   ],
+   "population": "三值模型上执行结构操作的全部旧坐标",
+   "intervention_or_exposure": "冻结旧符号与该行 α 的结构操作",
+   "comparator": "仅保证 fp32 潜变量坐标不变的结构操作",
+   "outcome": "部署函数在冻结探针集上逐位相同的坐标占比与输出 KL（M-DEPLOY-BITEXACT）",
+   "time_horizon": "单次结构操作前后",
+   "population_summary": "两种结构操作口径下部署函数一致性比例的差值",
+   "intercurrent_event_strategy": "出现数值下溢或量化配置不一致的运行按预注册规则标记为不可解释",
+   "identification_assumptions": [
+    "探针集在操作前冻结；量化实现前后一致。"
+   ]
+  },
+  {
+   "estimand_id": "E2",
+   "linked_hypothesis_ids": [
+    "H-HEAD-LEAKS-IDENTITY",
+    "H-HEAD-CONTAINED"
+   ],
+   "population": "联合训练对比头之后的全体检查点",
+   "intervention_or_exposure": "共享主干并解冻的联合训练",
+   "comparator": "冻结主干、头独占参数的训练",
+   "outcome": "线性探针准确率相对打乱标签基线的超出量（M-PROBE-LEAK）",
+   "time_horizon": "每个训练阶段结束时",
+   "population_summary": "两种训练顺序下探针超出量的差值",
+   "intercurrent_event_strategy": "探针训练不收敛的运行标记为测不出，不计入无信息",
+   "identification_assumptions": [
+    "打乱标签基线在同等样本量下估计；探针容量固定。"
+   ]
+  }
+ ],
+ "predictions": [
+  {
+   "prediction_id": "P1",
+   "hypothesis_id": "H-NSTAR-BINDING",
+   "statement": "在 D=3.5e9、b=2 bit/param 下，adjusted rate 在 N≈0.4B 处取极小，之后单调上升。",
+   "observable": "按完整比特账算出的 adjusted rate 随 N 的曲线",
+   "conditions": "embedding 与尺度参数全部计入模型体积",
+   "expected_pattern": "极小点在 0.3B~0.5B 区间",
+   "falsifier": "在 1B 与 0.5B 上实测 adjusted rate 仍单调下降且差距超出噪声宽度",
+   "rival_hypothesis_ids": [
+    "H-NSTAR-NONBINDING"
+   ],
+   "measurement_ids": [
+    "M-BITS-ACCT",
+    "M-VALNLL"
+   ],
+   "analysis_ids": [
+    "A1"
+   ]
+  },
+  {
+   "prediction_id": "P2",
+   "hypothesis_id": "H-NSTAR-BINDING",
+   "statement": "1B 档成为压缩最优点需要约 11.5e9 token（现有语料的 3.3 倍），8B 档需要约 187e9（53 倍）。",
+   "observable": "按 D_needed(N,b)=N^1.34·b·ln2/(A·α) 算出的数据需求与实测方差的对照",
+   "conditions": "Hoffmann 常数适用于该语料",
+   "expected_pattern": "需求按 ×22 每十倍 N 增长",
+   "falsifier": "在 1B 上用 3.5e9 token 单遍即可超过 0.5B 的留出损失达 2σ 以上",
+   "rival_hypothesis_ids": [
+    "H-NSTAR-NONBINDING"
+   ],
+   "measurement_ids": [
+    "M-VALNLL"
+   ],
+   "analysis_ids": [
+    "A1"
+   ]
+  },
+  {
+   "prediction_id": "P3",
+   "hypothesis_id": "H-NSTAR-BINDING",
+   "statement": "若 Gate 1 保持『仅容量受限放行扩容』，0.4B 之后所有 plateau 都会被判为数据受限，Gate 1 变成永久否决。",
+   "observable": "逐级 Gate 1 分类结果的序列",
+   "conditions": "语料不增长",
+   "expected_pattern": "0.4B 之后连续 ≥2 级判为数据受限",
+   "falsifier": "0.4B 之后仍能观察到容量受限并放行扩容",
+   "rival_hypothesis_ids": [
+    "H-NSTAR-NONBINDING"
+   ],
+   "measurement_ids": [
+    "M-PLATEAU-TEST"
+   ],
+   "analysis_ids": [
+    "A2"
+   ]
+  },
+  {
+   "prediction_id": "P4",
+   "hypothesis_id": "H-EMB-SCOPE-DOMINANT",
+   "statement": "embedding 保持 fp16 时，0.2B 规模的有效 bits/param 为 5.5 而非 1.58，N* 从 411M 降到 193M。",
+   "observable": "按形状族算出的 b_eff 与两种配置下的 N*",
+   "conditions": "vocab≈49152 且 embedding 与 lm_head 共享",
+   "expected_pattern": "两种配置的 N* 相差 ≥2 倍",
+   "falsifier": "两种配置的 N* 相差 <30%",
+   "rival_hypothesis_ids": [
+    "H-EMB-SCOPE-NEGLIGIBLE"
+   ],
+   "measurement_ids": [
+    "M-BITS-ACCT"
+   ],
+   "analysis_ids": [
+    "A1"
+   ]
+  },
+  {
+   "prediction_id": "P5",
+   "hypothesis_id": "H-FREEZE-NECESSARY-AND-SUFFICIENT",
+   "statement": "在组共享 α 下，仅保证 fp32 潜变量坐标不变的结构操作会使旧坐标量化值发生系统性改变；冻结符号与行内 α 后改变为精确 0。",
+   "observable": "部署函数逐位一致比例与输出 KL",
+   "conditions": "共享 α；加宽比例同定",
+   "expected_pattern": "冻结方案的一致比例为 1.0；非冻结方案低于 1.0",
+   "falsifier": "非冻结方案的一致比例也为 1.0",
+   "rival_hypothesis_ids": [
+    "H-LATENT-ONLY-SUFFICIENT"
+   ],
+   "measurement_ids": [
+    "M-DEPLOY-BITEXACT",
+    "M-JUMP"
+   ],
+   "analysis_ids": [
+    "A3"
+   ]
+  },
+  {
+   "prediction_id": "P6",
+   "hypothesis_id": "H-FREEZE-NECESSARY-AND-SUFFICIENT",
+   "statement": "在加宽比例 t 下，存在 |W/α|>1.5/(1+t) 的坐标时必然发生确定性翻转，翻转不是概率事件。",
+   "observable": "翻转坐标占比随 t 的变化，与解析边界预测的对照",
+   "conditions": "共享 α，t 取 ≥4 个台阶",
+   "expected_pattern": "实测翻转占比与 1−P(|x|∈边界带) 的预测同阶",
+   "falsifier": "实测偏离解析预测超过 2 倍且无其他机制解释",
+   "rival_hypothesis_ids": [
+    "H-LATENT-ONLY-SUFFICIENT"
+   ],
+   "measurement_ids": [
+    "M-JUMP"
+   ],
+   "analysis_ids": [
+    "A3"
+   ]
+  },
+  {
+   "prediction_id": "P7",
+   "hypothesis_id": "H-EPOCH-REPEAT-DEGRADES",
+   "statement": "在固定语料上做 ≥3 轮重复采样，会在低频 token 或分布尾部上表现出相对单遍的额外损失上升，超出噪声宽度。",
+   "observable": "低频 token 分位的 NLL 随 epoch 数的变化",
+   "conditions": "同一语料、同一模型、同一评测集",
+   "expected_pattern": "尾部 NLL 随 epoch 上升，中部 NLL 基本持平",
+   "falsifier": "多轮 epoch 与单遍在尾部 NLL 上无差异",
+   "rival_hypothesis_ids": [
+    "H-EPOCH-REPEAT-SAFE"
+   ],
+   "measurement_ids": [
+    "M-TAILNLL",
+    "M-VALNLL"
+   ],
+   "analysis_ids": [
+    "A4"
+   ]
+  },
+  {
+   "prediction_id": "P8",
+   "hypothesis_id": "H-HEAD-LEAKS-IDENTITY",
+   "statement": "解冻主干联合训练后，主干激活上的线性探针准确率显著高于打乱标签基线；冻结主干时则不显著。",
+   "observable": "探针准确率差值的组间对比",
+   "conditions": "同一 owner_corpus、同一探针容量",
+   "expected_pattern": "两组的差值分布不重叠",
+   "falsifier": "两组的基线超出量差异落在噪声内",
+   "rival_hypothesis_ids": [
+    "H-HEAD-CONTAINED"
+   ],
+   "measurement_ids": [
+    "M-PROBE-LEAK"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P9",
+   "hypothesis_id": "H-HEAD-LEAKS-IDENTITY",
+   "statement": "对比任务的判别力会在剥离主题（主题匹配负样本）后显著下降，说明原设计部分学到的是主题捷径。",
+   "observable": "主题匹配重训前后的判别准确率",
+   "conditions": "正负样本主题分布受控",
+   "expected_pattern": "剥离主题后准确率下降超过噪声宽度",
+   "falsifier": "剥离主题后判别力不降反升或不变",
+   "rival_hypothesis_ids": [
+    "H-HEAD-CONTAINED"
+   ],
+   "measurement_ids": [
+    "M-PROBE-LEAK",
+    "M-HEAD-ACC"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P10",
+   "hypothesis_id": "H-MEM-DELETION-EXCLUDES-NEURAL",
+   "statement": "在删除演练的『查权重』环节，测试时在线更新参数的记忆方案会残留可检测的痕迹；外置寻址方案不会。",
+   "observable": "删除后权重行为上该条内容的可检出性",
+   "conditions": "注入内容格式规范且可构造探针",
+   "expected_pattern": "神经记忆残留、外置记忆不残留",
+   "falsifier": "两种方案在删除后都无残留或都有残留",
+   "rival_hypothesis_ids": [
+    "H-MEM-NEURAL-DELETABLE"
+   ],
+   "measurement_ids": [
+    "M-DELETE-DRILL"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P11",
+   "hypothesis_id": "H-MEM-DELETION-EXCLUDES-NEURAL",
+   "statement": "空记忆对照下，记忆增益应落在噪声宽度内；若空记忆也产生同等增益，则增益来自额外可训练模块而非记忆内容。",
+   "observable": "空记忆与满记忆的增益差",
+   "conditions": "同参数量、同前向开销",
+   "expected_pattern": "满记忆显著高于空记忆",
+   "falsifier": "空记忆的增益达到满记忆的同等水平",
+   "rival_hypothesis_ids": [
+    "H-MEM-NEURAL-DELETABLE"
+   ],
+   "measurement_ids": [
+    "M-MEMGAIN"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P12",
+   "hypothesis_id": "H-BW-BOUND-NOT-FLOPS",
+   "statement": "端到端首 token 延迟与 FLOPs 不成正比，而与搬运量成正比；减少 FLOPs 不预测延迟下降。",
+   "observable": "延迟、FLOPs 与搬运量的三方对照",
+   "conditions": "目标端侧硬件实测",
+   "expected_pattern": "延迟与搬运量的相关性显著高于与 FLOPs 的相关性",
+   "falsifier": "延迟与 FLOPs 的相关系数 ≥ 与搬运量的相关系数",
+   "rival_hypothesis_ids": [
+    "H-FLOPS-BOUND"
+   ],
+   "measurement_ids": [
+    "M-LATENCY-MEM"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P13",
+   "hypothesis_id": "H-TRUNK-FROZEN-SUFFICES",
+   "statement": "冻结主干、只更新记忆与 adapter 能复现个性化增益的大部分；解冻主干带来的额外增益落在噪声内。",
+   "observable": "冻结与解冻两组的个人域留出损失差",
+   "conditions": "同预算、同数据",
+   "expected_pattern": "差值落在噪声宽度内",
+   "falsifier": "解冻主干的额外增益持续超出 2σ",
+   "rival_hypothesis_ids": [
+    "H-TRUNK-REWRITE-NEEDED"
+   ],
+   "measurement_ids": [
+    "M-VALNLL",
+    "M-FREEZE"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P14",
+   "hypothesis_id": "H-BW-BOUND-NOT-FLOPS",
+   "statement": "单步耗时对 N 的斜率 x 落在 0.6~1.15 之间；据此外推的墙钟拐点落在 0.3B~0.5B 区间。",
+   "observable": "2~3 个规模各 50 步的 t_step 对数斜率",
+   "conditions": "同一台 64 核机器、同一实现",
+   "expected_pattern": "x 落在该区间",
+   "falsifier": "x < 0.6 或 > 1.15",
+   "rival_hypothesis_ids": [
+    "H-FLOPS-BOUND"
+   ],
+   "measurement_ids": [
+    "M-WALLTIME"
+   ],
+   "analysis_ids": [
+    "A6"
+   ]
+  },
+  {
+   "prediction_id": "P15",
+   "hypothesis_id": "H-NSTAR-BINDING",
+   "statement": "三值版本相对 fp16 版本在 64 核 CPU 上的单步加速比 s 若落在 0.9~1.1，说明 CPU 侧无带宽红利，拐点只受记账效应支配而提前。",
+   "observable": "同模型 fp16 与三值版的 50 步耗时比",
+   "conditions": "同机器、同 batch、同序列长度",
+   "expected_pattern": "s 可被稳定测出并复现",
+   "falsifier": "两次测量的 s 差异超过其自身置信区间",
+   "rival_hypothesis_ids": [
+    "H-NSTAR-NONBINDING"
+   ],
+   "measurement_ids": [
+    "M-WALLTIME"
+   ],
+   "analysis_ids": [
+    "A6"
+   ]
+  },
+  {
+   "prediction_id": "P16",
+   "hypothesis_id": "H-EPOCH-REPEAT-DEGRADES",
+   "statement": "在同一语料上跑累积式（新旧混合）与替换式（只用最新产出）两种闭环，替换式的尾部收缩幅度应大于累积式，而多轮重复采样落在两者之间。",
+   "observable": "三种数据管线下尾部 NLL 的相对变化",
+   "conditions": "同模型、同计算预算",
+   "expected_pattern": "替换 > 重复采样 > 累积",
+   "falsifier": "三者的尾部变化不可区分",
+   "rival_hypothesis_ids": [
+    "H-EPOCH-REPEAT-SAFE"
+   ],
+   "measurement_ids": [
+    "M-TAILNLL"
+   ],
+   "analysis_ids": [
+    "A4"
+   ]
+  },
+  {
+   "prediction_id": "P-R1",
+   "hypothesis_id": "H-NSTAR-NONBINDING",
+   "statement": "在 1B 档上用现有 3.5e9 token 单遍训练，留出损失比 0.5B 低 2σ 以上，且完整比特账下 adjusted rate 继续下降。",
+   "observable": "与对侧预测相同的可观测量",
+   "conditions": "与对侧预测相同的条件，仅焦点假设相反",
+   "expected_pattern": "支持该竞争假设的观测模式",
+   "falsifier": "观测结果落在对侧预测的模式内",
+   "rival_hypothesis_ids": [
+    "H-NSTAR-BINDING"
+   ],
+   "measurement_ids": [
+    "M-VALNLL"
+   ],
+   "analysis_ids": [
+    "A1"
+   ]
+  },
+  {
+   "prediction_id": "P-R2",
+   "hypothesis_id": "H-EMB-SCOPE-NEGLIGIBLE",
+   "statement": "按实际形状计算两种 embedding 量化配置下的 b_eff，两者相差小于 30%。",
+   "observable": "与对侧预测相同的可观测量",
+   "conditions": "与对侧预测相同的条件，仅焦点假设相反",
+   "expected_pattern": "支持该竞争假设的观测模式",
+   "falsifier": "观测结果落在对侧预测的模式内",
+   "rival_hypothesis_ids": [
+    "H-EMB-SCOPE-DOMINANT"
+   ],
+   "measurement_ids": [
+    "M-BITS-ACCT"
+   ],
+   "analysis_ids": [
+    "A1"
+   ]
+  },
+  {
+   "prediction_id": "P-R3",
+   "hypothesis_id": "H-LATENT-ONLY-SUFFICIENT",
+   "statement": "在逐行尺度下，只保证 fp32 潜变量坐标不变的结构操作即可使部署函数逐位一致，无需冻结符号。",
+   "observable": "与对侧预测相同的可观测量",
+   "conditions": "与对侧预测相同的条件，仅焦点假设相反",
+   "expected_pattern": "支持该竞争假设的观测模式",
+   "falsifier": "观测结果落在对侧预测的模式内",
+   "rival_hypothesis_ids": [
+    "H-FREEZE-NECESSARY-AND-SUFFICIENT"
+   ],
+   "measurement_ids": [
+    "M-DEPLOY-BITEXACT",
+    "M-JUMP"
+   ],
+   "analysis_ids": [
+    "A3"
+   ]
+  },
+  {
+   "prediction_id": "P-R4",
+   "hypothesis_id": "H-EPOCH-REPEAT-SAFE",
+   "statement": "在固定语料上跑 1/3/6 轮 epoch，尾部 NLL 的差异落在噪声宽度内。",
+   "observable": "与对侧预测相同的可观测量",
+   "conditions": "与对侧预测相同的条件，仅焦点假设相反",
+   "expected_pattern": "支持该竞争假设的观测模式",
+   "falsifier": "观测结果落在对侧预测的模式内",
+   "rival_hypothesis_ids": [
+    "H-EPOCH-REPEAT-DEGRADES"
+   ],
+   "measurement_ids": [
+    "M-TAILNLL",
+    "M-VALNLL"
+   ],
+   "analysis_ids": [
+    "A4"
+   ]
+  },
+  {
+   "prediction_id": "P-R5",
+   "hypothesis_id": "H-HEAD-CONTAINED",
+   "statement": "冻结主干、头独占参数的训练下，探针准确率的超出量与打乱基线不可分，同时头判别力达标。",
+   "observable": "与对侧预测相同的可观测量",
+   "conditions": "与对侧预测相同的条件，仅焦点假设相反",
+   "expected_pattern": "支持该竞争假设的观测模式",
+   "falsifier": "观测结果落在对侧预测的模式内",
+   "rival_hypothesis_ids": [
+    "H-HEAD-LEAKS-IDENTITY"
+   ],
+   "measurement_ids": [
+    "M-PROBE-LEAK"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P-R6",
+   "hypothesis_id": "H-MEM-NEURAL-DELETABLE",
+   "statement": "删除演练三步在测试时在线更新的记忆方案上全部通过，且撤销成本在预算内。",
+   "observable": "与对侧预测相同的可观测量",
+   "conditions": "与对侧预测相同的条件，仅焦点假设相反",
+   "expected_pattern": "支持该竞争假设的观测模式",
+   "falsifier": "观测结果落在对侧预测的模式内",
+   "rival_hypothesis_ids": [
+    "H-MEM-DELETION-EXCLUDES-NEURAL"
+   ],
+   "measurement_ids": [
+    "M-DELETE-DRILL"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P-R7",
+   "hypothesis_id": "H-FLOPS-BOUND",
+   "statement": "端到端首 token 延迟与 FLOPs 的相关系数不低于与搬运量的相关系数。",
+   "observable": "与对侧预测相同的可观测量",
+   "conditions": "与对侧预测相同的条件，仅焦点假设相反",
+   "expected_pattern": "支持该竞争假设的观测模式",
+   "falsifier": "观测结果落在对侧预测的模式内",
+   "rival_hypothesis_ids": [
+    "H-BW-BOUND-NOT-FLOPS"
+   ],
+   "measurement_ids": [
+    "M-LATENCY-MEM"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  },
+  {
+   "prediction_id": "P-R8",
+   "hypothesis_id": "H-TRUNK-REWRITE-NEEDED",
+   "statement": "解除主干冻结后，个人域留出损失相对冻结方案的额外改善持续超出 2σ，且随记忆容量增加而饱和，说明天花板由主干而非记忆决定。",
+   "observable": "冻结与解冻两组在个人域留出集上的损失差随记忆容量的变化",
+   "conditions": "同预算、同数据、记忆容量取三个台阶",
+   "expected_pattern": "解冻组的优势持续存在且在记忆容量增大后仍不消失",
+   "falsifier": "解冻组的额外增益随记忆容量增大而消失",
+   "rival_hypothesis_ids": [
+    "H-TRUNK-FROZEN-SUFFICES"
+   ],
+   "measurement_ids": [
+    "M-FREEZE",
+    "M-VALNLL"
+   ],
+   "analysis_ids": [
+    "A5"
+   ]
+  }
+ ],
+ "alternative_explanations": [
+  {
+   "alternative_id": "ALT1",
+   "statement": "观察到的边际收益衰减来自评测分辨率、训练步数或学习率调度，而非越过压缩最优点。",
+   "linked_hypothesis_ids": [
+    "H-NSTAR-BINDING"
+   ],
+   "risk_types": [
+    "measurement_bias"
+   ],
+   "discriminating_prediction_ids": [
+    "P1",
+    "P3"
+   ]
+  },
+  {
+   "alternative_id": "ALT2",
+   "statement": "扩容后的『更大但学得更慢』来自实现开销（优化器状态重建、kernel 未预热），而非增长算子质量。",
+   "linked_hypothesis_ids": [
+    "H-NSTAR-BINDING"
+   ],
+   "risk_types": [
+    "confounding"
+   ],
+   "discriminating_prediction_ids": [
+    "P14"
+   ]
+  },
+  {
+   "alternative_id": "ALT3",
+   "statement": "记忆增益来自额外可训练参数而非记忆内容。",
+   "linked_hypothesis_ids": [
+    "H-TRUNK-FROZEN-SUFFICES"
+   ],
+   "risk_types": [
+    "confounding"
+   ],
+   "discriminating_prediction_ids": [
+    "P11"
+   ]
+  },
+  {
+   "alternative_id": "ALT4",
+   "statement": "认主头的判别力来自主题或长度等表面特征，而非作者身份。",
+   "linked_hypothesis_ids": [
+    "H-HEAD-LEAKS-IDENTITY"
+   ],
+   "risk_types": [
+    "selection_bias"
+   ],
+   "discriminating_prediction_ids": [
+    "P9"
+   ]
+  }
+ ],
+ "null_hypotheses": [
+  {
+   "null_id": "N1",
+   "statement": "在 0.4B 之后继续扩容对留出损失的边际贡献不超过噪声宽度。",
+   "linked_prediction_ids": [
+    "P1",
+    "P2",
+    "P3",
+    "P15"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N2",
+   "statement": "adjusted rate 的极小点位置在 0.4B 与 2B 之间不可区分。",
+   "linked_prediction_ids": [
+    "P-R1"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N3",
+   "statement": "embedding 的量化范围不改变有效 bits/param 所对应的最优容量点。",
+   "linked_prediction_ids": [
+    "P4"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N4",
+   "statement": "两种 embedding 量化配置下的 bits/param 差值不超过 30%。",
+   "linked_prediction_ids": [
+    "P-R2"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N5",
+   "statement": "冻结符号与行内 α 相对仅保持潜变量坐标不变，在部署函数一致性上没有差异。",
+   "linked_prediction_ids": [
+    "P5",
+    "P6"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N6",
+   "statement": "在逐行尺度下，非冻结方案的部署函数一致比例与冻结方案相同。",
+   "linked_prediction_ids": [
+    "P-R3"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N7",
+   "statement": "多轮重复采样与单遍训练在分布尾部上无差异。",
+   "linked_prediction_ids": [
+    "P7",
+    "P16"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N8",
+   "statement": "重复采样相对累积管线在尾部 NLL 上没有差异。",
+   "linked_prediction_ids": [
+    "P-R4"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N9",
+   "statement": "联合训练后主干激活上的线性探针准确率与打乱标签基线不可分。",
+   "linked_prediction_ids": [
+    "P8",
+    "P9"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N10",
+   "statement": "冻结主干与解冻主干两组在探针超出量上没有差异，且判别力相同。",
+   "linked_prediction_ids": [
+    "P-R5"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N11",
+   "statement": "两种记忆方案在删除演练三步上的通过情况相同。",
+   "linked_prediction_ids": [
+    "P10",
+    "P11"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N12",
+   "statement": "测试时在线更新的记忆方案在删除演练上与空记忆对照表现相同。",
+   "linked_prediction_ids": [
+    "P-R6"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N13",
+   "statement": "端到端延迟与 FLOPs 的关联不低于与搬运量的关联。",
+   "linked_prediction_ids": [
+    "P12",
+    "P14"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N14",
+   "statement": "端到端延迟与搬运量的关联不高于与 FLOPs 的关联。",
+   "linked_prediction_ids": [
+    "P-R7"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N15",
+   "statement": "冻结主干与解冻主干在个人域留出损失上没有差异。",
+   "linked_prediction_ids": [
+    "P13"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  },
+  {
+   "null_id": "N16",
+   "statement": "解除主干冻结带来的额外增益随记忆容量增大而消失。",
+   "linked_prediction_ids": [
+    "P-R8"
+   ],
+   "rejection_or_compatibility_rule": "按预注册的区间估计判断；未拒绝不等于等价，等价需要预先给定的等效边界。"
+  }
+ ],
+ "negative_controls": [
+  {
+   "control_id": "NC-RANDLABEL",
+   "control_type": "negative_outcome",
+   "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+   "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+   "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路",
+   "linked_prediction_ids": [
+    "P1",
+    "P2",
+    "P7"
+   ]
+  },
+  {
+   "control_id": "NC-EMPTYMEM",
+   "control_type": "vehicle_or_sham",
+   "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+   "expected_result": "空记忆增益落在噪声宽度内",
+   "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容",
+   "linked_prediction_ids": [
+    "P11",
+    "P13"
+   ]
+  },
+  {
+   "control_id": "TEACHER-SWAP",
+   "control_type": "negative_exposure",
+   "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+   "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+   "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长",
+   "linked_prediction_ids": [
+    "P13"
+   ]
+  },
+  {
+   "control_id": "NC-AUTHOR-SHUFFLE",
+   "control_type": "procedural_negative",
+   "rationale": "打乱作者标签后重训同一对比头，用于校准探针与头部的随机基线。",
+   "expected_result": "打乱后判别力与探针准确率回到基线",
+   "failure_implication": "若打乱后仍保持高判别力，说明学到的是与作者无关的捷径",
+   "linked_prediction_ids": [
+    "P8",
+    "P9"
+   ]
+  },
+  {
+   "control_id": "NC-POISON-SHAM",
+   "control_type": "vehicle_or_sham",
+   "rationale": "注入一条良性但格式规范的记忆条目并跑一次闭环，与投毒条目对照。",
+   "expected_result": "良性条目不产生权重固化的可检测痕迹",
+   "failure_implication": "若良性条目同样被固化，则问题在闭环设计本身，与投毒无关",
+   "linked_prediction_ids": [
+    "P10"
+   ]
+  },
+  {
+   "control_id": "NC-RERUN",
+   "control_type": "procedural_negative",
+   "rationale": "同配置重跑并重复评测，用于估计评测噪声宽度。",
+   "expected_result": "同一检查点两次评测的差值给出噪声宽度 σ",
+   "failure_implication": "若 σ 大于任何预期效应，全部判定失去分辨力",
+   "linked_prediction_ids": [
+    "P1",
+    "P7",
+    "P8"
+   ]
+  }
+ ],
+ "operationalizations": [
+  {
+   "measurement_id": "M-VALNLL",
+   "construct": "能力保持与新增",
+   "variable": "val_nll",
+   "role": "outcome",
+   "operational_definition": "按能力域分别统计的验证集平均负对数似然，旧能力域与目标能力域分开报告。",
+   "instrument_or_method": "固定检查点的确定性前向评测",
+   "unit": "nat/token",
+   "timing": "每级扩容后与每次记忆更新后",
+   "population_or_system": "各阶段模型产物",
+   "validity_evidence_source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "reliability_plan": "同一检查点评测两次估计噪声宽度",
+   "missingness_plan": "无法评测的域按缺失报告，不插补",
+   "blinding_or_masking": "评测集在扩容方案确定前冻结",
+   "threshold_rationale": "不设固定阈值，全部以噪声宽度为参照"
+  },
+  {
+   "measurement_id": "M-WALLTIME",
+   "construct": "训练墙钟成本",
+   "variable": "wall_clock",
+   "role": "outcome",
+   "operational_definition": "固定步数窗口内的墙上时间，换算为 s/step 与每遍总时长。",
+   "instrument_or_method": "同一机器、同一实现、同一 batch 与序列长度下的计时",
+   "unit": "秒（s）",
+   "timing": "每档位扩容前",
+   "population_or_system": "64 核 CPU 与 GPU 基底",
+   "validity_evidence_source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "reliability_plan": "至少两次独立运行，取离散度作为置信区间",
+   "missingness_plan": "未测量档位标为缺失",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "以 30/90 天为预设不可行阈值"
+  },
+  {
+   "measurement_id": "M-BITS-ACCT",
+   "construct": "模型体积的完整比特记账",
+   "variable": "bits_per_param",
+   "role": "outcome",
+   "operational_definition": "逐行 α、分块 γ、embedding、lm_head、记忆层参数与索引全部折算为比特后除以参数量。",
+   "instrument_or_method": "对实际检查点做体积分解",
+   "unit": "bit/param",
+   "timing": "每档位确定配置后",
+   "population_or_system": "各档位模型产物",
+   "validity_evidence_source_ids": [
+    "SRC-BITNET158-2024",
+    "SRC-DELETANG-2023"
+   ],
+   "reliability_plan": "两种独立实现交叉核对",
+   "missingness_plan": "配置缺失时标为无法计算",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "无阈值，直接进入 adjusted rate"
+  },
+  {
+   "measurement_id": "M-DEPLOY-BITEXACT",
+   "construct": "部署函数一致性",
+   "variable": "bit_exact_fraction",
+   "role": "outcome",
+   "operational_definition": "结构操作前后，在冻结探针集上部署（量化后）输出的逐位相同比例。",
+   "instrument_or_method": "按位比较量化权重与量化前向输出",
+   "unit": "比例",
+   "timing": "每次结构操作前后",
+   "population_or_system": "三值模型（本测量项的最小充分描述）",
+   "validity_evidence_source_ids": [
+    "SRC-BITNET158-2024",
+    "SRC-NET2NET-2015"
+   ],
+   "reliability_plan": "确定性操作，重复运行应完全一致",
+   "missingness_plan": "不适用（该测量无缺失通路）",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "硬阈值 1.0"
+  },
+  {
+   "measurement_id": "M-JUMP",
+   "construct": "三值翻转引起的功能跳变",
+   "variable": "jump_magnitude",
+   "role": "outcome",
+   "operational_definition": "结构操作前后在探针集上的输出 KL，以及翻转坐标占比。",
+   "instrument_or_method": "固定探针集前向对比",
+   "unit": "nat 与比例",
+   "timing": "每次加宽操作",
+   "population_or_system": "三值模型（本测量项的最小充分描述）",
+   "validity_evidence_source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "reliability_plan": "同一加宽比例重复三次",
+   "missingness_plan": "加宽比例未记录时不可外推",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "与解析边界预测对照，偏离不超过 2 倍"
+  },
+  {
+   "measurement_id": "M-PLATEAU-TEST",
+   "construct": "plateau 成因分类",
+   "variable": "plateau_class",
+   "role": "mediator",
+   "operational_definition": "用优化配置变更、熵下限距离、扩容三条路径分别测试可达损失。",
+   "instrument_or_method": "三臂对照训练",
+   "unit": "分类标签",
+   "timing": "每级扩容前",
+   "population_or_system": "当前档位模型",
+   "validity_evidence_source_ids": [
+    "SRC-DELETANG-2023",
+    "SRC-HOFFMANN-2022"
+   ],
+   "reliability_plan": "每个分支至少两条独立路径",
+   "missingness_plan": "无法分类时记为不可判定",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "以噪声宽度为判据"
+  },
+  {
+   "measurement_id": "M-ENTROPY-FLOOR",
+   "construct": "语料熵下限",
+   "variable": "entropy_floor",
+   "role": "outcome",
+   "operational_definition": "用远大于目标规模的参考模型与强经典压缩器分别估计每 token 的下限。",
+   "instrument_or_method": "参考模型留出损失与强压缩器码长",
+   "unit": "nat/token",
+   "timing": "Gate 0/1 期间",
+   "population_or_system": "语料与参考模型",
+   "validity_evidence_source_ids": [
+    "SRC-DELETANG-2023"
+   ],
+   "reliability_plan": "两种独立锚点，取较低者作为保守上界",
+   "missingness_plan": "分词语料不可得时不可估计",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "取更低估计会系统性偏向停止扩容，须记录该方向"
+  },
+  {
+   "measurement_id": "M-PROBE-LEAK",
+   "construct": "主干是否编码作者身份",
+   "variable": "probe_accuracy_delta",
+   "role": "outcome",
+   "operational_definition": "冻结主干，在主干激活上训线性探针预测作者标签，报告准确率相对打乱标签基线的超出量。",
+   "instrument_or_method": "线性探针，容量受控",
+   "unit": "准确率差",
+   "timing": "S1/S2/S3 各阶段结束",
+   "population_or_system": "主干激活与作者标签",
+   "validity_evidence_source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "reliability_plan": "多种子重采样；探针容量消融",
+   "missingness_plan": "探针不收敛记为测不出，不计为无信息",
+   "blinding_or_masking": "探针训练与头部训练使用不同数据划分",
+   "threshold_rationale": "显著高于打乱基线即判不通过"
+  },
+  {
+   "measurement_id": "M-HEAD-ACC",
+   "construct": "认主头的判别力",
+   "variable": "head_accuracy",
+   "role": "outcome",
+   "operational_definition": "在留出的作者对上的二分类准确率与误接受率。",
+   "instrument_or_method": "固定阈值下的判别评测",
+   "unit": "准确率与误接受率",
+   "timing": "每阶段结束",
+   "population_or_system": "owner 与非 owner 文本",
+   "validity_evidence_source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "reliability_plan": "rule of three 决定最小负样本数",
+   "missingness_plan": "负样本不足时降低声称强度",
+   "blinding_or_masking": "负样本池在评测前冻结",
+   "threshold_rationale": "误接受率的可声称下界用于决定样本量"
+  },
+  {
+   "measurement_id": "M-DELETE-DRILL",
+   "construct": "删除权可执行性",
+   "variable": "delete_pass",
+   "role": "outcome",
+   "operational_definition": "写入一条 → 删除一条 → 检查记忆条目、检查权重行为、执行重训撤销三步。",
+   "instrument_or_method": "端到端演练",
+   "unit": "三态通过/失败",
+   "timing": "记忆方案选型阶段",
+   "population_or_system": "候选记忆方案",
+   "validity_evidence_source_ids": [
+    "SRC-TITANS-2025",
+    "SRC-MEMLAYERS-2024"
+   ],
+   "reliability_plan": "至少两条内容不同的条目重复",
+   "missingness_plan": "不适用（该测量无缺失通路）",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "0/1 硬判据，不做权衡"
+  },
+  {
+   "measurement_id": "M-LATENCY-MEM",
+   "construct": "记忆方案的端到端成本",
+   "variable": "first_token_latency",
+   "role": "outcome",
+   "operational_definition": "首 token 延迟 p50/p99、常驻内存峰值、以及搬运量与 FLOPs 的占比分解。",
+   "instrument_or_method": "目标端侧硬件实测",
+   "unit": "毫秒与字节",
+   "timing": "Gate 7 前",
+   "population_or_system": "目标端侧硬件与候选记忆方案",
+   "validity_evidence_source_ids": [
+    "SRC-MEMLAYERS-2024"
+   ],
+   "reliability_plan": "多次重复取分位",
+   "missingness_plan": "硬件未定时无法设定预算",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "由端侧硬件预算决定，当前为缺失"
+  },
+  {
+   "measurement_id": "M-TAILNLL",
+   "construct": "分布尾部覆盖",
+   "variable": "tail_nll",
+   "role": "outcome",
+   "operational_definition": "按 token 频率分位分层的留出 NLL，重点看最低频分位。",
+   "instrument_or_method": "分层评测（本测量项的最小充分描述）",
+   "unit": "nat/token",
+   "timing": "每轮 epoch 与每次闭环更新后",
+   "population_or_system": "留出集（本测量项的最小充分描述）",
+   "validity_evidence_source_ids": [
+    "SRC-SHUMAILOV-2023",
+    "SRC-GERSTGRASSER-2024"
+   ],
+   "reliability_plan": "分位边界在评测前冻结",
+   "missingness_plan": "低频覆盖不足时报告为不可估",
+   "blinding_or_masking": "不适用（该测量无掩蔽需求）",
+   "threshold_rationale": "与噪声宽度比较"
+  },
+  {
+   "measurement_id": "M-MEMGAIN",
+   "construct": "记忆内容带来的净增益",
+   "variable": "mem_gain_delta",
+   "role": "outcome",
+   "operational_definition": "满记忆与空记忆在个人域留出集上的损失差。",
+   "instrument_or_method": "配对评测（本测量项的最小充分描述）",
+   "unit": "nat/token",
+   "timing": "记忆训练收敛后",
+   "population_or_system": "加载记忆层的模型",
+   "validity_evidence_source_ids": [
+    "SRC-MEMLAYERS-2024"
+   ],
+   "reliability_plan": "多种子配对",
+   "missingness_plan": "不适用（该测量无缺失通路）",
+   "blinding_or_masking": "个人域留出集在记忆构建前冻结",
+   "threshold_rationale": "需超过 2σ 才算有效"
+  },
+  {
+   "measurement_id": "M-FREEZE",
+   "construct": "主干是否需要改写",
+   "variable": "freeze_vs_unfreeze_delta",
+   "role": "outcome",
+   "operational_definition": "冻结主干与解冻主干两组在同预算下的个人域损失差。",
+   "instrument_or_method": "两臂对照训练",
+   "unit": "nat/token",
+   "timing": "记忆协议定稿前",
+   "population_or_system": "0.5B 档模型",
+   "validity_evidence_source_ids": [
+    "SRC-ROUTE-DESC"
+   ],
+   "reliability_plan": "多种子（本测量项的最小充分描述）",
+   "missingness_plan": "不适用（该测量无缺失通路）",
+   "blinding_or_masking": "留出集冻结",
+   "threshold_rationale": "落在噪声宽度内则支持冻结方案"
+  }
+ ],
+ "analysis_plan": {
+  "analyses": [
+   {
+    "analysis_id": "A1",
+    "prediction_ids": [
+     "P1",
+     "P2",
+     "P4"
+    ],
+    "estimand_ids": [
+     "E1"
+    ],
+    "analysis_population": "各档位的完整比特账与留出损失",
+    "method": "按完整比特账计算 adjusted rate 随 N 的曲线，取极小点并与解析 N* 对照。",
+    "effect_or_summary_measure": "极小点位置与曲线斜率符号",
+    "uncertainty_method": "对 bits/param 的两种配置分别报告，不做平均",
+    "missing_data_plan": "配置缺失时报告为无法计算",
+    "multiplicity_plan": "仅一项确证性分析，不涉及多重比较",
+    "sensitivity_analyses": [
+     "embedding 量化与否两种配置",
+     "α/γ 存储格式的两种假设"
+    ],
+    "decision_rule": "只报告相容程度，不自动选择配置",
+    "exploratory_or_confirmatory": "confirmatory"
+   },
+   {
+    "analysis_id": "A2",
+    "prediction_ids": [
+     "P3"
+    ],
+    "estimand_ids": [],
+    "analysis_population": "逐级 Gate 1 分类序列",
+    "method": "记录每一级的 plateau 三分类结果与放行决定。",
+    "effect_or_summary_measure": "分类序列的转移模式",
+    "uncertainty_method": "分类本身带不确定性，报告为区间不报点",
+    "missing_data_plan": "不可判定记为独立类别",
+    "multiplicity_plan": "仅作探索性分析，不做事后多重比较校正",
+    "sensitivity_analyses": [
+     "改变 delta_acc 后的放行模式"
+    ],
+    "decision_rule": "若 0.4B 后连续两级判为数据受限，触发规则修订",
+    "exploratory_or_confirmatory": "confirmatory"
+   },
+   {
+    "analysis_id": "A3",
+    "prediction_ids": [
+     "P5",
+     "P6"
+    ],
+    "estimand_ids": [
+     "E1"
+    ],
+    "analysis_population": "结构操作前后的部署函数",
+    "method": "逐位比对与翻转占比统计，与解析边界预测对照。",
+    "effect_or_summary_measure": "一致比例与偏离倍数",
+    "uncertainty_method": "确定性操作，重复运行验证实现一致性",
+    "missing_data_plan": "加宽比例未记录时不可外推",
+    "multiplicity_plan": "每一级扩容均执行，不做跨级合并",
+    "sensitivity_analyses": [
+     "不同加宽比例"
+    ],
+    "decision_rule": "一致比例不等于 1.0 即判不通过",
+    "exploratory_or_confirmatory": "confirmatory"
+   },
+   {
+    "analysis_id": "A4",
+    "prediction_ids": [
+     "P7",
+     "P16"
+    ],
+    "estimand_ids": [],
+    "analysis_population": "同一语料在不同 epoch 数与不同数据管线下的检查点",
+    "method": "分层 NLL 随 epoch 与数据管线类型的变化。",
+    "effect_or_summary_measure": "尾部与中部分位的 NLL 斜率差",
+    "uncertainty_method": "多种子重采样",
+    "missing_data_plan": "低频分位样本不足时报告不可估",
+    "multiplicity_plan": "仅作探索性分析，不做事后多重比较校正",
+    "sensitivity_analyses": [
+     "分位边界的选择",
+     "epoch 数梯度"
+    ],
+    "decision_rule": "只报告现象，不据此断言坍塌",
+    "exploratory_or_confirmatory": "exploratory"
+   },
+   {
+    "analysis_id": "A5",
+    "prediction_ids": [
+     "P8",
+     "P9",
+     "P10",
+     "P11",
+     "P12",
+     "P13"
+    ],
+    "estimand_ids": [
+     "E2"
+    ],
+    "analysis_population": "认主头与记忆层的对照臂",
+    "method": "对照臂间的配对比较，全部以噪声宽度为分母。",
+    "effect_or_summary_measure": "组间差值的区间估计",
+    "uncertainty_method": "多种子与多划分",
+    "missing_data_plan": "未完成的臂标为缺失，不插补",
+    "multiplicity_plan": "按 Holm 校正控制族错误率",
+    "sensitivity_analyses": [
+     "探针容量",
+     "负样本难度分层"
+    ],
+    "decision_rule": "只报告相容程度（按预注册规则执行，不据结果调整）",
+    "exploratory_or_confirmatory": "confirmatory"
+   },
+   {
+    "analysis_id": "A6",
+    "prediction_ids": [
+     "P14",
+     "P15"
+    ],
+    "estimand_ids": [],
+    "analysis_population": "2~3 个规模的 50 步计时与 fp16/三值对照",
+    "method": "对数斜率拟合与加速比估计。",
+    "effect_or_summary_measure": "斜率 x 与加速比 s 及其置信区间",
+    "uncertainty_method": "重复运行取离散度",
+    "missing_data_plan": "未测规模标为缺失",
+    "multiplicity_plan": "按 Holm 校正控制族错误率",
+    "sensitivity_analyses": [
+     "不同 batch 与序列长度"
+    ],
+    "decision_rule": "据 x 与 s 更新拐点位置",
+    "exploratory_or_confirmatory": "confirmatory"
+   }
+  ],
+  "harking_control": "本记录在查看任何目标结果之前冻结；此后出现的候选、预测或分析一律标记为探索性并保留原始版本。",
+  "deviation_reporting": "保留原始计划，逐条记录偏离的日期、理由、决定人、结果知情状态与解释影响。"
+ },
+ "evidence": {
+  "ledger_path": "evidence_ledger_v3.csv",
+  "source_ids": [
+   "SRC-ROUTE-DESC",
+   "SRC-HOFFMANN-2022",
+   "SRC-DELETANG-2023",
+   "SRC-BITNET158-2024",
+   "SRC-MEMLAYERS-2024",
+   "SRC-TITANS-2025",
+   "SRC-GERSTGRASSER-2024",
+   "SRC-SHUMAILOV-2023",
+   "SRC-NET2NET-2015",
+   "SRC-BERT2BERT-2021",
+   "SRC-LIGO-2023"
+  ],
+  "search_boundary_id": "SEARCH-2026-10-14-B",
+  "evidence_limitations": [
+   "9 篇来源中 8 篇已核验到原文段落（arXiv HTML 全文），Shumailov 仅读到 arXiv 预印本摘要（Nature 正文付费墙）。",
+   "所有引用的数字均来自原文文本层，但公式被 HTML 转换剥离处以 [MATH] 标记，未逐式复核。",
+   "Hoffmann 常数在 <100M 参数与不同分词器上的外推未经核验。",
+   "多轮重复采样（固定语料多 epoch）在 Shumailov 与 Gerstgrasser 两份文献中均未覆盖，属未覆盖区间。",
+   "Titans 深层记忆的吞吐代价只以图 8 呈现，数值未提取，本记录不使用该数字。"
+  ]
+ },
+ "risk_register": {
+  "confounding": [
+   "扩容后的收益中含实现开销（优化器状态重建、kernel 预热、批大小变化），可能被误读为扩容带来的能力。",
+   "记忆层带来的增益中含“多了一个可训练模块”这一成分，与记忆内容本身的贡献相混淆。"
+  ],
+  "selection_bias": [
+   "认主头的负样本若以主题匹配为主，头可能学成主题分类器而非身份判别器，使判别力被高估。",
+   "只在训练分布上评测会把拟合误读为泛化。"
+  ],
+  "collider_bias": [
+   "以“探针准确率高”同时作为泄露证据与判别力证据，会对同一可观测量的两个下游筛选条件同时条件化。"
+  ],
+  "reverse_causation": [
+   "主干表示中作者方向的出现与对比头的训练互为因果，单一时点的探针测量不能确定方向。"
+  ],
+  "measurement_bias": [
+   "评测分辨率不足时，扩容的边际收益为零无法与分辨率极限区分。",
+   "只比 pre-softmax logits 的测试会通过而比输出分布的测试会失败，两者给出相反结论。"
+  ],
+  "other": [
+   "Gate 1 在语料受限时会成为永久否决，与“逐级扩容到 8B”的主干设定互斥。",
+   "测试时在线更新参数的记忆方案会把个人数据写入参数，与个人数据删除权存在治理冲突。"
+  ]
+ },
+ "ethics_and_feasibility": {
+  "human_subjects_gate": "not_applicable",
+  "animal_research_gate": "not_applicable",
+  "biosafety_gate": "not_applicable",
+  "dual_use_gate": "not_applicable",
+  "regulatory_gate": "not_applicable",
+  "data_governance_gate": "requires_review",
+  "feasibility_status": "requires_pilot",
+  "required_reviews": [
+   "数据治理评审：记忆层数据政策与个人数据删除权（用户红线：个人数据绝不出境，云端只跑公开信源）"
+  ],
+  "unresolved_blocks": [
+   "记忆层数据政策未提供，Gate 6/7/8 全部受阻"
+  ]
+ },
+ "ai_use": {
+  "used": true,
+  "sensitive_or_unpublished_data_sent_externally": false,
+  "local_policy_checked": true,
+  "citation_verification_required": true,
+  "human_accountable": true,
+  "diversity_mitigation": "本记录的候选假设与竞争解释由本次分析一并生成，未经人类独立先行提出；在据其设计实验之前，应由人类研究者独立写出候选集并与本记录比对。"
+ }
+}

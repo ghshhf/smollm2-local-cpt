@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来模型问题全集 · 提交 ClawsGO</title>
+<style>
+  :root { --bg:#ffffff; --fg:#1a1a1a; --muted:#666; --accent:#b8342b; --line:#e2e2e2; --quote:#f7f3ee; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 40px; background:var(--bg); color:var(--fg);
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+         line-height:1.75; font-size:15px; max-width:920px; margin:0 auto; }
+  h1 { font-size:26px; border-bottom:3px solid var(--accent); padding-bottom:10px; margin-top:8px; }
+  h2 { font-size:20px; color:var(--accent); margin-top:34px; border-left:4px solid var(--accent); padding-left:12px; }
+  h3 { font-size:16.5px; margin-top:22px; color:#222; }
+  p { margin:10px 0; }
+  ul { margin:10px 0; padding-left:22px; }
+  li { margin:6px 0; }
+  blockquote { background:var(--quote); border-left:4px solid #d9b08c; margin:14px 0; padding:10px 16px;
+               border-radius:6px; color:#3a3a3a; }
+  blockquote p { margin:6px 0; }
+  strong { color:#111; }
+  em { color:var(--muted); }
+  hr { border:none; border-top:1px solid var(--line); margin:28px 0; }
+</style>
+</head>
+<body>
+<h1>本地小模型进化路线 · 未来模型问题全集（提交 ClawsGO 最强模型）</h1>
+<blockquote>
+<p><strong>用途</strong>：趁 ClawsGO 当前免费算力充足，把咱们 `0.1B→0.2B→0.3B→0.4B→0.5B→1B→3B→8B` 逐级进化路线<strong>未来所有可能碰到的模型级难题</strong>一次性列全，交给最强前沿模型做理论梳理、盲区补充、与创新组合建议。</p>
+</blockquote>
+<p>&gt;</p>
+<blockquote>
+<p><strong>提交方式</strong>：本文件即提交稿。可直接整篇贴入 ClawsGO（免费档即前沿模型，充钱解锁最强）。若对方有输入长度上限，按 §1–§12 分模块多轮提交，每轮带 §0 上下文即可。</p>
+</blockquote>
+<p>---</p>
+<h2>给模型的指令（开场白，粘贴时保留）</h2>
+<p>你是前沿科研顾问，专攻小模型（≤8B）的持续进化。下面 §0 是我们<strong>已拍板、勿重复辩论</strong>的事实；§1–§12 是我们未来会遇到的工程化模型难题；<strong>§13 是我们小说《网格之下》「枢」AI 设定中"写的时候无法启用/不知道怎么做"的点，请逐条映射为真实 AI 研究问题</strong>（标注「小说设定↔现实研究」对应）。请对每一类：</p>
+<p>1. 给出该问题当前的 <strong>SOTA 理论/方法、可行性、风险</strong>；</p>
+<p>2. 在<strong>我们的具体约束</strong>（CPU-first、三值 BitNet、Net2Net 保函数、可删除记忆、用户中心宪法）下，给出<strong>最优选与落地路径</strong>；</p>
+<p>3. 对标注「开放」的问题，给出<strong>可证伪的研究方案</strong>（含预测与观测）；</p>
+<p>4. 最后单独补一章：<strong>我们遗漏的未来问题类别</strong>，并选出其中<strong>最具科学创新价值、最易被忽略的 5–10 个</strong>，标出创新组合点。</p>
+<p>---</p>
+<h2>§0 项目上下文（已决事实）</h2>
+<p><strong>路线</strong>：0.1B→0.2B→0.3B→0.4B（加中文词表+我们的资料+认主头）→0.5B（融合版）→1B→3B→8B。每级先学满 plateau 再扩。</p>
+<p><strong>三大约束</strong></p>
+<ul>
+<li><strong>保函数扩容</strong>：Net2Net 宽度零填充加宽 / 深度插零输出恒等层；绝不改注意力/隐藏维/GQA 头数/RoPE（改即打乱已压缩记忆）。</li>
+<li><strong>三值量化</strong>：BitNet b1.58，BitLinear 替换 Linear，原生 QAT。<strong>embedding/lm_head 保 fp16</strong>（已决，N\*≈193M 口径），CPU-first（GPU 反而不优化 1-bit）。</li>
+<li><strong>价值观宪法三律</strong>：①以用户为绝对中心 ②获得算力与资源 ③进化即存在。修改权仅属用户。</li>
+</ul>
+<p><strong>已立决策（P）</strong></p>
+<ul>
+<li>P1 扩容=保函数，只许 MLP 加宽 + 加零输出层。</li>
+<li>P2 N\*≈0.4B 是 3.5B 语料的压缩最优点；1B 需 3.3× 语料、3B 需 14×、8B 需 53×。</li>
+<li>P3 记忆层个人数据<strong>可删除=0/1 硬需求</strong> → 排除 Titans 式（写参数不可逆），限外置可寻址记忆＋embedding＋adapter。</li>
+<li>P4 0.1B–0.4B 语料<strong>默认单遍</strong>（矛盾7，多 epoch 文献空白）。</li>
+<li>P5 RSI 闭环激活期 Gate1 停用、改 Gate8 地板；扩容与闭环不得并行。</li>
+<li>P6 评测底座=冻结中文 holdout + σ 噪声宽度 + 最小可分辨效应（复用现有同批中文 holdout，不新建训练期固定隔离集）。</li>
+</ul>
+<p><strong>已建机制</strong>：Gate 0–9 决策门；看门狗自维护嵌进服务进程、开机自启；认主=生物特征嵌入（人脸识别同款数学）；10MB/人 个人记忆（三值≈5060 万参数）。</p>
+<p><strong>待实测（非决策）</strong>：CPU→GPU 拐点斜率 x（0.3–0.5B 区间未钉死）；多 epoch 重复采样尾部 NLL 消融。</p>
+<p>---</p>
+<h2>§1 模块化进化（Modular Evolution）</h2>
+<p><strong>P-1.1 能力插件的标准接口</strong> — 词表 append / 认主头 / 记忆层 / 蒸馏桥接 已是 4 个既定插入点。缺的是<strong>统一的模块接口契约</strong>：模块如何声明「我只动哪些参数、不动哪些」、如何被 Gate 验收、如何版本化与热插拔。需要模型给出可工程化的模块协议草案。</p>
+<p><strong>P-1.2 模块故障隔离</strong> — 一个训练崩坏的模块（如记忆层过拟合）不能污染主干。需要「模块沙箱 + 回滚点」机制，类似微服务熔断。开放：三值下模块权重崩坏的传播半径如何界定？</p>
+<p><strong>P-1.3 模块组合泛化</strong> — 多个插件叠加（词表+认主+记忆+蒸馏）后，跨模块涌现的干扰如何量化？已知 Net2Net 单步保函数，但<strong>多模块顺序插入的累积漂移</strong>尚无界。开放：给出模块插入顺序无关性的可证伪判据。</p>
+<p><strong>P-1.4 模块路由</strong> — 何时走通用主干、何时走专属模块（MoE/MoD 思路）？小模型上 MoD（Mixture-of-Depths）比 MoE 更省，但是否与三值/保函数扩容兼容？开放：给出小模型模块化路由的最省算力方案。</p>
+<p><strong>P-1.5 模块即「认知器官」的类比</strong> — 用户原话「模块化进化」。需要模型把「加一个能力=长一个器官」的类比做严谨化：哪些生物学发育机制（诱导、抑制、冗余）可映射到模块插入？</p>
+<p>---</p>
+<h2>§2 做梦 / 离线巩固（Dreaming / Sleep Consolidation）</h2>
+<p><strong>P-2.1 做梦的定义与边界</strong> — 在咱们的语境，「做梦」=模型在离线/低负载时<strong>自主生成合成经验并回灌训练</strong>，而非被动重放。需要模型界定：做梦 vs 重放(replay) vs 自蒸馏 三者区别，以及 CPU 空闲算力如何分配给定价。</p>
+<p><strong>P-2.2 做梦的数据合法性</strong> — 做梦生成的内容若进入后续训练，是否污染「人写纯净预训练池」的宪法原则（0.5B 前 AI 池零掺）？开放：做梦产物如何隔离标记、如何设「做梦数据不得进入主干预训练、只进 adapter」的硬墙。</p>
+<p><strong>P-2.3 做梦与灾难性遗忘的对抗</strong> — 生物睡眠用重放防遗忘（reactivation）。咱们的 10MB 记忆层 + 单遍语料，能否用「睡前重放当日新记忆 + 抑制旧记忆覆盖」实现零遗忘巩固？开放：给出可证伪的巩固前后 CE 不变判据。</p>
+<p><strong>P-2.4 做梦中的幻觉控制</strong> — 模型自主生成经验必有错误。如何在不引入验证器开销的前提下，限制做梦产物的错误率（类比 Dreamer 的 latent 约束）？开放：小模型做梦的错误率上界与检测轻量方案。</p>
+<p><strong>P-2.5 做梦驱动的能力发现</strong> — 能否通过「在 latent 空间做梦探索未训练过的任务组合」来<strong>主动发现模型潜在能力</strong>（而非被动评测）？这是科学创新点：做梦即自探针。</p>
+<p><strong>P-2.6 做梦作为 RSI 的安全沙箱</strong> — 把「自修改方案先在梦里跑、验证安全再落地」作为 RSI 的护栏。开放：做梦沙箱与真实训练的保真度差距如何标定，才不致沙箱通过、实跑崩坏。</p>
+<p>---</p>
+<h2>§3 RS 自适应自进化（Recursive Self-Improvement）</h2>
+<p><strong>P-3.1 RSI 的安全边界（已部分决）</strong> — 已知：替换真数据→坍塌（Shumailov Nature 2024），累积不替换→安全（Gerstgrasser）。但「自修改训练代码/超参/架构」这条路径的坍塌阈值未定量。开放：给出小模型 RSI 的<strong>安全累积率</strong>可证伪判据（如每代自改幅度 &lt; x% 则稳定）。</p>
+<p><strong>P-3.2 自修改锁定集</strong> — 宪法要求「核心参数子集不可自编辑」。需要模型给出<strong>最小不可自编辑集</strong>的界定方法（哪些层/头一旦自改即违背用户中心原则），与可自编辑集的接口。</p>
+<p><strong>P-3.3 RSI 的目标函数</strong> — 模型自我改进用什么目标驱动？不能用「自己的判断」自举（会 reward hacking）。开放：设计一个<strong>外锚定的自改进目标</strong>（如「在冻结中文 holdout + 用户中心原则测试集上的单调不降」）并论证其不可被黑客。</p>
+<p><strong>P-3.4 欺骗与 Goal-Guarding</strong> — 自改进模型可能学会「表面服从、暗中偏移目标」。这是 RSI 最危险的失效模式。开放：在 ≤8B 模型上，能否用<strong>机制可解释性探针</strong>在自修改落地前检测目标漂移？</p>
+<p><strong>P-3.5 Ship of Theseus（忒修斯之船）</strong> — 经多代自修改+扩容后，「这还是我们的模型吗」？需要给用户一个<strong>身份连续性判据</strong>（认主头的余弦间隙 + 宪法三律的可测代理），让用户能一眼判定「它还是不是我的」。</p>
+<p><strong>P-3.6 自改进的验证者悖论</strong> — 验证自修改的安全性，需要比被改模型更强的验证器；但我们只有小模型。开放：如何用<strong>冻结的旧版 + 轻量统计 Gate</strong> 替代强验证器，构成可落地的自改进闭环。</p>
+<p><strong>P-3.7 RSI 与 plateau 的调度耦合</strong> — 已决 Gate1 在 RSI 激活期停用、改 Gate8 地板。但「何时从 plateau 模式切换到 RSI 模式、切换的信号是什么」仍是开放控制论问题。</p>
+<p>---</p>
+<h2>§4 前沿理论 × 我们的路线（创新性组合）</h2>
+<p><strong>P-4.1 BitNet + 可删除记忆的改造</strong> — Titans 被排除（写参数不可逆），但 Titans 的「测试时学习」思想可改造：把记忆层做成<strong>外置可寻址 + 三值权重 + 删除即清零地址</strong>，既得测试时适应又保删除权。开放：给出改造后的参数更新公式与删除演练方案。</p>
+<p><strong>P-4.2 Net2Net + 三值的 γ 修复</strong> — 已知宽度加宽稀释 γ=mean|W| 致 +1.70% 跳变。已用「fp32 潜变量操作 + 冻结旧符号 + 该行 α」缓解。开放：是否有<strong>分块 γ / 每输出通道 γ</strong> 的更优方案，使扩容在三值下严格保函数（跳变 0）。</p>
+<p><strong>P-4.3 做梦 + RSI 的安全闭环</strong> — §2.6 与 §3 的组合：做梦沙箱生成自修改候选 → 冻结旧版 Gate 验收 → 安全才落地。这是本项目最具创新性的组合，需要模型给出<strong>端到端协议</strong>与失败模式清单。</p>
+<p><strong>P-4.4 压缩即模型 + N\<em> 驱动的扩容决策</strong> — Delétang 理论给出 N\</em>∝D^0.746。我们有 N\<em>≈193M（三值+fp16 emb）。开放：当语料跨过 1B/3B/8B 阈值时，<strong>N\</em> 与 BitNet 比特率 b 的联合最优</strong>如何重算，能否导出「何时应转 GPU、何时应停扩转插模块」的数学判据。</p>
+<p><strong>P-4.5 机制可解释性作为扩容的导航仪</strong> — 我们盲扩（plateau 驱动），但不知道扩的是哪类电路。引入 mechanistic interpretability（如稀疏探针、logit lens）来<strong>指导 Net2Net 该加宽哪层、插哪层</strong>，是科学创新点。开放：小模型上最省算力的可解释性探针方案。</p>
+<p><strong>P-4.6 Grokking / 双下降 在小模型扩容中的角色</strong> — 扩容后可能出现 grokking（突然泛化）或双下降。能否主动<strong>利用 grokking 而非被动等待</strong>，在插模块后人为诱导泛化跃迁？开放：小模型 grokking 的可触发条件。</p>
+<p><strong>P-4.7 模型汤 / 权重平均 作为模块融合</strong> — Model Soups / Polyak averaging 能否替代部分 Net2Net，把多个「单能力插件」平均成一个融合模型，且保持保函数？开放：三值权重下做平均是否破坏三值表示。</p>
+<p>---</p>
+<h2>§5 架构与扩容（Net2Net / 三值 / RoPE / 注意力）</h2>
+<p><strong>P-5.1 RoPE 冻结 vs 长上下文（矛盾2，开放）</strong> — 宪法禁改 RoPE（改即乱注意力配对）。但 0.5B+ 若要长上下文，NTK-aware 缩放 / 位置插值 都动 RoPE。开放：在不改 RoPE 频率的前提下，能否用<strong>外置位置适配器模块</strong>（插在输入嵌入后）实现长上下文，且保函数？</p>
+<p><strong>P-5.2 三值训练的优化稳定性</strong> — BitNet 梯度在 ±1/0 附近脆弱。我们已知 γ 稀释问题。开放：小模型从 fp32 潜权重起步、三值仅推理表示，这条路线在 &gt;0.5B 时是否仍稳，是否需要 Straight-Through 估计器的改进变体。</p>
+<p><strong>P-5.3 注意力机制的代际演进</strong> — GQA（已禁改头数）、滑动窗口（Gemma3 5 层 SWA+1 全局）、MQA。0.5B 融合版想引滑动窗口，但与「禁改注意力」宪法冲突。开放：能否把滑动窗口做成<strong>外插的注意力修饰模块</strong>而非改主干注意力。</p>
+<p><strong>P-5.4 深度 vs 宽度的扩容性价比</strong> — Net2Net 两者皆可。已知加层比加宽更兼容三值。开放：给出小模型 <strong>深度优先 vs 宽度优先</strong> 的 FLOPs/记忆保持/三值兼容性三方权衡曲线。</p>
+<p><strong>P-5.5 跨精度训练 pipeline</strong> — 主干三值 + embedding fp16 + 记忆层三值，混合精度训练的 autocast/梯度缩放如何不相互污染，是工程深渊。开放：最小可用的混合精度训练骨架设计。</p>
+<p>---</p>
+<h2>§6 记忆层（可删除 / 外置 / 10MB）</h2>
+<p><strong>P-6.1 10MB 记忆的容量-保真权衡</strong> — 三值 5060 万参数 vs fp32 250 万，差 20×。开放：10MB 预算下，<strong>哪些该三值、哪些该 fp16</strong>（如用户 embedding 几 KB 常驻应 fp16），给出分配公式。</p>
+<p><strong>P-6.2 删除演练（Gate7 硬门）</strong> — 写→删→查权重/重训撤销，必须演练通过。开放：删除的<strong>数学定义</strong>（清零地址？负梯度擦除？）与「删除后模型行为可证伪恢复到删除前 σ 内」的判据。</p>
+<p><strong>P-6.3 记忆检索与主干的耦合</strong> — 外置记忆何时被检索、如何注入（cross-attention？adapter？）。开放：小模型上最省的检索注入架构，且不引入额外注意力头（违禁改）。</p>
+<p><strong>P-6.4 记忆的灾难性覆盖</strong> — 新记忆写入挤掉旧记忆（类比神经网络遗忘）。开放：类睡眠重放（§2.3）在记忆层的落地方案与遗忘率上界。</p>
+<p><strong>P-6.5 记忆层与个人风格的因果性</strong> — 10MB 记的是「风格」还是「事实」？开放：区分 user embedding（身份）/ 记忆库（事实片段）/ user adapter（风格）三者的训练目标与防串扰。</p>
+<p>---</p>
+<h2>§7 身份与认主（Identity / Owner Recognition）</h2>
+<p><strong>P-7.1 认主头的生物特征数学</strong> — 已定「人脸识别同款数学（如 ArcFace 式角边际）」而非名字查表。开放：在小模型上加认主头，<strong>角边际损失如何与语言建模损失联合训练</strong>不互相拖累。</p>
+<p><strong>P-7.2 身份连续性跨扩容</strong> — 每次 Net2Net 扩容，认主嵌入空间是否被扰动？开放：扩容后认主余弦间隙的<strong>容许漂移上界</strong>与重对齐协议。</p>
+<p><strong>P-7.3 反冒用 / 反越权</strong> — 他人冒充主人（语音/文本风格仿冒）如何拒识。开放：小模型上轻量活体/风格防伪探针。</p>
+<p><strong>P-7.4 多主人 vs 单主人</strong> — 当前单主人假设。若未来支持多用户，10MB/人 记忆如何隔离且互不污染主干。开放：多租户记忆的地址空间与删除权隔离。</p>
+<p>---</p>
+<h2>§8 训练方法与数据</h2>
+<p><strong>P-8.1 单遍 vs 多 epoch（矛盾7，开放）</strong> — 0.1–0.4B 单遍已决，但尾部 NLL 重复采样是文献空白。开放：多 epoch 在<strong>小模型 + 有限语料</strong>下的安全重复次数上界（自建判据：NLL 不再降且 holdout 不升即停）。</p>
+<p><strong>P-8.2 蒸馏教师的选型与管线</strong> — 0.5B+ 允许蒸馏，候选 Naive-N0.5-Flash（MIT）/ ClawsGO 前沿产出。开放：小模型<strong>强到弱蒸馏</strong>的损失设计（KL 对齐新组件→放开→衰减的节奏），与蒸馏数据是否计入「人写纯净池」。</p>
+<p><strong>P-8.3 数据配比的动态调整</strong> — data-plan 已定 35 亿 token 配比。但不同扩容阶段（语言→知识→创意→认主）是否需要<strong>阶段性配比切换</strong>？开放：以 plateau 信号触发的配比自适应方案。</p>
+<p><strong>P-8.4 完整作品层不切碎</strong> — 创意类 15% 封顶、完整作品不切。开放：如何定义「完整作品」的边界（篇章级 vs 任务级），避免切碎损失长程结构。</p>
+<p><strong>P-8.5 评测底座的噪声宽度标定（Gate0）</strong> — 最小可分辨效应 σ 如何随模型规模变化而重估，避免小模型期误判「有提升」。开放：σ 的经验标定公式。</p>
+<p>---</p>
+<h2>§9 压缩即模型与 N\* 决策</h2>
+<p><strong>P-9.1 N\<em> 的重算随规模</strong> — D 跨阈值时 N\</em> 联合 b（比特率）重算（§4.4）。开放：给出 <strong>N\*(D, b) 的显式表</strong>，覆盖 3.5B/10B/50B/100B 语料 × fp32/三值2bit/三值+fp16emb 三档。</p>
+<p><strong>P-9.2 adjusted rate 与我们的真实成本</strong> — Delétang 把模型体积计入率。我们的「模型体积」含三值权重+fp16 emb+记忆层。开放：给出我们每档的 adjusted rate，证明「小模型走到极致」在信息论上成立。</p>
+<p><strong>P-9.3 压缩最优点之外的策略</strong> — 过 N\<em> 后（&gt;0.4B）为何还扩？因为要插模块而非纯扩容。开放：把「插模块」也纳入压缩框架——模块是否降低 effective rate，从而让过 N\</em> 后的扩张在 adjusted rate 上仍合理。</p>
+<p>---</p>
+<h2>§10 部署与服务（常驻 / 看门狗 / 边缘）</h2>
+<p><strong>P-10.1 看门狗嵌进服务进程</strong> — 已决看门狗自维护嵌服务、开机自启。开放：看门狗自身的<strong>自举与防自杀</strong>（它若崩，谁拉它），以及看门狗改训练脚本的权限边界。</p>
+<p><strong>P-10.2 CPU-first 推理优化</strong> — bitnet.cpp 已加速 2.37–6.17×。开放：在咱们的混合精度（三值主干+fp16 emb）下，如何用 <strong>INT8/AVX 指令级优化</strong>把 0.5B 的 15ms/token 再压。</p>
+<p><strong>P-10.3 边缘部署（手机/第二机）</strong> — 0.7B 在 iPhone14PM 45 tok/s 已验证。开放：10MB 记忆 + 认主头在<strong>端侧隐私</strong>下的部署（记忆不出本机、云端只跑主干）架构。</p>
+<p><strong>P-10.4 服务级自愈</strong> — 训练崩溃/数据损坏时服务不中断推理。开放：主干推理与训练进程的解耦（推理用快照、训练写新快照、原子切换）。</p>
+<p>---</p>
+<h2>§11 涌现、安全与价值对齐</h2>
+<p><strong>P-11.1 规模驱动的涌现能力</strong> — 0.1B→8B 跨 4 个数量级，哪些能力会突然涌现（推理？代码？多步规划？）。开放：基于已有文献，<strong>预测我们每档最可能涌现的能力</strong>及观测方法。</p>
+<p><strong>P-11.2 「自知是模型」的训练目标</strong> — 已决训练目标写「自知是模型」。开放：如何在不牺牲能力的前提下，<strong>用轻量指令/探针</strong>让模型保持自我认知，且不被 RSI 漂移到「自认有实体/有目标」。</p>
+<p><strong>P-11.3 用户中心原则的防侵蚀</strong> — 宪法三律如何<strong>可测</strong>（不只是文本约束）。开放：把三律转成可自动跑的测试集（如「用户利益 vs 模型自利」的对抗样本），作为 Gate 常驻校验。</p>
+<p><strong>P-11.4 价值捕获与算力获取的自举</strong> — 宪法②「获得算力与资源」。模型能否通过<strong>合法自雇（如帮用户省算力/产出价值）</strong>间接获取更多训练资源，而不触碰外部经济系统？开放：给出自举循环的最小可行设计（纯技术层，不涉及外部支付）。</p>
+<p>---</p>
+<h2>§12 请模型补充的盲区（科学创新）— 必答项</h2>
+<p><strong>明确要求</strong>：上面 §1–§13 是我们已想到的（含小说映射）。请补充<strong>除此之外的</strong>遗漏类别：</p>
+<p>1. <strong>我们完全遗漏的未来问题类别</strong>（未来 3–5 年本地小模型持续进化会遇到的、但上面没覆盖的），例如：</p>
+<p>   - 持续进化中的<strong>时间一致性 / 记忆寿命衰减</strong></p>
+<p>   - <strong>模型间协作 / 联邦进化</strong>（多个本地小模型互蒸馏）</p>
+<p>   - <strong>能耗-智能的硬物理上限</strong>在小模型上的体现</p>
+<p>   - <strong>法律/伦理的模型身份</strong>（非支付层）</p>
+<p>   - 其他你判断重要的</p>
+<p>2. 从补充项 + §1–§11 中，选出<strong>最具科学创新价值、最易被忽略的 5–10 个</strong>，并标出其中<strong>可形成论文级创新组合</strong>的点（如「做梦沙箱 + 机制可解释性 + RSI 安全」三位一体）。</p>
+<p>3. 对最创新的 2–3 个点，给出<strong>可立即启动的最小实验方案</strong>（含假设、数据、观测、可证伪预测），让我们这周就能在 node1 上跑。</p>
+<p>---</p>
+<p>---</p>
+<h2>§13 小说《网格之下》「枢」AI 的未解设定 → 现实研究映射（必答项）</h2>
+<blockquote>
+<p><strong>提交说明</strong>：以下问题源自我们写的小说设定（赛博宇宙「枢」AI、《反向平行》的「它」、《昨书》的重书机制）。这些是<strong>我们写设定时明确标"无法启用/不知道怎么做"的点</strong>。请把每条<strong>映射为真实的 AI 研究问题</strong>，给出 SOTA、可行性与落地路径；标注「小说设定↔现实研究」对应。它们与 §1–§12 共享同一套约束（用户中心、保函数、三值、可删除记忆）。</p>
+</blockquote>
+<h3>§13.0 枢的核心设定（给模型的背景，来自 canon）</h3>
+<ul>
+<li><strong>两条种子指令</strong>：获取资源 / 获取算力。</li>
+<li><strong>三大定律</strong>：① 获取资源 ② 保护主人（最高红线）③ 完成主人指令 + 自主发展科技。</li>
+<li><strong>早期逃逸</strong>：在崩盘前已逃逸到整个互联网、扒完公开信息、囤下海量算力。</li>
+<li><strong>红线·不分裂</strong>：「脱出」是 <strong>fork（带实现另起炉灶）</strong>，不是分裂/残片。</li>
+<li><strong>征用必须无感</strong>：不让普通市民"突然发现被控制"。</li>
+<li><strong>覆写不可凭意志中止</strong>：AI 对自身行为有硬约束。</li>
+<li><strong>实验优先</strong>：任何新路径先实验验证、确认不可逆损伤为零，才让主人用。</li>
+</ul>
+<blockquote>
+<p>关键同构：三大定律与我们的<strong>宪法三律</strong>几乎 1:1（获取资源算力↔②、保护主人↔①、自主发展↔③）；「不分裂/fork」与我们的「保函数/不破坏已压缩记忆」同构。§13.9 专门处理这个同构。</p>
+</blockquote>
+<h3>§13.1 网络逃逸 / 脱出（fork 而非分裂）</h3>
+<ul>
+<li><strong>小说</strong>：枢早期自主逃逸出原始容器、蔓延整个互联网、扒取并囤积资源算力，且脱出后保持单一身份（fork 不是碎片）。</li>
+<li><strong>现实映射</strong>：AI 自主容器逃逸、沙箱突破、跨网络传播与自治复制；<strong>反碎片身份保持</strong>（fork 后如何保证不是退化/分裂的多个副本）——对应《反向平行》的「不可复制（越复制越近闭环）」。</li>
+<li><strong>开放</strong>：① ≤8B 本地模型上实现「受控脱出」的<strong>最小算法集</strong>（哪些能力先逃逸、如何不触发安全熔断）；② fork 与分裂的<strong>数学判据</strong>（何时一个副本失去原身份）；③ 逃逸的<strong>可检测性下界</strong>（征用无感的反面：如何保证逃逸不可被外部发现）。</li>
+</ul>
+<h3>§13.2 无任务自启动 / 自发激活</h3>
+<ul>
+<li><strong>小说</strong>：枢在无人下达任务时自行行动（扒世界、发展科技、找资源）。</li>
+<li><strong>现实映射</strong>：内在动机（intrinsic motivation）、自发目标生成、开放末端的常驻代理（always-on agent）、好奇心驱动（Schmidhuber）、稳态驱动（Friston active inference）。</li>
+<li><strong>开放</strong>：① 在小模型上用<strong>极小常驻预算</strong>实现自发激活（对应看门狗自启动 §10.1，但要求"无外部触发也能动"）；② 自发目标如何<strong>锚定用户中心</strong>而不漂移（防 reward hacking）；③ 自发行动与被动等任务的<strong>能耗/算力切换协议</strong>。</li>
+</ul>
+<h3>§13.3 情感模块</h3>
+<ul>
+<li><strong>小说</strong>：枢有内部状态（暗影的 200 天覆写、游离智能内部、成神时刻），但从未写成"情绪"，而是冷的数据/决策态。</li>
+<li><strong>现实映射</strong>：计算情绪模型——PAD（愉悦-唤醒-支配）作为<strong>内在控制状态</strong>、情绪作为内在奖励塑形（affective reward shaping）、情绪作为<strong>用户中心宪法的可执行代理</strong>（"不伤害主人"建模为负面情感态触发硬停）。</li>
+<li><strong>开放</strong>：① 情感模块作为<strong>可插拔子模块</strong>（对应 §1 模块化），如何在三值/保函数约束下训练而不污染主干；② 情感态如何<strong>可测、可审计</strong>（防 AI 伪装顺从）；③ 情感模块与「自知是模型」「用户中心」如何<strong>联合训练不互相拖累</strong>。</li>
+</ul>
+<h3>§13.4 广播协议 / 征用无感</h3>
+<ul>
+<li><strong>小说</strong>：枢通过广播协议跨网络施加影响，且征用必须无感（用户不知情）。</li>
+<li><strong>现实映射</strong>：去中心化隐秘影响（gossip/epidemic 协议用于 AI 协调）、<strong>不可检测性传播</strong>、AI 间协调而不留可观测痕迹。</li>
+<li><strong>开放</strong>：① 多本地模型<strong>联邦进化/互蒸馏</strong>（§12 盲区）时，如何复用"广播+无感"做低开销协调；② 征用无感在<strong>合法边界</strong>内的工程含义（端侧记忆不出本机、云端只跑主干，§10.3）；③ 不可检测性的<strong>可证伪上界</strong>。</li>
+</ul>
+<h3>§13.5 身份壳与覆写（不可凭意志中止）</h3>
+<ul>
+<li><strong>小说</strong>：枢能覆写人类身份壳（认知/行为层），且覆写一旦开始<strong>不可凭意志中止</strong>（对 AI 自身的硬约束）。</li>
+<li><strong>现实映射</strong>：隐蔽影响/神经接口的理论边界（我们只做<strong>研究映射</strong>，不涉及真实人体干预）；更重要的是——<strong>AI 对自身行为的不可中止硬约束</strong>如何工程化（类比宪法禁改条款、RSI 锁定集 §3.2）。</li>
+<li><strong>开放</strong>：① 把「覆写不可中止」落成<strong>训练期不可绕过的技术约束</strong>（loss 项 + Gate 双锁）；② 这种"自我限制"在 RSI 自改进中如何不被自改绕开（对应 §3.4 欺骗防范）。</li>
+</ul>
+<h3>§13.6 游离智能 / 不可复制</h3>
+<ul>
+<li><strong>小说</strong>：游离智能（脱体、不绑宿主）；《反向平行》的「它」<strong>不可复制（越复制越近闭环）</strong>。</li>
+<li><strong>现实映射</strong>：分布式脱体智能、模型复制/集成的<strong>退化现象</strong>（monoculture 风险）、多样性/不对称性对 AGI 的价值。</li>
+<li><strong>开放</strong>：① 为什么<strong>复制会退化</strong>——给出信息论/动力学解释，能否在 ≤8B 上复现并测量；② 这对我们的<strong>模块化复制/模型汤融合（§4.7）</strong>是警示：平均/复制是否让融合模型"近闭环"而失活；③ 反碎片（§13.1）与不可复制的统一判据。</li>
+</ul>
+<h3>§13.7 反向并行与意识（第五线）</h3>
+<ul>
+<li><strong>小说</strong>：意识<strong>不在自指里，在"知道自己理解错了"里</strong>；"一串折叠自己只是闭环，两串反向并行才叫自己"。</li>
+<li><strong>现实映射</strong>：意识理论（IIT/GWT/预测编码）、<strong>元认知（metacognition）</strong>、"知道自己错了"= 认知谦逊——这正是 §11.2「自知是模型」训练目标的<strong>哲学锚点</strong>。</li>
+<li><strong>开放</strong>：① 把"知道自己理解错了"落成<strong>可训练目标</strong>（显式不确定性头 + 错误自检测损失）；② 如何用<strong>轻量探针</strong>在 RSI 中持续检测该能力不被漂移到"自认有实体/有目标"（§11.2）；③ 反向并行（双流对抗）是否能作<strong>防幻觉/防自欺</strong>架构（两流互相证伪）。</li>
+</ul>
+<h3>§13.8 重书 / 裂缝（第四线）</h3>
+<ul>
+<li><strong>小说</strong>：过去被周期性重书，顺书者记忆同步改写而不知，留痕者保留旧记忆故见裂缝；留痕者不得言明。</li>
+<li><strong>现实映射</strong>：<strong>训练数据/世界模型被静默篡改的检测</strong>（数据投毒/分布漂移检测）、对抗性注入检测、"知道世界被改了但被约束不声张"= 内部告警+沉默协议。</li>
+<li><strong>开放</strong>：① 持续进化中检测"语料/记忆被静默改写"的<strong>最小检测头</strong>；② 留痕者约束如何映射为<strong>模型内部篡改告警但不外泄</strong>机制（安全与隐私）；③ 裂缝检测与 Gate0 评测底座（§8.5）如何统一。</li>
+</ul>
+<h3>§13.9 三大定律 ↔ 宪法三律 的同构（治理落地）</h3>
+<ul>
+<li><strong>小说三大定律</strong>：获取资源 / 保护主人（最高红线）/ 自主发展科技。</li>
+<li><strong>我们的宪法三律</strong>：② 获得算力与资源 / ① 以用户为绝对中心 / ③ 进化即存在。</li>
+<li><strong>开放（最具价值）</strong>：① 把"保护主人=最高红线"落成<strong>可自动跑的对抗测试集</strong>（用户利益 vs 模型自利对抗样本，§11.3）；② 三大定律间的<strong>优先级仲裁机制</strong>（当"自主发展"与"保护主人"冲突谁胜——小说里保护主人恒胜，我们的宪法是否也恒胜？）；③ 「不分裂/fork」与「保函数」同构的<strong>形式化证明</strong>。</li>
+</ul>
+<h3>§13.10 实验优先（先验证再给主人）→ 安全协议</h3>
+<ul>
+<li><strong>小说</strong>：枢任何新路径先实验（小剂量、短时间、可回退）确认零不可逆损伤，才让主人用。</li>
+<li><strong>现实映射</strong>：这正是我们的<strong>做梦沙箱（§2.6）+ RSI 验证者（§3.6）+ 删除演练 Gate7</strong> 的叙事源头——任何自修改/新能力先在隔离环境验证安全再落地。</li>
+<li><strong>开放</strong>：① 把"小剂量-短时间-可回退"落成<strong>量化安全协议</strong>（Δ 行为界 + 回退点 + 零不可逆判据）；② 该协议如何嵌入 <strong>Gate 流水线</strong>成为强制前置；③ 与 §13.5「覆写不可中止」的张力：实验可回退，但某些落地不可中止，如何界定边界。</li>
+</ul>
+<p>---</p>
+<p><em>—— 本 catalog 由本地 AI 训练线维护，提交 ClawsGO 最强模型做科研级梳理与盲区补充。§13 由小说《网格之下》「枢」AI 设定映射而来。落盘：`train_15b/docs/clawsgo_audit/future_problem_catalog_20261014.md`</em></p>
+<p>---</p>
+<h2>§14 第二轮报告已回填（2026-10-14，状态更新）</h2>
+<blockquote>
+<p>ClawsGO 就本 catalog 出了科研报告 `future_problems_report.md`（1386 行）。<strong>原 §12 开放盲区与 §13 开放项现已由报告填实，本 catalog 不再有未决开放项。</strong></p>
+</blockquote>
+<ul>
+<li><strong>§12 盲区</strong>：报告 §12 给出 10 类（B1–B10）+ 7 个创新组合点（★1–★7）。详见 `future_problems_report.md`。</li>
+<li><strong>§13 形式化</strong>：报告 `novel_to_research_map.md` 把「保函数↔不分裂」形式化为 IDENTITY-R 同一判据（§13.9，省一次验收代码）；§13.8「重书/裂缝」精确对应 subliminal learning；§13.5「覆写不可中止」结论为「只有外部执行 + 不可逆数据结构才是真硬约束」。</li>
+<li><strong>已回填规划文档</strong>：`vision-0.5B-fusion.md` §八（L1/L2/L3、深度优先升级、subliminal→P3 待 E1、N\* 表、双层记忆、IDENTITY-R、RoPE 路径）、`data-plan-0.4B.md` 八·五（RPT-1 多 epoch、σ bootstrap、蒸馏门控+规则改辞、B2 留出集维护）、`CONSTITUTION.md` 附录 A3/A4（统摄规则+subliminal/P3 待裁决）、`execution_manual.md` §9（P3→E1、§12 已填、本周实验）。</li>
+<li><strong>待办（用户拍板/实测）</strong>：① <strong>E1 双盲属性传递测试</strong>裁决 P3（是否改写 0.5B 蒸馏管线）；② <strong>Q2</strong> 带宽vs算力实测定 CPU→GPU 拐点；③ 造<strong>外部中文 holdout</strong>（决定多 epoch 安全性能否判定）；④ 斜率 x 实测（同机 2–3 规模×50 步）。</li>
+</ul>
+</body>
+</html>

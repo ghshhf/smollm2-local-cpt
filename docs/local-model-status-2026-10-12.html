@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本地训练模型状态核查 · 2026-10-12</title>
+<style>
+  :root{--ink:#1a1d21;--sub:#5b6472;--line:#e3e7ee;--bg:#f7f8fa;--card:#fff;--red:#c0392b;--green:#1e8449;--amber:#b7791f;--blue:#1f5fa8;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:980px;margin:0 auto;padding:36px 22px 64px;}
+  h1{font-size:25px;margin:0 0 6px;letter-spacing:.3px}
+  .meta{color:var(--sub);font-size:13px;margin-bottom:26px}
+  h2{font-size:18px;margin:34px 0 12px;padding-left:11px;border-left:4px solid var(--blue)}
+  h3{font-size:15px;margin:22px 0 8px;color:#2c3444}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  .tldr{background:#fffdf5;border-left:4px solid var(--amber)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f0f3f8;font-weight:600;color:#2c3444}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  code{background:#f2f4f8;padding:1px 5px;border-radius:4px;font-size:12.5px;font-family:Consolas,Monaco,monospace}
+  pre{background:#f7f8fa;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:12.5px/1.65 Consolas,Monaco,monospace;white-space:pre-wrap}
+  .bad{color:var(--red);font-weight:600}
+  .ok{color:var(--green);font-weight:600}
+  .warn{color:var(--amber);font-weight:600}
+  ul{margin:8px 0 8px 20px;padding:0}
+  li{margin:4px 0}
+  .foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--sub);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>本地训练模型状态核查</h1>
+  <div class="meta">对象：<code>D:\work\_local_ai\train_15b</code>（SmolLM2 续预训练本地线）　·　核查时间：2026-10-12 20:20　·　方法：进程/任务表 + 权重逐键比对 + 同批 holdout 交叉熵 + 贪心生成实测</div>
+
+  <div class="card tldr">
+    <h3 style="margin-top:0">核心结论（三句话）</h3>
+    <ul>
+      <li><b>本地训练已停 ≈25 小时</b>：最后一次启动 10-11 18:59 后无任何日志输出，训练进程不存在，看门狗计划任务 <code>SmolLM2Watch</code> 处于 <span class="warn">已禁用</span> 状态，不会自启。</li>
+      <li><b>本地唯一可用的权重是 CPU 线 step-111</b>（<code>out_smollm2_200m_pt/checkpoint-latest</code>，R4 语言基础阶段）：中文 holdout 交叉熵 <span class="ok">1.575（ppl 4.8）</span>，贪心生成可出连贯中文。</li>
+      <li><b>node2 GPU 回传的 <code>gpu_ckpt/ckpt_100.npz</code> 虽然结构与键名全对，但功能上已崩坏</b>：同批 holdout 交叉熵 <span class="bad">6.518（ppl 677）</span>，生成全是字节碎片。此前 06:02 记录的「结构全对 → 验证通过」是<b>只验了形状、没验功能</b>的假绿，该权重不可用作续训基线。</li>
+    </ul>
+  </div>
+
+  <h2>1. 本地训练进程：已停，非崩溃式中断</h2>
+  <table>
+    <tr><th style="width:34%">检查项</th><th>实测值</th></tr>
+    <tr><td>训练日志最后一条</td><td><code>_smollm2_pt.log</code> 末行 = <b>2026-10-11 18:59:17「开始训练」</b>（R4 第 N 轮 chunk 重启），此后无任何 step 输出</td></tr>
+    <tr><td>进程</td><td>PID 134588（<code>train.pid</code> 记录）<span class="bad">不存在</span>；当前无任何训练型 python 进程</td></tr>
+    <tr><td>看门狗计划任务</td><td><code>SmolLM2Watch</code>（每 5 分钟 SYSTEM）→ <span class="warn">已禁用</span>，不再自动重启 chunk</td></tr>
+    <tr><td>停机时长</td><td>约 <b>25 小时</b>（10-11 19:00 起至本次核查）</td></tr>
+    <tr><td>目录内其他写入</td><td>仅 10-12 04:44–06:01 的 GPU 检查点回传（<code>gpu_ckpt/</code>）与 05:12 新增语料 <code>zh_text_v2_ai.jsonl</code></td></tr>
+  </table>
+  <p>判断：看门狗是被<b>人为停用</b>（而非任务反复失败退出）——与「主线切到远程 GPU 节点、本地降为备份线」的操作一致。若需恢复本地跑，重启条件是「启用计划任务 + 跑一次 <code>watch_smollm2.bat</code>」，可从 step 111 无损续。</p>
+
+  <h2>2. 本地模型资产盘点</h2>
+  <table>
+    <tr><th>层 / 产物</th><th>路径</th><th class="num">规模</th><th>状态</th></tr>
+    <tr><td>R2 135M</td><td><code>out_smollm2_135m_pt/checkpoint-latest</code></td><td class="num">step 377</td><td>已归档（<code>round1.done</code> / <code>round2.flag</code>）</td></tr>
+    <tr><td><b>R4 200M（现役）</b></td><td><code>out_smollm2_200m_pt/checkpoint-latest</code></td><td class="num">214.1M 参数<br>step 111 / 1000</td><td><span class="ok">可续训</span>：<code>pytorch_model.bin</code> 856MB + <code>optimizer.pt</code> 1.71GB + <code>scheduler.pt</code>，落盘 10-11 18:54</td></tr>
+    <tr><td>导出推理件</td><td><code>deploy_aliyun/smollm2_214m_r4s83_*.gguf</code></td><td class="num">q8_0 229MB<br>f16 430MB</td><td>step-83 导出版（原 ECS 8080 上线件）</td></tr>
+    <tr><td>GPU 回传分片</td><td><code>gpu_ckpt/gpu400_100.part000~007</code></td><td class="num">8 片 / 485.0MB</td><td>可无损重组（本地拼回字节数与 <code>ckpt_100.npz</code> 完全一致）</td></tr>
+    <tr><td>GPU 检查点</td><td><code>gpu_ckpt/ckpt_100.npz</code></td><td class="num">273 张量<br>242.5M 参数</td><td><span class="bad">结构完整但功能已崩坏，勿用</span></td></tr>
+    <tr><td>废弃物</td><td><code>gpu_ckpt/ckpt_400.npz</code>、<code>gpu_ckpt400.part00*</code></td><td class="num">56.6MB</td><td>只含 <code>lm_head</code> 的旧 bug 版，无回收价值</td></tr>
+    <tr><td>LoRA 适配器</td><td><code>out_lora_*</code>（14 套）</td><td class="num">—</td><td>前期小说/代码/推理适配层，与续训线独立</td></tr>
+  </table>
+
+  <h2>3. 关键发现：GPU 检查点「结构绿、功能红」</h2>
+  <p>对 <code>ckpt_100.npz</code> 做了四层复核，逐层收紧：</p>
+  <table>
+    <tr><th style="width:26%">检验</th><th>结果</th><th style="width:14%">判定</th></tr>
+    <tr><td>① 结构</td><td>273/273 键名与底座完全一致，shape 零不符，全库 nan/inf = 0</td><td class="ok">通过</td></tr>
+    <tr><td>② 谱系</td><td>与本地 step-111 权重逐键余弦 <b>最低 0.9942，中位 0.9997</b>；与随机初始化余弦 ≈0.000 → 确属本地同源，非异源模型</td><td class="ok">同源</td></tr>
+    <tr><td>③ 偏差分布</td><td>相对 L2 误差中位 <b>2.26%</b>，最大集中在输出侧：<code>lm_head.weight 12.31%</code>、<code>embed_tokens 11.29%</code>、<code>layers.0.input_layernorm 10.83%</code>；另本地两矩阵范数完全相同（权重绑定），GPU 版已分离（708.484 vs 707.032）</td><td class="warn">输出层偏移</td></tr>
+    <tr><td>④ 功能（决定性）</td><td>同批 8 段中文 holdout（≤512 tok）交叉熵：<br>本地 step-111 = <b class="ok">1.5749（ppl 4.8）</b>　|　GPU ckpt_100 = <b class="bad">6.5183（ppl 677.4）</b><br>贪心生成：本地出连贯中文；GPU 版 5/5 prompt 全为 U+FFFD 字节碎片</td><td class="bad">不通过</td></tr>
+  </table>
+  <h3>已排除的干扰因素</h3>
+  <ul>
+    <li><b>不是 fp16 量化误差</b>：把本地权重 round-trip 成 fp16 再回 fp32，生成依旧连贯（同题同参对照）。</li>
+    <li><b>不是载入路径/键名问题</b>：<code>strict=True</code> 可直接载入，missing=0、unexpected=0。</li>
+    <li><b>不是文件传输损坏</b>：分片重组的字节数与 npz 完全一致，且张量分布正常（std 与本地同量级）。</li>
+  </ul>
+  <h3>根因指向</h3>
+  <p>GPU 侧训练自身的 loss 口径就是错的：node2 首轮 R4 记录的起步 loss 为 <b>34.8</b> 并仅降到 30.7，而本地同阶段起步即为 <b>2.06</b>。也就是说，GPU 跑的不是「在本地产物上继续收敛」，而是「从一个正常的权重出发、被错误的训练循环拖着跑」——权重漂移虽小（余弦 0.994），却足以把输出层推离，使一个本已临界的 214M 模型在贪心解码下坍缩成字节碎片。<b>该轮 GPU 产物不具任何续训价值。</b></p>
+
+  <h2>4. 本地 step-111 实测生成（同题 5 例，CPU 6–10s/例）</h2>
+  <table>
+    <tr><th style="width:14%">能力项</th><th>输出（截断）</th><th style="width:22%">判读</th></tr>
+    <tr><td>小说续写</td><td>夜色像潮水一样漫过城市的边缘，她把那封没有署名的信<b>息放在了手里。</b>“我们去吧！”王杰只是话不出来……</td><td>成句、标点正确；但残留小说语料人名「王杰」</td></tr>
+    <tr><td>中文语感</td><td>自从有了人工智能，普通人写文章这件事<b>也不用看外面的资料。</b>……</td><td>语感成立，语义漂移</td></tr>
+    <tr><td>知识（未训）</td><td>请简要说明光合作用的基本过程：<b>1. 任务：调研 LLM 方段两条设定……</b></td><td class="warn">答非所问（R4 只学语言，符合预期）</td></tr>
+    <tr><td>代码（未训）</td><td>def quick_sort(arr): <b>if len(arr) &lt; 2: return arr;</b> lo = 0; hi = len(arr) - 1 ……</td><td class="warn">结构像样、注释语义错乱</td></tr>
+    <tr><td>推理（未训）</td><td>小明有3个苹果……<b>“哼。”王杰没好意思地说道……</b></td><td class="warn">未训能力，符合预期</td></tr>
+  </table>
+  <p>结论：本地模型处于「句法/标点已立、语义未随、R2 小说语料痕迹未洗」的 R4 早期形态（step 111 ≈ 任务的 11%），与「语言基础阶段」的设计定位一致，非故障。</p>
+
+  <h2>5. 判断与建议动作</h2>
+  <div class="card">
+    <ul>
+      <li><b>把 step-111 定为唯一有效基线。</b> 任何后续续训/导出/上线都应以它为准，<code>ckpt_100.npz</code> 及其分片从候选池剔除（分片可留作传输链路已验证的证据，但不再参与训练）。</li>
+      <li><b>node2 GPU 线在放行长跑前必须先对齐单步 loss。</b> 验收口径从「键名/shape 对」升级为「同批 holdout 交叉熵落在合理带内」——本次 1.575 vs 6.518 的差距，结构检查完全无法发现。修复点是 GPU 训练的 loss/掩码/学习率口径，起步 loss 应≈2.1 而非 34.8。</li>
+      <li><b>本地 CPU 线是备份线、可随时复活</b>，续训不需要重算：启用 <code>SmolLM2Watch</code> 计划任务并触发一次 <code>watch_smollm2.bat</code>，即从 step 111 接上（CPU 约 800–2300s/优化步，跑满 R4 1000 步需数日不停机）。</li>
+      <li><b>评测纪律补一条</b>：权重验收不得只看结构；凡新权重入场，先跑「同批 holdout 交叉熵 + 2 条贪心生成」再放行。</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    数据来源：<code>_smollm2_pt.log</code>、<code>out_smollm2_200m_pt/{train_log.txt,train.pid,phase.txt}</code>、任务计划表、<code>gpu_ckpt/</code>、以及本次 4 个本地验证脚本（<code>/tmp/probe_gpu_ckpt.py</code>、<code>/tmp/infer_gpu.py</code>、<code>/tmp/loss_cmp.py</code>、<code>/tmp/ctrl_fp16.py</code>）的实测输出。生成：Kepler · 2026-10-12 20:2x
+  </div>
+</div>
+</body>
+</html>

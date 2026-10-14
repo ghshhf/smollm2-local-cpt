@@ -1,0 +1,1047 @@
+{
+ "schema_version": "2.0",
+ "checklist_id": "FC-LADDER-EXEC-002",
+ "record_id": "HG-LADDER-EXEC-002",
+ "hypotheses": [
+  {
+   "hypothesis_id": "H-NSTAR-BINDING",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "Hoffmann 拟合式可外推到 0.1B~1B 与本语料/分词器。"
+   ],
+   "boundary_conditions": [
+    "仅在 embedding 量化范围与尺度粒度确定后定量成立。"
+   ],
+   "falsifier": {
+    "prediction_id": "P1",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-nstar-binding",
+     "rival_hypothesis_id": "H-NSTAR-NONBINDING",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N1",
+     "statement": "在 0.4B 之后继续扩容对留出损失的边际贡献不超过噪声宽度。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-NSTAR-NONBINDING",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "外推失效是可检测的，而非只能事后归因。"
+   ],
+   "boundary_conditions": [
+    "需要至少两级实测 adjusted rate 才能判定。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R1",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-nstar-nonbinding",
+     "rival_hypothesis_id": "H-NSTAR-BINDING",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N2",
+     "statement": "adjusted rate 的极小点位置在 0.4B 与 2B 之间不可区分。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-EMB-SCOPE-DOMINANT",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "embedding 参数占比按 12Ld^2 + Vd 的形状族估计。"
+   ],
+   "boundary_conditions": [
+    "仅在 vocab 与 d_model 固定时定量。"
+   ],
+   "falsifier": {
+    "prediction_id": "P4",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-emb-scope-dominant",
+     "rival_hypothesis_id": "H-EMB-SCOPE-NEGLIGIBLE",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N3",
+     "statement": "embedding 的量化范围不改变有效 bits/param 所对应的最优容量点。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-EMB-SCOPE-NEGLIGIBLE",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "形状族估计成立。"
+   ],
+   "boundary_conditions": [
+    "在 1B 以上更可能成立。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R2",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-emb-scope-negligible",
+     "rival_hypothesis_id": "H-EMB-SCOPE-DOMINANT",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N4",
+     "statement": "两种 embedding 量化配置下的 bits/param 差值不超过 30%。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-FREEZE-NECESSARY-AND-SUFFICIENT",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "α 为组/全局共享。"
+   ],
+   "boundary_conditions": [
+    "若尺度已是逐行且新行不参与该行统计，则稀释项消失。"
+   ],
+   "falsifier": {
+    "prediction_id": "P5",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-freeze-necessary-and-sufficient",
+     "rival_hypothesis_id": "H-LATENT-ONLY-SUFFICIENT",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N5",
+     "statement": "冻结符号与行内 α 相对仅保持潜变量坐标不变，在部署函数一致性上没有差异。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-LATENT-ONLY-SUFFICIENT",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "尺度为逐行且统计不含新增零行。"
+   ],
+   "boundary_conditions": [
+    "该假设本身就是待核验的配置项。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R3",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-latent-only-sufficient",
+     "rival_hypothesis_id": "H-FREEZE-NECESSARY-AND-SUFFICIENT",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N6",
+     "statement": "在逐行尺度下，非冻结方案的部署函数一致比例与冻结方案相同。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-EPOCH-REPEAT-DEGRADES",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "尾部覆盖可以用留出分布的分位数或低频 token 上的 NLL 度量。"
+   ],
+   "boundary_conditions": [
+    "仅在单遍数据量不足、需要 3× 以上 epoch 时被触发。"
+   ],
+   "falsifier": {
+    "prediction_id": "P7",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-epocrepeat-degrades",
+     "rival_hypothesis_id": "H-EPOCH-REPEAT-SAFE",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N7",
+     "statement": "多轮重复采样与单遍训练在分布尾部上无差异。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-EPOCH-REPEAT-SAFE",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "重复采样不改变数据分布的支撑。"
+   ],
+   "boundary_conditions": [
+    "在 epoch 数远大于 1 时需要单独核验。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R4",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-epocrepeat-safe",
+     "rival_hypothesis_id": "H-EPOCH-REPEAT-DEGRADES",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N8",
+     "statement": "重复采样相对累积管线在尾部 NLL 上没有差异。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-HEAD-LEAKS-IDENTITY",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "探针容量足以排除『测不出』与『无信息』的混淆。"
+   ],
+   "boundary_conditions": [
+    "仅在共享主干且解冻主干时预期成立。"
+   ],
+   "falsifier": {
+    "prediction_id": "P8",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-head-leaks-identity",
+     "rival_hypothesis_id": "H-HEAD-CONTAINED",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N9",
+     "statement": "联合训练后主干激活上的线性探针准确率与打乱标签基线不可分。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-HEAD-CONTAINED",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "判别力不依赖主干被改写。"
+   ],
+   "boundary_conditions": [
+    "若判别力必须依赖主干改写，则该假设失败。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R5",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-head-contained",
+     "rival_hypothesis_id": "H-HEAD-LEAKS-IDENTITY",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N10",
+     "statement": "冻结主干与解冻主干两组在探针超出量上没有差异，且判别力相同。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-MEM-DELETION-EXCLUDES-NEURAL",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "删除演练在选型阶段即可执行。"
+   ],
+   "boundary_conditions": [
+    "仅在数据政策允许个人数据进入闭环时构成硬需求。"
+   ],
+   "falsifier": {
+    "prediction_id": "P10",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-mem-deletion-excludes-neural",
+     "rival_hypothesis_id": "H-MEM-NEURAL-DELETABLE",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N11",
+     "statement": "两种记忆方案在删除演练三步上的通过情况相同。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-MEM-NEURAL-DELETABLE",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "撤销成本可被限制在可接受区间。"
+   ],
+   "boundary_conditions": [
+    "取决于重训预算与条目数。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R6",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-mem-neural-deletable",
+     "rival_hypothesis_id": "H-MEM-DELETION-EXCLUDES-NEURAL",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N12",
+     "statement": "测试时在线更新的记忆方案在删除演练上与空记忆对照表现相同。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-BW-BOUND-NOT-FLOPS",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "目标端侧内存带宽与实测环境可比。"
+   ],
+   "boundary_conditions": [
+    "仅在实测硬件上成立。"
+   ],
+   "falsifier": {
+    "prediction_id": "P12",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-bw-bound-not-flops",
+     "rival_hypothesis_id": "H-FLOPS-BOUND",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N13",
+     "statement": "端到端延迟与 FLOPs 的关联不低于与搬运量的关联。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-FLOPS-BOUND",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "实测环境与端侧硬件一致。"
+   ],
+   "boundary_conditions": [
+    "在计算受限实现中可能成立。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R7",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-flops-bound",
+     "rival_hypothesis_id": "H-BW-BOUND-NOT-FLOPS",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N14",
+     "statement": "端到端延迟与搬运量的关联不高于与 FLOPs 的关联。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-TRUNK-FROZEN-SUFFICES",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "个性化增益可在个人域留出集上度量。"
+   ],
+   "boundary_conditions": [
+    "若增益必须依赖主干改写，则该假设失败。"
+   ],
+   "falsifier": {
+    "prediction_id": "P13",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-trunk-frozen-suffices",
+     "rival_hypothesis_id": "H-TRUNK-REWRITE-NEEDED",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N15",
+     "statement": "冻结主干与解冻主干在个人域留出损失上没有差异。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  },
+  {
+   "hypothesis_id": "H-TRUNK-REWRITE-NEEDED",
+   "candidate_status": "candidate",
+   "assumptions": [
+    "天花板可被观测为增益饱和。"
+   ],
+   "boundary_conditions": [
+    "在增益未饱和前无法判定。"
+   ],
+   "falsifier": {
+    "prediction_id": "P-R8",
+    "conditions": "在预注册条件下测量：同语料、同评测集，噪声宽度已由 NC-RERUN 定出并写入分析计划。",
+    "observable": "见对应预测的 observable 字段。",
+    "incompatible_result": "观测落在对侧（竞争）预测的模式内，或三条阴性对照出现同量级变化。",
+    "assumption_failure_checks": [
+     "解释不相容之前，先核验评测噪声宽度是否小于效应、实现是否一致、训练是否收敛。"
+    ]
+   },
+   "discriminating_tests": [
+    {
+     "test_id": "DT-trunk-rewrite-needed",
+     "rival_hypothesis_id": "H-TRUNK-FROZEN-SUFFICES",
+     "focal_expected": "观测落在焦点预测所描述的模式内，并且对侧模式未出现。",
+     "rival_expected": "观测落在竞争预测所描述的模式内，并且焦点模式未出现。",
+     "indeterminate_result": "两种模式同时出现、都不出现，或测量本身不可比。"
+    }
+   ],
+   "nulls": [
+    {
+     "null_id": "N16",
+     "statement": "解除主干冻结带来的额外增益随记忆容量增大而消失。",
+     "analysis_id": "A1",
+     "interpretation_limit": "未拒绝不等于等价，也不构成对竞争假设的证明。"
+    }
+   ],
+   "controls": [
+    {
+     "control_id": "NC-RANDLABEL",
+     "control_type": "negative_outcome",
+     "rationale": "在打乱标签或随机分块的语料上，任何真实能力增益都不应出现；它与主评测共享同一评测流程与噪声通路。",
+     "expected_result": "新增容量在打乱标签探针上不产生超出噪声宽度的增益",
+     "failure_implication": "若出现增益，说明测量的是一条与能力无关的压缩或正则化通路"
+    },
+    {
+     "control_id": "NC-EMPTYMEM",
+     "control_type": "vehicle_or_sham",
+     "rationale": "空记忆挂载与满记忆共享参数量与全部前向开销，只差内容。",
+     "expected_result": "空记忆增益落在噪声宽度内",
+     "failure_implication": "若空记忆产生同等增益，记忆增益应归因于额外模块而非记忆内容"
+    },
+    {
+     "control_id": "TEACHER-SWAP",
+     "control_type": "negative_exposure",
+     "rationale": "换一个同规模、不同来源与不同训练数据的教师，保持蒸馏流程不变。",
+     "expected_result": "两个教师的增益差超出噪声宽度，才能把增益归因到教师能力",
+     "failure_implication": "若增益与教师无关，则增益来自正则化或训练时长"
+    }
+   ],
+   "outcome_interpretation": {
+    "consistent_with_candidate": "观测落在焦点预测的模式内，对侧模式未出现，阴性对照通过，且不确定性相容于预注册的效应目标。",
+    "challenges_candidate": "在操作、测量与已声明假设仍然可信的前提下，观察到与焦点不相容的结果。",
+    "supports_neither_or_mixed": "结果与两种模式都不符、两种模式同时出现，或某项假设/对照失败。"
+   },
+   "human_review_status": "pending"
+  }
+ ]
+}

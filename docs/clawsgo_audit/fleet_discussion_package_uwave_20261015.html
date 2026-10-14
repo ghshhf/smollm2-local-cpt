@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U 波 5 题答案合成 · 2026-10-15</title>
+<style>
+  :root{--bg:#0f1115;--card:#171a21;--ink:#e7ecf3;--mut:#9aa6b6;--acc:#5ad1c4;--warn:#ffcf6b;--bad:#ff8a8a;--good:#7ee787;--line:#262b36;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;padding:32px 20px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 6px}
+  .sub{color:var(--mut);font-size:13px;margin-bottom:26px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0}
+  .card h2{font-size:19px;margin:0 0 4px;color:var(--acc)}
+  .tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--line);color:var(--mut);margin-left:8px;vertical-align:middle}
+  .q{color:var(--mut);font-size:14px;margin:10px 0 14px;border-left:3px solid var(--acc);padding-left:12px}
+  .verdict{background:#0c2a26;border:1px solid #1f5b52;color:var(--good);border-radius:8px;padding:10px 14px;margin:12px 0;font-weight:600}
+  .mech{background:#1a1620;border:1px solid #3a2f22;color:#ffd9a0;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px}
+  .act{background:#101826;border:1px solid #233049;color:#bcd4ff;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px}
+  ul{margin:8px 0;padding-left:20px}li{margin:4px 0}
+  code{background:#0b0d11;padding:1px 6px;border-radius:5px;color:#9fe7dc;font-size:13px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .kbox{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .kbox b{color:var(--warn)}
+  .foot{color:var(--mut);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+  .pill{display:inline-block;background:#13251f;color:var(--good);border:1px solid #1f5b52;border-radius:6px;padding:2px 8px;font-size:12px;margin:2px 4px 2px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>U 波 · 5 题实验分歧答案合成</h1>
+  <div class="sub">2026-10-15 · 舰队 5 舰（gemini / nemotron / north / zen / pollinations）回答收敛合成 · 原始答案见 <code>eval/fleet_answers/U1_Q1…U5_Q5/</code></div>
+
+  <div class="card">
+    <h2>总收敛结论 <span class="tag">5 题同向</span></h2>
+    <p>5 题全部是"你直问的实验分歧点"，舰队回答高度同向，核心锁定四条，且与既有 <code>vision-0.5B-fusion.md</code> 路线完全自洽：</p>
+    <ul>
+      <li><b>0.5B = 原生 BitNet b1.58 从零 QAT + 0.4B 蒸馏</b>。U1（静态三值冲击）+ U5（三值 Net2Net 数学破产）双重证明：跨越精度鸿沟做 Net2Net 必崩，只能从零原生三值训、拿 0.4B 当教师。（已写入宪法级路线）</li>
+      <li><b>L1 压缩准入保留，判据升级</b>。U2：把"有效秩"换成 <b>L1-Fisher</b>（对角经验 Fisher 量化损伤），有效秩是范畴错误（量化会"谱白化"虚抬秩）。</li>
+      <li><b>embedding / LM Head 保高精度</b>。U3：严禁三值化（Lookup 带宽≈0，三值会让 Layer0 流形崩溃、损失 90% 容量）；底线 INT8（训练 fp16 / 导出 INT8）。</li>
+      <li><b>语料纯度宪法不降级</b>。U4：蒸馏只取 Teacher 软标签（信号），token 载体 100% 人写（Gemma2 / Apple AFM 范式）；RSI 走 L3 外置记忆通道。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>U1 · V1-01 flip=0 的真实含义 <span class="tag">P3 裁决</span></h2>
+    <div class="q">问：三值探针 flip 恒为 0，是"三值化安全"还是"测量窗口不足 / 未补偿冲击"？</div>
+    <div class="verdict">裁决：测量窗口不足 + 退火太快掩盖的假象，不是物理安全。真实翻转需 3000~5000 步 @ lr=1e-4（累积符号翻转率 CFR 才脱离布朗噪声）。</div>
+    <div class="mech">机制：200 步预算内权重位移仅量化步长的 0.004%~0.031%，数学上不可能越过翻转带。静态三值化（α=0）ΔCE 必然 ≥1.8（甚至到随机 3.0+）——这是高维连续流形→三值离散顶点的<b>表征断裂</b>，线性 α 退火越过临界点（≈0.4）发生不可逆相变崩溃，与退火速度无关。提高 lr 到 1e-3 只会让 STE 在阈值两侧极限环震荡、loss 发散。</div>
+    <div class="act">行动项：0.5B 必须原生 BitNet 从零 QAT，0.4B 当 Teacher 做 logits 蒸馏；绝不在 0.4B fp32 骨架上硬拆换三值。⇒ 与 vision 既定路线一致。P3「架构重置≠信息切断」在本构型下未检出（135M 代理），但 0.4B→0.5B 节点建议更大规模复核一次。</div>
+  </div>
+
+  <div class="card">
+    <h2>U2 · 压缩准入有效秩判据的自我否定风险 <span class="tag">L1 修正</span></h2>
+    <div class="q">问：L1 用"有效秩变化"做准入判据，会不会自我否定（量化反而抬秩）？</div>
+    <div class="verdict">裁决：有效秩 ≠ 信息量，是范畴错误。三值量化引入伪随机高频噪声造成"谱白化"，有效秩被人为抬高——劣质模块反而最容易混过判据。保留 L1，换指标。</div>
+    <div class="mech">修正公式（L1-Fisher 准入）：<code>ΔH_quant = 0.5·Tr(ΔWᵀ F ΔW)/ln2 > N_m·b_eff·ln2</code>。用对角经验 Fisher（128 样本即可），在 CPU 上极低成本预测模块量化至 0.5B BitNet 后的存活能力。Fisher 有效维度才真正反映"量化损伤"，且只修正 L1 的准入损耗，不替代 L1 本身。</div>
+    <div class="act">行动项：把 <code>execution_manual</code> 的 L1 量化判据从"有效秩"改写为 L1-Fisher；L1 宪法级地位不变。可证伪：在 0.1B 模块上若三值化后有效秩下降>10% 则理论推翻（gemini 给了 <2s 验证脚本）。</div>
+  </div>
+
+  <div class="card">
+    <h2>U3 · 0.2B embedding 量化决策 <span class="tag">精度底线</span></h2>
+    <div class="q">问：embedding 在 0.2B 是否三值化换带宽？</div>
+    <div class="verdict">裁决：严禁三值化。Lookup 每步仅读 1.15KB，带宽占比≈0%；真正吃带宽的是 LM Head 的 GEMV（56.6MB@fp16）。LoRA 式 base_fp16+delta_ternary 是负优化（18bit>16bit）。</div>
+    <div class="mech">三值 embedding 让 Layer0 输入退化为超立方体离散顶点（无求和操作，CLT 失效），容量损失 90.1%，注意力图偏置崩溃；LM Head 三值化还会 Softmax 熵塌缩。折中底线 = <b>INT8（W8A8 / W8A16）</b>，训练期保持 fp16/bf16，导出端侧 INT8（仅 ~28MB RAM）；LM Head 可选 ALBERT 低秩分解砍 75% 参数。</div>
+    <div class="act">行动项：修正"embedding 保 fp16"决策 → 训练 fp16、导出 INT8（精度底线仍在，不冲突）。</div>
+  </div>
+
+  <div class="card">
+    <h2>U4 · 语料纯度约束的自相矛盾（宪法级） <span class="tag">不降级</span></h2>
+    <div class="q">问：蒸馏/认主要依赖模型生成数据，与"0.5B 前主干预训练禁模型生成数据"是否矛盾？</div>
+    <div class="verdict">裁决：是伪命题。混淆了"数据载体 X（token 支集）"与"监督信号（Teacher soft-logits）"。Gemma2 / Apple AFM 已证实：载体 100% 人写 + 仅 Teacher 软标签监督，即可避免 model collapse。</div>
+    <div class="mech">输入端（主干路径）保留人类语言完整流形；输出端（优化目标）用 Teacher 暗知识压缩梯度方差。自进化/联网学习严格封闭在 <b>L3 外置 10MB 可寻址记忆层</b>（物理隔离、0/1 硬删除），主干权重冻结。这把"纯度"与"脏数据"天然物理隔离。</div>
+    <div class="act">行动项：宪法约束<b>不降级</b>。"0.5B 前主干加载路径 = 100% 人写 token"为红线；Teacher logits 只算 loss 正则项（绿线），不算生成语料。U4 把 data-plan 八·五·C 的"规则改辞"进一步澄清——不是降级，是区分载体/信号。</div>
+  </div>
+
+  <div class="card">
+    <h2>U5 · 跨层加宽新层 γ 来源（量化感知 Net2Net） <span class="tag">数学破产</span></h2>
+    <div class="q">问：三值下 Net2Net 加宽，新层 γ 从哪来才能严格保函数？</div>
+    <div class="verdict">裁决：三值严格保函数 Net2Net 在数学上不可能。三值 {-1,0,1} 对除法不封闭；全局耦合标量 γ 使加宽/加深都触发"雪崩式翻转"。Buffer 冻结 γ 破坏 QAT 收敛动力学。</div>
+    <div class="mech">加深：三值恒等矩阵反量化输出被机械衰减 1/d（d=1024 即衰减千倍），无法等于输入。加宽：出射权重需除以 2，但 1/2 ∉ {-1,0,1}；复制神经元改动 γ 后，所有处于量化边界的权重批量翻转（雪崩）。复制式初始化恒等崩溃（误差 >90%）。文献现状：极低比特下唯一可行是"宽蒸馏窄"或"连续空间 Net2Net 后再 QAT"。</div>
+    <div class="act">行动项：0.1B→0.4B <b>全程 FP16/BF16 连续空间做 Net2Net 保函数扩容</b>（标量除以 c 严格成立）；0.4B→0.5B 抛弃 Net2Net，原生 BitNet 从零 QAT + 0.4B 蒸馏。严禁从 0.4B 切片拼装三值。⇒ 与 U1 共同锁死 0.5B 路线。</div>
+  </div>
+
+  <div class="card">
+    <h2>残余待实测（非分歧，是下一步）</h2>
+    <div class="grid">
+      <div class="kbox"><b>U1</b> · CFR 真值需 3000~5000 步 @ lr=1e-4 实测（当前结论靠理论）</div>
+      <div class="kbox"><b>U2</b> · L1-Fisher 需在真实 0.1B 模块验证谱白化断言（<2s 脚本）</div>
+      <div class="kbox"><b>E1</b> · 双盲属性传递测试已启动（本地 135M 代理，待结果裁决 P3）</div>
+      <div class="kbox"><b>斜率 x</b> · CPU→GPU 拐点需 0.3B 模型（node1 正在训 R6→0.3B）到位后测</div>
+    </div>
+    <p style="margin-top:12px;color:var(--mut);font-size:13px">注：U 波 5 题与 E1 / 斜率 x / gate7 同属方法学实测，已并入"全自动"待办一并推进。</p>
+  </div>
+
+  <div class="foot">
+    合成来源：<code>eval/fleet_answers/U1_Q1_flip_measurement/</code> … <code>U5_Q5_cross_layer_gamma_init/</code>（每题 gemini / nemotron / north / zen / pollinations 各一份，含 raw.json）。本报告以 gemini 最详回答为主干，其余 4 舰结论同向。生成于 2026-10-15，环境：本地 SmolLM2 训练工程（train_15b）。
+  </div>
+</div>
+</body>
+</html>

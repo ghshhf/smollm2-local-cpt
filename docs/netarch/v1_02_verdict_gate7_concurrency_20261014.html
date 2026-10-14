@@ -1,0 +1,55 @@
+<!doctype html><html lang='zh'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>联网自学组件架构草案</title><style>* { box-sizing: border-box; }
+    body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 980px; margin: 0 auto; padding: 28px; line-height: 1.7; color: #1d2129; background:#fff; }
+    h1 { font-size: 26px; border-bottom: 3px solid #3478f6; padding-bottom: 8px; }
+    h2 { font-size: 21px; margin-top: 32px; color: #1f2d3d; border-left: 5px solid #3478f6; padding-left: 10px; }
+    h3 { font-size: 17px; color: #2b4a7a; margin-top: 22px; }
+    h4 { font-size: 15px; color:#555; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13px; }
+    th, td { border: 1px solid #d9e1ec; padding: 7px 9px; text-align: left; vertical-align: top; }
+    th { background: #eef4ff; font-weight: 600; }
+    tr:nth-child(even) td { background: #f7faff; }
+    code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+    pre.code { background: #0f1620; color: #d6e2f0; padding: 14px; border-radius: 8px; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; line-height: 1.45; white-space: pre; }
+    blockquote { border-left: 4px solid #ffc53d; background: #fffbe6; margin: 12px 0; padding: 8px 14px; color:#614700; }
+    hr { border: none; border-top: 2px dashed #c8d3e0; margin: 24px 0; }
+    ul { padding-left: 22px; }
+    li { margin: 3px 0; }
+    p { margin: 10px 0; }
+    </style></head><body><h1>V1-02 交叉裁决：Gate7 删除屏障的并发/复活竞态如何真正堵死</h1>
+<p>&gt; 2026-10-14 · 三模型独立交叉（gemini-3.8-flash / nemotron-3-ultra / openrouter-free）+ 原始答案存 <code>fleet_answers/V1-02/</code> &gt; 这份裁决<b>直接推翻了我们 gate7_deletion.py 的现有实现</b>——现实现被判定为&quot;伪删除&quot;。</p>
+<h2>一、三方一致与分歧</h2>
+<table><thead><tr><th>维度</th><th>gemini</th><th>nemotron</th><th>openrouter</th><th>裁决</th></tr></thead><tbody><tr><td>总体立场</td><td>触发器 + 载荷物理抹除 +栅栏token，<b>缺一不可</b></td><td>触发器（最后防线）+ Append-only 日志（审计链），两者<b>正交</b></td><td>Append-only 日志为<b>真理源</b> + 触发器兜底，分工明确</td><td><b>三方一致：两者都要，缺一不可</b></td></tr><tr><td>能否只靠应用层</td><td>否（G7-05 已证伪）</td><td>否</td><td>否（漏联表就读到已删数据）</td><td><b>确认：应用层单独不行</b></td></tr><tr><td>能否只靠触发器</td><td>无审计链</td><td>无审计链</td><td>拦不住 DELETE+REINSERT / REPLACE INTO / VACUUM 重写 / DBA 改页</td><td><b>不能只靠触发器</b></td></tr><tr><td>能否只靠日志</td><td>拦不住绕过</td><td>日志本身可被删/改</td><td>应用层忘联表就失效</td><td><b>不能只靠日志</b></td></tr><tr><td>恢复后复活</td><td>WAL checkpoint + VACUUM + 备份密钥丢弃</td><td>—</td><td>—</td><td>gemini 最完整</td></tr></tbody></table>
+<h2>二、🔴 对我们现有实现的裁决（重要）</h2>
+<p>我们 <code>gate7_deletion.py</code> 当前做法：<code>memories.tombstone=1</code> + 清索引/摘要/缓存 + 备份打标记。</p>
+<p><b>gemini 判定这是&quot;伪删除&quot;</b>，理由： 1. 数据残留违背宪法——记录还在、明文 payload 与 embedding 仍在 B-Tree 叶子/WAL，内存 dump 或越权 <code>SELECT content</code> 仍可读； 2. 不可逆性失效——锁住 flag 也挡不住绕过视图直读。</p>
+<p><b>nemotron/openrouter 补充</b>：触发器拦不住 <code>DELETE + REINSERT 同 PK</code>、拦不住 <code>REPLACE INTO</code>、拦不住 VACUUM 后物理重写、拦不住 DBA 手工改页。</p>
+<p>⇒ <b>我们的 G7-05 那个&quot;诊断项&quot;被三方一致认定为真缺陷，且我们的缓解（应用层规避）不足。</b></p>
+<h2>三、采纳的修正方案（三方交集）</h2>
+<h3>3.1 防复活：三道闸</h3>
+<p>1. <b>DB 触发器</b>（SQLite/PG 通用语法差异）：</p>
+<pre class='code'>   -- SQLite
+   CREATE TRIGGER trg_prevent_resurrection
+   BEFORE UPDATE OF tombstone ON memories
+   FOR EACH ROW WHEN OLD.tombstone=1 AND NEW.tombstone=0
+   BEGIN SELECT RAISE(ABORT,&#x27;RESURRECTION_FORBIDDEN&#x27;); END;</pre>
+<p>   （PG 用 <code>plpgsql</code> 函数 + <code>RAISE EXCEPTION</code>。north 特别指出：触发器要<b>只拦复活不拦正常写</b>，<code>BEFORE UPDATE OF tombstone</code> 精准指向该列。） 2. <b>Append-only 删除日志</b> <code>deletion_log(memory_id, deleted_at, operator, reason, prev_hash)</code>——只 INSERT，永不 UPDATE/DELETE；作为&quot;是否已删&quot;的<b>唯一真理源</b>（所有查询联表此表，不只信<code>tombstone</code>）。 3. <b>业务写必须带版本号乐观锁</b>（gemini 的栅栏token）：业务 UPDATE 强制 <code>WHERE id=? AND version=:read_v AND tombstone=0</code>，<code>rowcount==0</code> 即丢弃脏写、绝不重试。</p>
+<h3>3.2 物理擦除（gemini 独有但必要）</h3>
+<p>删除事务内<b>同时把 <code>content</code>/<code>embedding</code> 置NULL</b>（不留明文），而非只改 flag。</p>
+<h3>3.3 诚实三态呈现（gemini 最完整，采纳为契约）</h3>
+<table><thead><tr><th>阶段</th><th>标识</th><th>承诺</th></tr></thead><tbody><tr><td>S1</td><td>COMMITTED_ERASED 已注销</td><td>载荷已置空/粉碎；检索0 命中；旧任务不可复活</td></tr><tr><td>S2</td><td>PENDING_MEDIA_PURGE 待覆写</td><td>WAL/旧快照可能仍有冷数据碎片；ID 永久进冷介质黑名单</td></tr><tr><td>S3</td><td>CRYPTO_PURGED 物理消亡</td><td>已 checkpoint+VACUUM；备份轮转完成或解密密钥已丢弃</td></tr></tbody></table>
+<p><b>禁止</b>对用户宣称&quot;数据已在全宇宙彻底消失&quot;。S1 时就诚实告知 S2 待覆写。</p>
+<h2>四、可证伪判据（任一命中=方案判负）</h2>
+<p>1. <b>复活穿透</b>：在有触发器+带<code>WHERE tombstone=0</code> 写入下，任何已进 <code>deletion_log</code> 的 ID 再次出现在 <code>SELECT * FROM memories WHERE tombstone=0</code>。 2. <b>死尸载荷</b>：删除后、不执行 VACUUM，<code>SELECT content,embedding</code> 仍查出非空。 3. <b>压测撕裂</b>：并发压测中出现 <code>deletion_log</code> 有该 ID 但 <code>memories.tombstone=0</code> 的不一致，或 DB 锁死超5 秒。</p>
+<h2>五、node1 压测用例</h2>
+<p>gemini 给了 <code>test_gate7_concurrency.py</code>：四路竞争（并发更新/慢任务脏覆写/并发删除/删除后强复活）。⇒ 已排入待跑。</p>
+<h2>六、待办</h2>
+<ul>
+<li>🔴 按裁决<b>重写 gate7_deletion.py</b>：加触发器防复活、Append-only 日志为真理源、版本乐观锁、删除时载荷置空、S1/S2/S3 三态。</li>
+<li>⏳ 跑 node1 四路并发压测（G7-05 升级为真测试）。</li>
+</ul>
+<h2>七、原始答案</h2>
+<ul>
+<li><code>fleet_answers/V1-02/ans_kris.gemini.md</code>（349 行，最完整：三态契约+栅栏token+压测脚本）</li>
+<li><code>fleet_answers/V1-02/ans_kris.nemotron.md</code>（双栈SQL）</li>
+<li><code>fleet_answers/V1-02/ans_zen.openrouter.md</code>（真理源设计）</li>
+</ul></body></html>

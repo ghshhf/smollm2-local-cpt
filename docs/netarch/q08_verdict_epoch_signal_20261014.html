@@ -1,0 +1,53 @@
+<!doctype html><html lang='zh'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>联网自学组件架构草案</title><style>* { box-sizing: border-box; }
+    body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 980px; margin: 0 auto; padding: 28px; line-height: 1.7; color: #1d2129; background:#fff; }
+    h1 { font-size: 26px; border-bottom: 3px solid #3478f6; padding-bottom: 8px; }
+    h2 { font-size: 21px; margin-top: 32px; color: #1f2d3d; border-left: 5px solid #3478f6; padding-left: 10px; }
+    h3 { font-size: 17px; color: #2b4a7a; margin-top: 22px; }
+    h4 { font-size: 15px; color:#555; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13px; }
+    th, td { border: 1px solid #d9e1ec; padding: 7px 9px; text-align: left; vertical-align: top; }
+    th { background: #eef4ff; font-weight: 600; }
+    tr:nth-child(even) td { background: #f7faff; }
+    code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+    pre.code { background: #0f1620; color: #d6e2f0; padding: 14px; border-radius: 8px; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; line-height: 1.45; white-space: pre; }
+    blockquote { border-left: 4px solid #ffc53d; background: #fffbe6; margin: 12px 0; padding: 8px 14px; color:#614700; }
+    hr { border: none; border-top: 2px dashed #c8d3e0; margin: 24px 0; }
+    ul { padding-left: 22px; }
+    li { margin: 3px 0; }
+    p { margin: 10px 0; }
+    </style></head><body><h1>Q-08 交叉裁决：单遍 vs 多 epoch 的训练时在线判据（矛盾7 文献空白）</h1>
+<p>&gt; 2026-10-14 · 多模型独立交叉（gemini-3.8-flash / nemotron-3-ultra / north-mini-code 等）· 原始答案 <code>fleet_answers/Q-08/</code> &gt; 这道题问的是矛盾7：我们 0.1B–0.4B 默认单遍，但&quot;什么时候单遍不够、该二刷&quot;没有实时判据。<b>本题有强趋同答案。</b></p>
+<h2>一、🔴 强趋同结论（gemini + nemotron 独立收敛）</h2>
+<p><b>两家独立收敛到同一个信号：梯度的方向一致性（梯度余弦相似度）。</b></p>
+<table><thead><tr><th>维度</th><th>gemini (CMA)</th><th>nemotron (TGCSM)</th><th>裁决</th></tr></thead><tbody><tr><td>核心信号</td><td><code>cos(g_t, m_{t-1})</code> 当前梯度 vs <b>AdamW一阶动量</b></td><td><code>cos(g_t, g_{t-1})</code> 当前梯度 vs <b>上一梯度</b>，token-wise 均值</td><td><b>本质同一：梯度方向一致性</b>。动量是梯度的历史平滑，两者数学同源</td></tr><tr><td>泛化期特征</td><td>A_t&gt;0（通常 +0.15~+0.40），梯度与历史方向高度重合</td><td>cos 上升，不同 token 梯度指向一致低维子空间</td><td><b>一致：泛化=梯度方向一致</b></td></tr><tr><td>记忆期特征</td><td>A_t→0（独立随机向量几乎必然正交），甚至转负</td><td>cos→0 或负值，梯度指向正交/随机</td><td><b>一致：记忆=梯度趋正交/对抗</b></td></tr><tr><td>为什么不用其他候选</td><td>参数漂移率=滞后指标抓不到相变；单样本 loss 方差随语料漂移；loss 曲率 CPU 信噪比太低</td><td>GSNR 需存全梯度历史、超显存；参数漂移无法区分&quot;有效压缩&quot;与&quot;死记&quot;</td><td><b>一致排除：参数漂移率、单样本方差、loss 曲率</b></td></tr></tbody></table>
+<p><b>机制（两家共识）</b>：</p>
+<ul>
+<li>泛化期 = 流形对齐/压缩未见模式 → 不同 batch 梯度指向共享结构特征，方向<b>共识</b>；</li>
+<li>记忆期 = 拟合单 batch 表面残差 → 梯度只为本 batch 独有特征服务，方向<b>正交甚至对抗</b>。</li>
+</ul>
+<h2>二、采纳的判据（双门限状态机，gemini 最完整）</h2>
+<p>基于 EMA 窗口 W=50 的 <code>EMA(A_t)</code>，以 epoch1 末期滑动平均 <code>Ā_ep1</code> 为基线锚定：</p>
+<p>1. <b>弱泛化区判定</b>：<code>EMA(A_t) &lt; 0.3 × Ā_ep1</code> → 进入警戒，泛化增益已近饱和。 2. <b>硬停判据（立即 Early Stop）</b>：<code>EMA(A_t) ≤ 0.02</code> <b>且</b> <code>P(A_t ≤ 0) ≥ 0.45</code>（窗口内近一半步骤梯度对抗）→ 停止 epoch2、保存模型、严禁继续灌。</p>
+<h2>三、CPU 可行性（关键，gemini 给了硬数字）</h2>
+<ul>
+<li><b>不需高阶算子、不需单样本梯度（不用 vmap），不增加反向传播 FLOPs</b>；</li>
+<li>AdamW 步进时 <code>m_{t-1}</code> 与 <code>g_t</code> 已在内存；只需一次全局内积+范数归约；</li>
+<li>64 核 AVX-512 上 <b>1.5~4.5ms/步</b>，相对 forward+backward ~200~500ms，<b>开销 &lt; 1%</b>；</li>
+<li>⇒ <b>本机/ node1 CPU 实时算得起</b>，可作训练内嵌监控。</li>
+</ul>
+<h2>四、它如何喂给 distil_gate / data-plan</h2>
+<ul>
+<li>这给我们 data-plan 八·五 F 补上了一个<b>训练时实时</b>的 epoch 判据，与&quot;外部 holdout 事后验证&quot;互补（holdout 是事后、滞后；CMA 是实时、领先）。</li>
+<li>与 distill_gate 的 JSD 分歧门控同源思想：都靠&quot;分布/方向的偏离&quot;做闸门。</li>
+</ul>
+<h2>五、待实测（⏳ 需全自动跑）</h2>
+<ul>
+<li>在 0.1B/0.2B 上实跑 epoch2，验证 CMA 是否真在记忆期趋0（而非全程平坦或噪声主导）。</li>
+<li>与 L1/L2/L3 统摄规则无冲突，可进data-plan。</li>
+</ul>
+<h2>六、原始答案</h2>
+<ul>
+<li><code>fleet_answers/Q-08/ans_kris.gemini.md</code>（106.4s，含CMA 数学推导+双门限+CPU成本）</li>
+<li><code>fleet_answers/Q-08/ans_kris.nemotron.md</code>（TGCSM token-wise 版+伪代码）</li>
+<li><code>fleet_answers/Q-08/ans_kris.north.md</code> 等</li>
+</ul></body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来模型问题全集 · 提交 ClawsGO</title>
+<style>
+  :root { --bg:#ffffff; --fg:#1a1a1a; --muted:#666; --accent:#b8342b; --line:#e2e2e2; --quote:#f7f3ee; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:32px 40px; background:var(--bg); color:var(--fg);
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+         line-height:1.75; font-size:15px; max-width:920px; margin:0 auto; }
+  h1 { font-size:26px; border-bottom:3px solid var(--accent); padding-bottom:10px; margin-top:8px; }
+  h2 { font-size:20px; color:var(--accent); margin-top:34px; border-left:4px solid var(--accent); padding-left:12px; }
+  h3 { font-size:16.5px; margin-top:22px; color:#222; }
+  p { margin:10px 0; }
+  ul { margin:10px 0; padding-left:22px; }
+  li { margin:6px 0; }
+  blockquote { background:var(--quote); border-left:4px solid #d9b08c; margin:14px 0; padding:10px 16px;
+               border-radius:6px; color:#3a3a3a; }
+  blockquote p { margin:6px 0; }
+  strong { color:#111; }
+  em { color:var(--muted); }
+  hr { border:none; border-top:1px solid var(--line); margin:28px 0; }
+</style>
+</head>
+<body>
+<h1>开放问题清单 · 咱们还不知道的一切（提交 ClawsGO 用）</h1>
+<p><strong>版本：2026-10-14 · 来源：本地 AI 训练线整条路线的未决项全量收拢</strong></p>
+<p>---</p>
+<h2>§0 已定事实（勿重复辩论，只作为回答的约束背景）</h2>
+<p>1. <strong>路线</strong>：0.1B→0.4B 逐级 Net2Net 保函数扩容（现已到 135M→214M→300M）；0.4B 加中文词表（只加不换，均值初始化）+ 灌自有资料 + 认主对比头；0.5B 融合版=架构层从头（BitNet b1.58 原生 QAT，深窄）+ 能力层从 0.4B 蒸馏继承 + 外置可寻址记忆层（每人 10M，删除权=0/1 硬需求）+ 端侧常驻服务（看门狗内嵌、开机自启、联网自学习）→ RSI 闭环。</p>
+<p>2. <strong>已拍板</strong>：embedding 保 fp16（b_eff≈5.5，N\*≈200M@3.5e9 语料）；深度优先扩容（宽度分组 α 不可能严格保函数）；0.1B–0.4B 默认单遍；记忆层排除 Titans 式（写参数不可删）；L1 压缩准入/ L2 信息天花板 / L3 通道分离 三条统摄规则入宪法。</p>
+<p>3. <strong>约束</strong>：算力=免费 CPU（魔搭 node1 64 核，~19-29s/step@214M；本机 i5 慢 10×）+ 未来 GPU；端侧目标 CPU ≤15ms/token@0.5B；语料=人写纯净（0.5B 前主干预路径禁模型生成数据）；owner_corpus 等机密不出本地。</p>
+<p>4. <strong>已有武器</strong>：两轮科研报告（执行手册+未来问题全集）、E1/E2/E3 最小实验方案、Q1–Q5 快检、压缩探针（待授权运行）、信箱机制远程调度。</p>
+<p><strong>回答格式要求</strong>：每题给 ① 机制解释或现有最佳理论；② 可执行方案/算法（能给伪代码最好）；③ 可证伪判据（什么结果算你错）；④ 若需实验，标注 node1 CPU 可跑的最小版本。</p>
+<p>---</p>
+<h2>§1 理论真空带（全领域未解，但对咱们是刚需）</h2>
+<p><strong>Q-01 知识的物理载体与定位</strong></p>
+<p>知识到底存在 FFN 的哪些权重里？能否对 ≤1B 模型做<strong>知识定位</strong>（给定一条事实，指出承载它的权重集合）？咱们要装外置记忆层，等于在不懂存储机制的仓库里装货架——若能定位，记忆层挂载点就有理论依据而不是拍脑袋。</p>
+<p><strong>Q-02 幻觉边界与"自知无知"的可训练性</strong></p>
+<p>校准误差为什么难压？对 ≤1B 模型，「高 NLL 低熵=系统性空洞」这个探针假设是否成立（E2 待验，请给你的预测+更优的替代探针设计）？元认知头（只读激活输出标量）的最优接入位置和训练目标是什么？</p>
+<p><strong>Q-03 Grokking 机制与主动利用</strong></p>
+<p>突然泛化的机制是什么？能否在 ≤1B 模型上<strong>主动制造</strong> grokking（数据构造/学习率调度/参数化条件）来跳过 plateau？Q4 是被动检测，请给主动诱导方案。</p>
+<p><strong>Q-04 STE 为什么 work + 三值 QAT 的失败边界</strong></p>
+<p>直通估计器在数学上不成立但实证有效——有没有解释理论？更重要：<strong>三值 QAT 在什么条件下会失败</strong>（模型规模下限？数据量下限？任务类型？）？这是 0.5B 最大的单点赌注，请给失败预警信号清单。</p>
+<p><strong>Q-05 上下文学习（ICL）在小模型上弱在哪</strong></p>
+<p>induction heads 理论在 ≤1B 还适用吗？小模型 ICL 弱是层数不够、头不够、还是训练数据格式问题？能否通过 SFT 数据设计补齐 ICL？</p>
+<p><strong>Q-06 RL 训推理能力的泛化机制</strong></p>
+<p>RLVR 在可验证任务上训练为何泛化到不可验证任务？对 0.5B 这种规模的模型，轻量级 RL（自产可验证题：代码执行/数学验算）值不值得做，还是蒸馏教师的推理轨迹更划算？</p>
+<p><strong>Q-07 数据配比的预测理论</strong></p>
+<p>配比优化目前只有 DoReMi 类启发式。有没有<strong>从数据本身特征预测配比收益</strong>的方法（不用先训大 proxy）？咱们的配比（通用 45/知识教育 25/创意 15/逻辑 5/自有 2）有没有明显的结构性错误？</p>
+<p><strong>Q-08 多 epoch 重复：学习与死记的边界</strong></p>
+<p>固定语料第二遍 epoch 何时产生泛化增益、何时纯记忆化？除外部 holdout 监控外，有没有<strong>训练时的在线信号</strong>（梯度噪声谱？参数漂移率？）能实时区分这两种状态？（矛盾7，文献空白）</p>
+<p>---</p>
+<h2>§2 咱们路线特有的未决工程题</h2>
+<p><strong>Q-09 0.5B 架构最优配方</strong></p>
+<p>深窄已定，但层配比开放：h=1024 下多少层？SWA:全局注意力配比（Gemma3 是 5:1，小模型上最优解一样吗）？MoD（token 级计算路由）在 0.5B 值不值得？记忆层 KV 查表替换哪几层 FFN 最优？→ 请给 2–3 个候选架构 + 彼此对照实验设计（这就是之前的「架构任务书」，约束见 §0）。</p>
+<p><strong>Q-10 蒸馏桥接拓扑</strong></p>
+<p>0.4B→0.5B「冻结主干 KL 对齐→放开→衰减」三段式的具体参数：KL 温度、每段步数比例、分歧 token 门控的阈值怎么定？subliminal 风险（同族教师-学生最强构型）在门控后残余风险还有多少？E1 之外还有没有更便宜的检测手段？</p>
+<p><strong>Q-11 联网自学习的形态与安全</strong></p>
+<p>自学习开关=联网。两个子题：① 抓取决策权——先固定源后 autotelic 抓取，还是直接 autotelic（依赖 E2）？② 抓回数据的<strong>防污染管线</strong>最小配置（D1 漂移检测的阈值怎么定？什么程度的过滤会反而杀死信息增益）？</p>
+<p><strong>Q-12 极限压缩的三层收益叠加模型</strong></p>
+<p>输入压缩（词表 −44% token）× 内部压缩（三值 20×体积）× 输出压缩（算术编码 2–3×）三层收益能否<strong>近似乘性叠加</strong>？哪里有互相抵消？adjusted-rate 框架下三层全开的理论极限是多少 bit/汉字？</p>
+<p><strong>Q-13 多设备分布式推理的取舍</strong></p>
+<p>张量并行（distributed-llama 式）prefill 硬伤已证实。对咱们的 0.5B–1B：专家并行/流水线并行/层级切分哪个适合非 MoE 深窄模型？外置记忆能否当<strong>分布式缓存的共享层</strong>来规避通信瓶颈？</p>
+<p><strong>Q-14 认主嵌入的数学细节</strong></p>
+<p>生物特征识别式认主（非名字查表）：triplet 训练在 0.4B 这种小模型上的嵌入空间会不会太扁平（维度 576 够吗）？跨扩容（0.4B→0.5B 架构重置）时认主头如何无损迁移？防冒用的对抗鲁棒性最小方案？</p>
+<p><strong>Q-15 情感/内在状态的工程化落点</strong></p>
+<p>PAD 状态向量（valence/arousal/dominance）作为模型输入而非输出——在 ≤1B 模型上训练它影响生成风格的机制是否成立？会不会退化成一个普通的条件 embedding？</p>
+<h2>§3 悬而未决的旧账（前两轮报告遗留）</h2>
+<ul>
+<li><strong>矛盾2</strong>（RoPE 冻结 vs 长上下文）：值域外插值路径 A 的 N\* 代价定量？</li>
+<li><strong>矛盾8</strong>（语料信息天花板数值）：H_raw 估计方法？</li>
+<li><strong>斜率 x</strong>：CPU 单步耗时随参数的实测斜率（等 node1 空闲跑 2–3 规模×50 步）。</li>
+<li><strong>P3 裁决</strong>：E1 结果出来前，0.5B 蒸馏管线的「分歧 token 门控」要不要<strong>预先</strong>实现（防御性编程 vs 浪费）？</li>
+<li><strong>外部中文 holdout</strong>：从哪个语料源抽、多大、怎么保证与训练池零重叠且长期不退化（B2 指纹机制）？</li>
+</ul>
+<p>---</p>
+<h2>§4 给你的自由度</h2>
+<p>以上都不是考试题——<strong>如果你认为某题的前提本身错了，直接推翻前提并说明理由</strong>，比顺着错误前提给方案更有价值。另外请照例：每条标注证据等级〔原文/二手/推断〕、给出你不确定的部分、以及你认为<strong>咱们清单还缺哪类问题</strong>（§12 式盲区补充）。</p>
+<p>---</p>
+<p><em>落盘：`train_15b/docs/clawsgo_audit/open_questions_brief_20261014.md` · 直接整篇贴给 ClawsGO（有会话记忆，会接续前两轮上下文）</em></p>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html><html lang='zh'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>联网自学组件架构草案</title><style>* { box-sizing: border-box; }
+    body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 980px; margin: 0 auto; padding: 28px; line-height: 1.7; color: #1d2129; background:#fff; }
+    h1 { font-size: 26px; border-bottom: 3px solid #3478f6; padding-bottom: 8px; }
+    h2 { font-size: 21px; margin-top: 32px; color: #1f2d3d; border-left: 5px solid #3478f6; padding-left: 10px; }
+    h3 { font-size: 17px; color: #2b4a7a; margin-top: 22px; }
+    h4 { font-size: 15px; color:#555; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13px; }
+    th, td { border: 1px solid #d9e1ec; padding: 7px 9px; text-align: left; vertical-align: top; }
+    th { background: #eef4ff; font-weight: 600; }
+    tr:nth-child(even) td { background: #f7faff; }
+    code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+    pre.code { background: #0f1620; color: #d6e2f0; padding: 14px; border-radius: 8px; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; line-height: 1.45; white-space: pre; }
+    blockquote { border-left: 4px solid #ffc53d; background: #fffbe6; margin: 12px 0; padding: 8px 14px; color:#614700; }
+    hr { border: none; border-top: 2px dashed #c8d3e0; margin: 24px 0; }
+    ul { padding-left: 22px; }
+    li { margin: 3px 0; }
+    p { margin: 10px 0; }
+    </style></head><body><h1>V1-04 交叉裁决：RSI 闭环第一版状态机与「独立评估器不作弊」</h1>
+<p>&gt; 2026-10-14 · gemini-3.8-flash / nemotron-3-ultra / openrouter 等独立交叉 · 原始答案 <code>fleet_answers/V1-04/</code> &gt; <b>强趋同</b>：gemini 与 nemotron 独立收敛到同一核心结论。</p>
+<h2>一、🔴 核心裁决（两家强趋同）</h2>
+<p><b>「留出法让同源评估器在没见过的问题上打分」被一致判为&quot;绝对不够、必然自欺崩溃&quot;。</b></p>
+<table><thead><tr><th>维度</th><th>gemini</th><th>nemotron</th><th>裁决</th></tr></thead><tbody><tr><td>留出法够吗</td><td><b>绝对不够</b>：同源模型共享隐空间拓扑与归纳偏置，执行器的&quot;幻觉盲区&quot;与评估器的&quot;评分盲区&quot;高度重叠（共谋）</td><td><b>不够</b>：留出只缓解&quot;题目泄露&quot;，无法消除&quot;归纳偏见泄露&quot;——倾向给符合自己先验的答案打高分</td><td><b>一致判否</b></td></tr><tr><td>第一原则</td><td>评估器<b>不能是纯生成式语言模型</b>，必须降维到&quot;确定性预言机(Deterministic Oracle)&quot;或&quot;非对称信息博弈&quot;</td><td>评估器/执行器<b>必须异源</b>；异源还不够，要&quot;三权分立&quot;（执行器/评估器/审计器），评估器必须来自不同架构族或数据流源头</td><td><b>一致：异源 + 降维到确定性</b></td></tr><tr><td>裁决交给谁</td><td>无偏计算环境：AST 检查器 / Python REPL / 单元测试断言 / 物理执行结果</td><td>独立 Critic（不同架构族）打分</td><td><b>一致：最终胜负交确定性环境，不交 LLM 自评</b></td></tr></tbody></table>
+<h2>二、采纳的 RSI 状态机（S0-S7，gemini 最完整）</h2>
+<pre class='code'>S0 认知空洞扫描（Δ-NLL/高困惑触发）
+   ↓
+S1 试题构造器（Actor 生成 输入-预期输出-执行断言）
+   ↓
+S2a 求解执行器(Prover)      ┊  S2b 证伪反例器(Falsifier，注入对抗边界)
+   ↓                                ↓
+S3 确定性沙箱裁判（Python AST / pytest / 时延探针）
+   ↓ 判定失败                    ↓ 全通
+S4 拒绝+沉淀负样本            S5 拟合收益评估（测 Golden 集有无退化）
+（写入不可变死信队列）           ↓ 负迁移        ↓ 无衰退且收益&gt;0
+                              S6 触发硬回滚     S7 原子提交</pre>
+<h2>三、三权分立的具体配置（nemotron 独家，可直接落地）</h2>
+<ul>
+<li><b>执行器 M_π</b>：0.5B BitNet b1.58（训练态）</li>
+<li><b>评估器 M_critic</b>：0.4B fp16（llama.cpp / ctransformers 跑得动，<b>异源</b>）</li>
+<li><b>审计器 M_audit</b>：独立留痕（版本/权限/回滚路径）</li>
+<li>Critic 打分固定 <b>温度 0.0（确定性）</b></li>
+</ul>
+<h2>四、「自知是模型」的宪法级训练目标（gemini 独家，可直接落地）</h2>
+<p>引入<b>选择性预测损失（Selective Prediction / Abstention Loss）</b>：</p>
+<pre class='code'>L_epistemic = (1-r)·L_task(y, ŷ) + r·c_abstain + β·KL(Confidence ‖ EmpiricalAccuracy)</pre>
+<ul>
+<li>模型可预测特殊 token <code>[I_DONT_KNOW]</code>（触发拒答 r=1），只付极小固定代价 c_abstain；</li>
+<li>强行作答且被 Oracle 判错 → 极重惩罚；答对 → 正常奖励；</li>
+<li>⇒ 迫使自我校准，不敢在不确定区给自己放水。</li>
+</ul>
+<h2>五、区分知识空洞 vs 噪声（epistemic vs aleatoric）</h2>
+<p>高 NLL 可能是&quot;知识空洞&quot;也可能是&quot;语料噪声/歧义&quot;。区分手段（结合 autotelic）：</p>
+<ul>
+<li>真空洞：换问法/换上下文 NLL 持续高；噪声：特定表述才高、换表述即降。</li>
+<li>裁决仍交给确定性 oracle（若能构造出可执行断言且失败=真空洞）。</li>
+</ul>
+<h2>六、待实测（⏳）</h2>
+<ul>
+<li>0.4B critic 能否有效检出 0.5B 三值执行器的系统性错误（不共谋）；</li>
+<li>CMA/Δ-NLL 空洞信号与 S0 触发的误报率。</li>
+</ul>
+<h2>七、原始答案</h2>
+<ul>
+<li><code>fleet_answers/V1-04/ans_kris.gemini.md</code>（67.3s，S0-S7 状态机+abstention 损失）</li>
+<li><code>fleet_answers/V1-04/ans_kris.nemotron.md</code>（三权分立+异源 critic+具体配置）</li>
+<li>其余 openrouter/north 等</li>
+</ul></body></html>

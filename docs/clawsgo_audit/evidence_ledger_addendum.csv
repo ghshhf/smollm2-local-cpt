@@ -1,0 +1,12 @@
+source_id,claim_ids,title,authors_or_organization,publication_date,source_type,identifier,url,accessed_on,relation,study_design_or_document_type,limitations,notes
+SRC-TITANS-AIWIKI,Q8;Q9;H-NEURAL-MEM,"Titans（神经架构）条目","AI Wiki（第三方百科）",2025,other,WIKI:TITANS,https://aiwiki.ai/wiki/titans_architecture#1,2026-10-14,contextual,"第三方百科条目（二手）","二手材料，非原始论文；未经同行评议；细节须回溯原文核对","用于「记忆模块在推理时在线更新自身参数、带遗忘与门控项」这一机制描述"
+SRC-TITANS-ANALYSIS,Q8;Q9;H-NEURAL-MEM,"Analysis of arXiv 2501.00663 (Titans)","lhl/agentic-memory 仓库（第三方分析）",2025,other,GITHUB:lhl-agentic-memory,https://raw.githubusercontent.com/lhl/agentic-memory/32e2bec4f65aa1286c81b6866fe815d7a61b71c2/ANALYSIS-arxiv-2501.00663-titans.md#1,2026-10-14,contextual,"第三方技术分析笔记（二手）","非同行评议；作者立场与方法未核实；仅作交叉印证","与上一条互相印证同一机制描述；两份均为二手，原始论文 arXiv:2501.00663 未读"
+SRC-TITANS-SLIDES,Q8;Q9,"Titans: Learning to Memorize at Test Time（讲稿 PDF）","Behrouz 等（Google Research），经第三方托管",2025-03,other,arXiv:2501.00663-slides,https://timozen.github.io/assets/pdf/2025-03-04_titans.pdf#2#1,2026-10-14,contextual,"论文讲稿（第三方托管）","托管方非作者方，与最终版本可能不一致；仅通过检索摘要接触","用于核对在线更新与遗忘门控的机制描述"
+SRC-LIGO,Q1;Q2;H-GROWTH-CHEAP,"LiGO: Reusing Pretrained Models by Multi-linear Operators for Efficient Training","LiGO 作者团队，NeurIPS 2023",2023,primary_research,NeurIPS2023:09d9a13f,https://proceedings.neurips.cc/paper_files/paper/2023/file/09d9a13f7018110cfb439c06b07940a2-Paper-Conference.pdf#4#1,2026-10-14,supportive,"会议论文（经检索摘要转述）","未读全文；FLOPs 节省数字（BERT-Base 44.7%、GPT2-Medium 22.5%）来自检索摘要转述，须核对原文表格；其增长维度包含 hidden 与层数，与你们的宪法不同","用于「模型增长可省算力」这一方向性论断，不用于外推具体百分比"
+SRC-GROW-PRETRAINED,Q2;Q1;H-GROWTH-QUALITY,"Learning to Grow Pretrained Models for Efficient Transformer Training","相关作者团队，MIT CSAIL 托管",2023-03,preprint,arXiv:2303.00980,https://cap.csail.mit.edu/sites/default/files/research-pdfs/LEARNING%20TO%20GROW%20PRETRAINED%20MODELS%20FOR%20EFFICIENT%20TRANSFORMER%20TRAINING.pdf#5#1,2026-10-14,challenging,"预印本（经检索摘要转述）","未读全文；文中关于「无效增长算子会造出更大但学得更慢的模型」的表述来自检索摘要转述；bert2BERT 与 LiGO 的百分比对比数字亦为转述","该来源挑战「保函数即可保证增长有效」的读法，是本台账中唯一的 challenging 来源，请优先核对原文"
+SRC-STAGED-ICML22,Q1;H-GROWTH-CHEAP,"Staged Training（讲稿）","ICML 2022",2022,other,ICML2022:17356,https://icml.cc/media/icml-2022/Slides/17356_YBEqeuz.pdf#1#1,2026-10-14,contextual,"会议讲稿","讲稿非正式出版物，数字为幻灯片级摘要；检索摘要转述其宣称 30%–60% 的训练加速","用于「增长类方法整体宣称的加速区间」，仅作背景，不用于外推"
+
+# 说明（非数据行，请勿导入）：
+# 1. 本次检索未找到任何材料直接比较 Titans 与 Memory Layers，也未找到支持「Memory Layers 不增 FLOPs」这一说法的来源。
+#    相关前提在 research_audit.md 中标为「未经验证」，不得作为选型依据。
+# 2. 所有数字均为检索摘要对文档的转述，未经原文逐条核对。本台账不构成对来源内容的验证。

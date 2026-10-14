@@ -1,0 +1,46 @@
+<!doctype html><html lang='zh'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>联网自学组件架构草案</title><style>* { box-sizing: border-box; }
+    body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 980px; margin: 0 auto; padding: 28px; line-height: 1.7; color: #1d2129; background:#fff; }
+    h1 { font-size: 26px; border-bottom: 3px solid #3478f6; padding-bottom: 8px; }
+    h2 { font-size: 21px; margin-top: 32px; color: #1f2d3d; border-left: 5px solid #3478f6; padding-left: 10px; }
+    h3 { font-size: 17px; color: #2b4a7a; margin-top: 22px; }
+    h4 { font-size: 15px; color:#555; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13px; }
+    th, td { border: 1px solid #d9e1ec; padding: 7px 9px; text-align: left; vertical-align: top; }
+    th { background: #eef4ff; font-weight: 600; }
+    tr:nth-child(even) td { background: #f7faff; }
+    code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+    pre.code { background: #0f1620; color: #d6e2f0; padding: 14px; border-radius: 8px; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 12px; line-height: 1.45; white-space: pre; }
+    blockquote { border-left: 4px solid #ffc53d; background: #fffbe6; margin: 12px 0; padding: 8px 14px; color:#614700; }
+    hr { border: none; border-top: 2px dashed #c8d3e0; margin: 24px 0; }
+    ul { padding-left: 22px; }
+    li { margin: 3px 0; }
+    p { margin: 10px 0; }
+    </style></head><body><h1>V1-01 交叉裁决：三值 QAT 在纯 CPU 上训不训得出来（0.5B 生死判据）</h1>
+<p>&gt; 2026-10-14 · 三模型独立交叉（gemini-3.8-flash / grok-4.7 / cohere-north-mini-code）· 原始答案存<code>fleet_answers/V1-01/</code></p>
+<h2>一、三方一致与分歧</h2>
+<table><thead><tr><th>维度</th><th>gemini-3.8-flash</th><th>grok-4.7</th><th>cohere/north-mini-code</th><th>裁决</th></tr></thead><tbody><tr><td>真实瓶颈</td><td>硬件指令集负优化（访存风暴）+ STE 病态，<b>双杀</b></td><td>STE 失配的梯度噪声（<b>非</b>算力、<b>非</b>带宽）</td><td>STE 估计偏差 + 内存带宽，<b>非</b> FLOP 不足</td><td><b>一致：STE 梯度噪声是首要瓶颈，不是算力</b></td></tr><tr><td>从零训规模上限</td><td>≤15M 参数 / ≤50M tokens（超则PPL 30~50 死平线）</td><td>未给硬上限</td><td>~200M 参数可行上限</td><td>gemini 最具体；north 上限偏乐观，以 gemini 为准</td></tr><tr><td>带初始化 QAT 上限</td><td>0.5B / ≤100M tokens 可行</td><td>—</td><td>—</td><td><b>采用：继承扩容后 0.5B QAT 可行</b></td></tr><tr><td>替代方案</td><td>残差退火 QAT（alpha→0）+ 0.4B 扩容继承</td><td>Net2Net 从 fp32 基座跳变到三值</td><td>fp32 主干 + 影子 Adapter QAT</td><td><b>三方殊途同归：必须继承 fp16/fp32 权重，不能从零三值化</b></td></tr></tbody></table>
+<h2>二、🔴 被推翻的两条原方案（重要）</h2>
+<h3>推翻1：「CPU 从零预训练 0.5B 三值」</h3>
+<p>gemini 定量论证：0.5B 按 Chinchilla 需~3.5B tokens ≈ 1.05e19 FLOPs，即使 CPU 满载能效也需<b>持续 120 天以上</b>。物理不可行。</p>
+<h3>推翻 2：「冻结 fp32 主干 + float16 影子 Adapter 做 QAT」（我们原定方案）</h3>
+<p>gemini 指出<b>致命矛盾</b>：三值 {−1,0,+1} 在数学上<b>无法无损吸收浮点 Adapter</b>。若推理时保留浮点 Adapter，端侧内存读取量与 FP16 相同 ⇒ <b>CPU ≤15ms/token 硬指标必然击穿</b>。 ⇒ 浮点 Adapter 只能作<b>训练期残差</b>，且必须<b>退火到 0</b>，不能留到推理。</p>
+<h2>三、裁决结论（采纳方案）</h2>
+<p><b>路线</b>：<code>0.4B FP16 → Net2Net 深度优先扩容至 0.5B 深窄形 → 作为 Master Weights 继承 → CPU 跑小样本（50M~100M tokens）退火蒸馏 QAT</code></p>
+<p><b>训练期机制 = 渐进式残差退火</b>（采纳 gemini 的 BitLinearAnnealed，修正 grok/north 的静态做法）：</p>
+<ul>
+<li>前向：<code>W_eff = W_q + α(W_latent − W_q).detach()</code>，α 从 1.0 线性退火至 0；</li>
+<li>推理期：α=0，<b>纯三值</b>，无任何浮点残留 ⇒ 不击穿 15ms/token；</li>
+<li>激活：8-bit dynamic absmax 量化。</li>
+</ul>
+<p><b>为什么这个方案能同时满足两端</b>：训练期用浮点残差吸收 STE 噪声（好训），推理期残差归零只留三值（够小）。这正是三方都指向但表述不同的东西。</p>
+<h2>四、可证伪判据（合并三方，供node1 135M 探针用）</h2>
+<table><thead><tr><th>指标</th><th>能训</th><th>训不动</th></tr></thead><tbody><tr><td>潜变量翻转率 Δ_flip</td><td>前期 3~8% → 退火后降至 0.1~0.5%</td><td>&lt;0.01%（锁死）或全程 &gt;15%（震荡横跳）</td></tr><tr><td>零权占比 R₀</td><td>稳定 35~55%</td><td>&lt;10%（退化为二值）或 &gt;85%（全零坍缩）</td></tr><tr><td>相对发散度 Δℒ = ℒ_BitLinear − ℒ_FP16</td><td>1000 step 时 ≤ +0.35 且斜率平行</td><td>≥ +1.2 或 loss 完全平直/NaN</td></tr><tr><td>CPU 吞吐</td><td>≥800~1200 tok/s（64核 AVX-512）</td><td>&lt;300 tok/s，或预估 5M tokens &gt;8 小时</td></tr><tr><td>plateau</td><td>无</td><td>第 2000~5000 步 plateau（降&lt;0.1）或 grad norm&gt;10</td></tr></tbody></table>
+<p><b>判决规则</b>：任一&quot;训不动&quot;列命中 ⇒ 立即终止从零三值化，强制走「继承扩容 + 退火QAT」。</p>
+<h2>五、待实测项（⏳ 需用户「全自动」授权）</h2>
+<p>1. <b>gemini 的 15M 参数上限</b>未独立验证；north 的 200M 上限偏乐观。需实测 135M 上翻��率与 R₀ 曲线。 2. <b>α 退火速率</b>（多少 step 退到 0）无共识，需实验扫。 3. 三方都未验证「继承 fp16 权重后，三值化的初始 loss 冲击有多大」——这是 Net2Net 探针（旧）之外的新问题。</p>
+<h2>六、原始答案</h2>
+<ul>
+<li><code>eval/fleet_answers/V1-01/ans_kris.gemini.md</code>（89.2s，含完整 BitLinearAnnealed 伪代码 + 探针脚本）</li>
+<li><code>eval/fleet_answers/V1-01/ans_kris.grok.md</code>（68.7s）</li>
+<li><code>eval/fleet_answers/V1-01/ans_kris.north.md</code>（58.5s）</li>
+</ul></body></html>
