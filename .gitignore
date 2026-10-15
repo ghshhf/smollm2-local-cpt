@@ -24,6 +24,13 @@ _syntest/
 _console.log
 _syntax_test.bat
 
+# === 链运行临时产物 (2026-10-16 清理, 防再入) ===
+_*.err
+_*.flag
+_wait_and_*.bat
+round*.done
+/0.2B
+
 # === 杂项 ===
 .workbuddy/
 .DS_Store
