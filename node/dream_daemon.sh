@@ -25,9 +25,11 @@ LORA="${DREAM_LORA:-}"          # 可选：编程 LoRA 适配器目录(含 adapt
 N="${DREAM_N:-4}"
 SLEEP="${DREAM_SLEEP:-5}"
 WORKERS="${DREAM_WORKERS:-8}"
-# 产粮温度：0=贪心(同任务逐字节重复，银行假增长)。0.7 提多样性，质量仍由
-# vid_verify + task_fit 闸门把关。A/B 评测走 dream_loop 默认 temp=0，不受影响。
-DREAM_TEMP="${DREAM_TEMP:-0.7}"
+# 产粮温度：0=贪心(同任务逐字节重复，银行假增长)。0.5 提多样性又不让
+# 小模型胡言乱语(实测 0.7 时 80 帧任务写出 200 帧、标量当数组传，
+# task_fit 误杀率飙升)。质量仍由 vid_verify + task_fit 闸门把关。
+# A/B 评测走 dream_loop 默认 temp=0，不受影响。
+DREAM_TEMP="${DREAM_TEMP:-0.5}"
 # 任务池大小(向 dream_loop 要真值，避免硬编码；dream_loop 内部按取模取任务)
 POOL=$(python3 -c "import sys;sys.path.insert(0,'tools');import dream_loop;print(len(dream_loop.DREAM_BANK))" 2>/dev/null || echo 69)
 LORA_ARG=""
