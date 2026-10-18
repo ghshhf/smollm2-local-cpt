@@ -27,6 +27,14 @@ import os, sys, re, subprocess, argparse, json
 
 DEFAULT_FF = r"D:\work\_local_ai\vidcut\node_modules\ffmpeg-static\ffmpeg.exe"
 
+# 「画面在动」阈值（tools/calib_framedelta.py 实测标定，2026-10-18）：
+#   真实 matplotlib 动画 帧间平均灰度差 2.588~2.629
+#   首帧循环 4s 的静态对照            0.000
+# 取 0.5 作判定线（静态 0 vs 动画 2.6，中间空档足够宽，不会误杀慢速动画）；
+# 取 3.0 作满分区（达到即 1.0，低于则线性给分，让"动得更明显"的产物占优）。
+MOVE_MIN = 0.5
+MOVE_FULL = 2.6
+
 
 def run(ff, args):
     p = subprocess.run([ff] + args, capture_output=True, text=True,
@@ -64,6 +72,36 @@ def detect(ff, path, kind):
     rc, out = run(ff, args)
     hits = [(float(a), float(b), float(c)) for a, b, c in re.findall(pat, out, re.S)]
     return hits
+
+
+def frame_delta(ff, path, fps=4, size=64):
+    """抽帧算相邻帧的平均绝对灰度差（0~255），衡量「画面是不是真的在动」。
+
+    🔴 为什么必须有这一项：现有检查全是「能不能播」（可解码/分辨率/音轨/黑场/静音），
+    没有一项看「画面对不对」。而「有音轨」对 matplotlib 产物恒为 0 ⇒
+    quality 恒定 = 4/5 = 0.80 ⇒ 精英档案按质量排序等于随机（实测 7 条全 0.80）。
+    更糟的是：一张静态 PNG 挂 4 秒也能满分通过那 5 项 —— 做梦的退货闸门是漏的。
+
+    返回 {"frames": n, "mean": 相邻帧差均值, "max": 最大帧差}；解码失败返回 None。
+    """
+    args = ["-v", "error", "-i", path,
+            "-vf", "fps=%d,scale=%d:%d,format=gray" % (fps, size, size),
+            "-f", "rawvideo", "-"]
+    try:
+        p = subprocess.run([ff] + args, capture_output=True, timeout=120)
+    except Exception:
+        return None
+    buf = p.stdout or b""
+    fs = size * size
+    n = len(buf) // fs
+    if n < 2:
+        return {"frames": n, "mean": 0.0, "max": 0.0}
+    prev, diffs = buf[:fs], []
+    for i in range(1, n):
+        cur = buf[i * fs:(i + 1) * fs]
+        diffs.append(sum(abs(x - y) for x, y in zip(prev, cur)) / float(fs))
+        prev = cur
+    return {"frames": n, "mean": sum(diffs) / len(diffs), "max": max(diffs)}
 
 
 def verify(ff, path, a):
@@ -116,6 +154,24 @@ def verify(ff, path, a):
     sil_score = 1.0 if a.allow_silence else max(0.0, 1.0 - (sil_dur / dur if dur > 0 else 0.0))
     chk("无静音", len(sils) == 0, "%d 段 共%.2fs" % (len(sils), sil_dur),
         sil_score, hard=not a.allow_silence)
+
+    # 🔴 画面动态性（软检查，partial credit）：上面 5 项都只看「能不能播」，
+    #    一张静态 PNG 挂 4 秒也能满分 —— 做梦的退货闸门在这里是漏的。
+    #    阈值实测标定（tools/calib_framedelta.py，用 data/dreams 里 7 个真实产物）：
+    #      真实 matplotlib 动画 帧间差 2.588~2.629；首帧循环 4s 的静态对照 = 0.000。
+    fd = frame_delta(ff, path)
+    if fd is not None:
+        if fd["frames"] < 2:
+            chk("画面在动", False, "只解出 %d 帧" % fd["frames"], 0.0, hard=False)
+        else:
+            m = fd["mean"]
+            # hard=True：静止画面直接判 FAIL。理由——「没动」不是"质量低一点"，
+            # 而是"这不是动画"，让它在 quality 上扣点分再放行毫无意义（默认
+            # min-quality=0，扣分根本拦不住）。实测余量安全：真实动画最低 2.588，
+            # 判定线 0.5，差 5 倍。
+            chk("画面在动", m >= MOVE_MIN,
+                "帧间差=%.2f (%d帧)" % (m, fd["frames"]),
+                min(1.0, m / MOVE_FULL) if MOVE_FULL > 0 else 1.0, hard=True)
 
     # 汇总
     quality = sum(c["score"] for c in checks) / len(checks) if checks else 0.0
