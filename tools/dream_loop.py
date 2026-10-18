@@ -75,14 +75,20 @@ def ensure_dirs():
 
 
 # ── 记忆检索(喂 few-shot) ───────────────────────────────────────────────
-def retrieve_examples(task, k=2):
+def retrieve_examples(task, k=2, elite_k=1):
     """从三元组银行抽 top-k 相似历史成功代码，作为做梦的 few-shot 上下文。
 
     🔴 只认库里的 code_text 快照，不按 code_path 读磁盘：
        triple_bank 的设计原则是「存快照不存路径」（文件会被改/被清），
        旧实现 `open(code=路径)` 在 data/dreams 被清理后会让 few-shot 静默失效，
        且可能读到训练后被改过的版本 —— RSI 的燃料链会断在这里。
+
+    🔴 elite_k：额外从 MAP-Elites 精英档案抽 1 条「不同技能」的示例。
+       银行 query 是按任务相似度取 top-k，天然偏向同一类任务 → 越喂越窄。
+       精英档案的职责正好相反：保多样。让这两路各出一条，才是真闭环
+       （此前精英档案只写不读，等于白建）。
     """
+    ex = []
     try:
         p = subprocess.run(
             [sys.executable, os.path.join(HERE, "triple_bank.py"), "query",
@@ -102,10 +108,36 @@ def retrieve_examples(task, k=2):
             if cur is not None:
                 cur.append(line[8:] if line.startswith(" " * 8) else line)
         ex = [("\n".join(b)).strip() for b in blocks]
-        return [t[:1800] for t in ex if t][:k]
+        ex = [t[:1800] for t in ex if t][:k]
     except Exception as e:
-        print("[retrieve] 跳过(err=%s)" % e)
-        return []
+        print("[retrieve] 银行检索跳过(err=%s)" % e)
+
+    if elite_k > 0:
+        try:
+            sys.path.insert(0, HERE)
+            import dream_elite as de
+            # 跨示例去重阈值必须比「同桶判重」宽：同桶 0.82 是为了防"同一解重画一遍"，
+            # 但不同技能的 matplotlib 动画骨架本来就高度相似（import/FuncAnimation/save
+            # 三段样板就超 0.82），用 0.82 会把所有候选误杀 → 实测一条都注不进去。
+            # 0.95 只拦逐字节级重复（实测 #6/#8 J=1.000，sin/cos J=0.802 放过）。
+            EX_DUP = 0.95
+            skill = de.infer_skill(task)
+            cand = de.EliteArchive().diverse(k=elite_k + 2, avoid_skills={skill})
+            for it in cand:
+                code = (it.get("code") or "").strip()
+                if not code:
+                    continue
+                # 与银行已取的示例近重复就不重复喂（省 token，也免得强化同一解法）
+                g = de.ngrams(code)
+                if any(de.jaccard(g, de.ngrams(e)) >= EX_DUP for e in ex):
+                    continue
+                ex.append(code[:1600])
+                print("[retrieve] 精英注入 %s (q=%.2f)" % (it["skill"], it["quality"]))
+                break
+        except Exception as e:
+            print("[retrieve] 精英档案跳过(err=%s)" % e)
+
+    return ex
 
 
 # ── 代码生成：代码模块专用 ChatML 协议（与训练数据逐字同构） ──────────────
@@ -129,6 +161,38 @@ def extract_code(text):
         if lang.strip():
             return lang.strip().lower(), body
     return "", blocks[0][1]
+
+
+# few-shot 复读的指纹：命中即判污染，不许入库。
+POLLUTION_MARKS = (
+    "参考过往成功写法",
+    "# --- example",
+    "example %d ---",          # 占位，check_pollution 里单独处理
+    "<|im_start|>",
+    "<|im_end|>",
+)
+
+
+def check_pollution(code):
+    """检测模型把 prompt 内容复读进了代码。返回命中的指纹串，干净则 None。
+
+    🔴 真实事故（2026-10-18 排查）：精英档案 #6 的 code_text 开头就是
+       "# 参考过往成功写法(仅供参考风格，不要照抄):\\n# --- example 1 ---\\nimport matplotlib..."
+       —— 模型把 few-shot 标题和分隔符一起复读了出来，vid_verify 只看
+       「有没有产出视频」→ 放行入库 → 下一轮又当 few-shot 喂回去。
+       不拦的话污染自我放大：复读 → 入库 → 更强复读，RSI 直接退化成复读机。
+    这条闸门的成本是 0（纯字符串匹配），收益是守住 RSI 的燃料纯度。
+    """
+    if not code:
+        return None
+    for m in POLLUTION_MARKS:
+        if "%d" in m:
+            continue
+        if m in code:
+            return m
+    if re.search(r"example\s*\d+\s*---", code):
+        return "example N ---"
+    return None
 
 
 # ── 模型：0.3B 底座 + 编程 LoRA（PEFT, q/k/v/o） ──────────────────────
@@ -237,6 +301,10 @@ def accept(task, code, video, quality, run_id, skill=None):
     skill 透传给银行 → 银行再传给精英档案分桶：生成端知道在练什么能力，
     就别让精英档案的正则去猜（正则只作外部任务的兜底）。
     """
+    hit = check_pollution(code)
+    if hit:
+        print("   [accept] 拒收：代码含 few-shot 复读指纹(%s)" % hit)
+        return False
     codefile = os.path.join(DREAM_DIR, run_id, "code.py")
     cmd = [sys.executable, os.path.join(HERE, "triple_bank.py"), "add",
            "--task", task, "--code", codefile, "--video", video or "__none__",
@@ -304,6 +372,14 @@ class Dreamer:
             print("   [gen] lang=%s 代码长度=%d" % (lang or "-", len(code or "")))
             if not code:
                 print("   [gen] 未解析出代码 → REJECT")
+                record_trial(task, use_memory, False)
+                return False
+
+            # few-shot 复读闸门：模型把 prompt 抄进代码时，跑出来的视频可能"正常"，
+            # 但这份代码是污染的燃料，入银行会自我放大（见 check_pollution 注释）。
+            hit = check_pollution(code)
+            if hit:
+                print("   [gate] 检测到 few-shot 复读(%s) → REJECT" % hit)
                 record_trial(task, use_memory, False)
                 return False
 

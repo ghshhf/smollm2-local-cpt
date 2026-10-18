@@ -219,6 +219,39 @@ class EliteArchive:
             "SELECT bucket,domain,sig,quality,task FROM elites "
             "ORDER BY quality DESC").fetchall()[:k]
 
+    def diverse(self, k=1, avoid_skills=None, min_len=120):
+        """按「桶多样性」取 k 条，每桶只取质量最高那条。
+
+        与 sample() 的分工：sample 是「取最好的」，本方法是「取不一样的」。
+        MAP-Elites 的价值全在回放多样性——few-shot 里塞一条别的技能的示例，
+        能压住「所有任务都往同一个模板上套」的塌缩（实测发生过：15 个任务
+        全生成 matplotlib 动画，银行 9 条产物只落 2 个桶）。
+
+        avoid_skills: 已在 prompt 里出现过的技能名，跳过它们免得重复喂同一路。
+        返回 [{bucket,skill,quality,task,code}]，code 已截断到 1600 字。
+
+        🔴 min_len：低于此长度的代码不进 few-shot。实测坑：冒烟测试的
+        `print('DONE')`（35 字）也占了一个桶，且质量并列时按 id 排在最前，
+        会被优先选中喂给模型 —— 一条什么都教不了的示例比没有示例更糟。
+        """
+        avoid = set(avoid_skills or [])
+        rows = self.c.execute(
+            "SELECT bucket,domain,quality,task,code_text FROM elites "
+            "ORDER BY quality DESC").fetchall()
+        seen, out = set(), []
+        for bucket, domain, q, task, code in rows:
+            if bucket in seen or domain in avoid:
+                continue
+            code = (code or "").strip()
+            if len(code) < min_len:
+                continue
+            seen.add(bucket)
+            out.append({"bucket": bucket, "skill": domain, "quality": q,
+                        "task": task or "", "code": code[:1600]})
+            if len(out) >= k:
+                break
+        return out
+
     def stats(self):
         total = self.c.execute("SELECT count(*) FROM elites").fetchone()[0]
         buckets = self.c.execute(

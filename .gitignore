@@ -111,3 +111,6 @@ node/node_pkg.tgz
 .commit_msg_tmp.txt
 trial_1h/
 node/health_state.json
+
+# 数据库临时备份（可重建，不入库）
+data/*.db.bak-*

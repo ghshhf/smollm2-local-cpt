@@ -106,12 +106,64 @@ def check_skill_labels():
     return bad, len(da.TEMPLATES)
 
 
+def check_diversity_and_purity():
+    """D. few-shot 燃料纯度：长度门槛 + 复读指纹闸门。
+
+    两件真实事故都要被锁住：
+      ① 冒烟测试的 print('DONE')（35 字）占了一个桶，还被 diverse 优先选中；
+      ② 模型把 prompt 里的 "# 参考过往成功写法 / --- example 1 ---" 复读进代码，
+         验收只看有没有视频 → 放行入库 → 又当 few-shot 喂回去，污染自我放大。
+    """
+    import dream_loop as dl
+    tmp = os.path.join(tempfile.mkdtemp(), "d.db")
+    c = sqlite3.connect(tmp)
+    c.executescript("""
+    CREATE TABLE elites (id INTEGER PRIMARY KEY AUTOINCREMENT, bucket TEXT NOT NULL,
+     domain TEXT NOT NULL, sig TEXT NOT NULL, quality REAL NOT NULL, task TEXT,
+     code_text TEXT, video_path TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+    """)
+    ar = de.EliteArchive(c)
+    ar.add("冒烟测试-视频闸门", "print('DONE')\nprint('hello dream')", "/tmp/v.mp4", 0.9,
+           skill="其他")
+    ar.add("画衰减正弦", FAKE_CODE["plot2"], "/tmp/v.mp4", 0.8, skill="衰减振荡")
+    ar.add("画 3D 曲面", FAKE_CODE["surface"], "/tmp/v.mp4", 0.8, skill="曲面三维")
+
+    bad = 0
+    print("── D. 燃料纯度（长度门槛 + 复读闸门）")
+
+    got = ar.diverse(k=5)
+    too_short = [g for g in got if len(g["code"]) < 120]
+    ok = (not too_short) and len(got) == 2
+    bad += (not ok)
+    print("  %s 长度门槛        取 %d 条(应 2，35 字的冒烟被滤)，过短 %d 条"
+          % ("OK " if ok else "!!!", len(got), len(too_short)))
+
+    polluted = ("# 参考过往成功写法(仅供参考风格，不要照抄):\n"
+                "# --- example 1 ---\nimport matplotlib\n")
+    hit = dl.check_pollution(polluted)
+    ok = bool(hit)
+    bad += (not ok)
+    print("  %s 复读闸门(标题)   hit=%s" % ("OK " if ok else "!!!", hit))
+
+    ok = dl.check_pollution("import matplotlib\nplt.plot([1,2])\n") is None
+    bad += (not ok)
+    print("  %s 干净代码不误杀   hit=None" % ("OK " if ok else "!!!"))
+
+    ok = dl.check_pollution("x=1\n# example 3 ---\ny=2\n") is not None
+    bad += (not ok)
+    print("  %s 复读闸门(N 号示例) hit=%s"
+          % ("OK " if ok else "!!!", dl.check_pollution("# example 3 ---")))
+
+    return bad, 4
+
+
 def main():
     print("=== dream_elite 自检 ===")
     b1, n1 = check_gates()
     b2, n2 = check_spread()
     b3, n3 = check_skill_labels()
-    bad, n = b1 + b2 + b3, n1 + n2 + n3
+    b4, n4 = check_diversity_and_purity()
+    bad, n = b1 + b2 + b3 + b4, n1 + n2 + n3 + n4
     print("\n结果：%d/%d 通过%s" % (n - bad, n, "" if bad == 0 else "  ← 有失败项"))
     return 1 if bad else 0
 
