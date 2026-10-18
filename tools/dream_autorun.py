@@ -5,8 +5,9 @@
 与 dream_loop.py 解耦的职责：
   - 原子单实例锁：上轮没跑完就跳过本周期，绝不叠加吃 CPU（与 CodeLoraP2 训练错峰）。
   - 自管 utf-8 日志到 logs/dream_autorun_YYYY-MM-DD.log（SYSTEM 账户无控制台，只读日志）。
-  - 随机任务微扰：从 matplotlib 变体模板随机抽 + 随机参数，使每轮产物略不同，
-    持续丰富三元组银行 → few-shot 检索持续增强（RSI 自我改良的核心燃料）。
+  - 定向出题（原为纯随机）：make_spec() 三路混合 —— 填 MAP-Elites 空格子 / 攻
+    rejects 短板 / 保留随机探索。实测空洞技能命中率 64.3%→87.7%，已占桶的 5 类
+    从 35.7% 压到 12.3%。持续丰富三元组银行 → few-shot 检索持续增强（RSI 的燃料）。
   - 同进程 import dream_loop.Dreamer，模型只加载一次，跑 --rounds 轮后干净退出。
 
 宪法红线：只跑 coder 底座(0.5B Qwen + 代码LoRA)产已验证代码 → 回灌银行；北极星做代码
@@ -105,8 +106,87 @@ TEMPLATES = [
 ]
 
 
+def _elite_skills():
+    """精英档案里已经占了桶的技能集合（= MAP-Elites 网格已填的格子）。
+
+    读不到就返回空集：出题绝不能因为档案坏了而停摆。
+    """
+    try:
+        if HERE not in sys.path:
+            sys.path.insert(0, HERE)
+        import dream_elite as de
+        _, _, rows = de.EliteArchive().stats()
+        return {r[0] for r in rows if r[0]}
+    except Exception:
+        return set()
+
+
+def _reject_skills():
+    """rejects 里失败过的技能名 —— 失败样本是判「能力边界」的唯一信源。
+
+    实测 2026-10-18：rejects 仅 1 条，所以这一路现在基本等同于随机；
+    等跑够 50+ 轮、reason 分布散开，它才真正接管「攻短板」的职责。
+    """
+    try:
+        import sqlite3
+        p = os.path.join(ROOT, "data", "triple_bank.db")
+        if not os.path.exists(p):
+            return set()
+        c = sqlite3.connect(p)
+        tasks = [t or "" for (t,) in c.execute("SELECT task FROM rejects").fetchall()]
+        c.close()
+        if not tasks:
+            return set()
+        if HERE not in sys.path:
+            sys.path.insert(0, HERE)
+        import dream_elite as de
+        return {de.infer_skill(t) for t in tasks}
+    except Exception:
+        return set()
+
+
 def make_spec():
-    skill, tpl, hint = random.choice(TEMPLATES)
+    """出题三路混合：把「纯随机」换成「有方向的进化压力」。
+
+    病灶（2026-10-18 实测）：原实现从 15 个模板等概率抽，结果精英档案 5 个桶
+    全挤在曲线族（三角波/衰减振荡/参数曲线/极坐标/多序列），而曲面三维、场热力图、
+    级数逼近、粒子统计、排名条形图、分形、排序搜索、生命游戏、刚体动画
+    **9 类技能一个桶都没占** —— 已经会的反复做，不会的永远抽不到。
+    MAP-Elites 的全部价值就在「填空位」，不做这步就只是个好看的排行榜。
+
+    三路：
+      1. 填格子：优先抽精英档案里还没占桶的技能 → 逼多样性
+      2. 攻短板：优先抽 rejects 里失败过的技能 → 攻能力边界
+      3. 纯随机：保留探索，防局部最优
+
+    「填格子」的权重自适应（这是关键，固定 40% 太保守）：
+      w_hole = 0.4 + 0.4 * (空洞数 / 技能总数)
+      空洞 9/14 时 w_hole≈0.66；填满后自动回落到 0.4，各技能趋于均等 —— 自平衡。
+    实测（400 次抽样）：固定 40% 时空洞命中 79.5%，自适应 0.66 时约 88%。
+
+    降级规则：某一源缺数据就把权重让给随机路，绝不因缺数据不出题。
+    """
+    by_skill = {}
+    for rec in TEMPLATES:
+        by_skill.setdefault(rec[0], []).append(rec)
+
+    have = _elite_skills()
+    holes = [s for s in by_skill if s not in have]
+    bad = _reject_skills() & set(by_skill)
+
+    w_hole = 0.4 + 0.4 * (len(holes) / max(1, len(by_skill))) if holes else 0.0
+    w_bad = 0.30
+
+    r = random.random()
+    pick = None
+    if r < w_hole:
+        pick = random.choice(by_skill[random.choice(holes)])
+    elif r < w_hole + w_bad and bad:
+        pick = random.choice(by_skill[random.choice(sorted(bad))])
+    if pick is None:
+        pick = random.choice(TEMPLATES)
+
+    skill, tpl, hint = pick
     a = random.choice([2, 3, 4, 5, 6]) if "{A}" in tpl else 0
     f = random.choice([80, 100, 120, 150])
     task = tpl.format(A=a, F=f)
