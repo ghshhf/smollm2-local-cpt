@@ -80,6 +80,36 @@ RSI = 达标后的加速器，不是从 0 到达标的捷径。
 - 论文爬虫 122 篇去重 / 14 桶分类 → `docs/frontier-crawl-report-2026-10-18.html`
 - 物理拆分 `data/frontier/by_category/`（13 个 jsonl + `_index.json`）
 
+### 6) 远程算力恢复 + 音频线外迁（11:00-12:00）
+
+**背景**：用户重开魔搭免费 CPU 实例（**纯 CPU，无 GPU**）。实例重启后训练链未自动恢复。
+
+**诊断到的事实**
+- node1 cgroup **8 核**、内存 30GB、NAS 977T；load 0.10（完全空闲）
+- `done_steps=7200`（0.2B 封顶值）、heartbeat 停在 02:03、**无任何训练进程**
+- 0.4B 的真身在 `chain/ckpt_gpu/run_live`（03:52 最后写，实例重启后停摆），`ladder_budget=04B=3B`
+- `chain.log` 报 `base_tok/special_tokens_map.json` 缺失
+
+**已修**
+- 补 `base_tok/special_tokens_map.json`（86B，bos/eos/unk = `<|endoftext|>`，与 tokenizer_config 一致）
+- `tools/audio_attach.py`：预计算**每 500 条原子落盘**（`torch.save` 到 `.tmp` 再 `os.replace`），中断可续，不再白跑
+
+**🔴 两条硬教训**
+1. **node1 只执行单行命令** —— 多行 cmd 静默不执行（这正是前面多次"超时"的真因）。自定义 cmd 必须 `{ ...; } 2>&1 | curl ...` 分组，否则只有最后一条进管道。
+2. **本机 CPU 被抢会让训练掉速 10 倍** —— 音频预计算与 p2 同跑时，p2 从 23s/it 掉到 **240s/it**；停掉后立刻回到 21.4s/it。**一次只跑一个重活**。
+
+**音频线外迁（node1 辅助，本机不占 CPU）**
+
+| 环节 | 实况 |
+|---|---|
+| whisper-small | node1 自己从 hf-mirror 下载（内网，不占本机带宽） |
+| 数据打包 | wav 1.2GB + pairs → tar+gzip -1 → **883MB / 45 片**（split 20MB） |
+| 上传 | ECS 信箱实测 **5.0MB/s 上行 / 1.73MB/s 下行**，45 片全部 code=201 |
+| 传输工具 | 新增 `node/push_aud.py`（分片带重试）、`node/recv_aud.sh`（拉取+解包+路径重写，幂等）|
+| node1 接收 | 拉满 45 片 → 解包到 `data/audio/` → 重写 pairs 的 Windows 路径 → 自动接 `--precompute` |
+
+**本机同时**：p2 恢复到 21.4s/it（672/732），队列 `chat_of03b` → `chat_v7_03b` 待接力。
+
 ### 未完成
 - [ ] `chat_v7_03b` 训练 + in-set CE 验收（<0.60 才算学会）
 - [ ] 0.3B 中位长度过拟合探针

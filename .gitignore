@@ -106,3 +106,8 @@ models/
 node/parts/
 node/_expand_test/
 node/node_pkg.tgz
+
+# 运行时状态 / 临时产物
+.commit_msg_tmp.txt
+trial_1h/
+node/health_state.json

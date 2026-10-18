@@ -35,6 +35,10 @@ def parse_args():
     p.add_argument("--per_device_batch_size", type=int, default=1)
     p.add_argument("--grad_accumulation", type=int, default=4)
     p.add_argument("--learning_rate", type=float, default=2e-4)
+    p.add_argument("--targets", default="q_proj,k_proj,v_proj,o_proj",
+                   help="LoRA 接入点(逗号分隔)。默认只挂恒定维(注意力投影)；"
+                        "gate/up/down 属可扩维(intermediate_size 会随扩容变化)，"
+                        "挂上去主干一加宽就废，必须显式指定才允许")
     p.add_argument("--lora_r", type=int, default=8)
     p.add_argument("--lora_alpha", type=int, default=16)
     p.add_argument("--lora_dropout", type=float, default=0.05)
@@ -48,6 +52,9 @@ def parse_args():
                         "这里是从基座出发不跳数据，适合「换一份新数据集但不丢已训能力」的场景")
     p.add_argument("--resume_from_checkpoint", type=str, default=None,
                    help="续训：传入 checkpoint 目录路径（如 out_lora_role/checkpoint-15）")
+    p.add_argument("--mask_prompt", action="store_true",
+                   help="🔴 只在 assistant 段算 loss（ChatML 数据必开）。不开=整条序列算 loss，"
+                        "模型会学成'什么都往下续写'，推理时模仿用户输入而非以助手身份回答")
     return p.parse_args()
 
 
@@ -62,6 +69,32 @@ def build_text(example):
     else:
         text = f"下面是一项任务。\n{instr}\n输出：{out}"
     return {"text": text}
+
+
+IM_START = "<|" + "im_start|" + ">"
+IM_END = "<|" + "im_end|" + ">"
+
+
+def split_prompt_completion(example):
+    """把 ChatML 全序列拆成 prompt / completion 两列。
+
+    🔴 关键修复：原先整条 text（含用户提问）一起算 loss，模型学成"什么都往下续写"，
+    推理时会模仿用户输入而不是以 assistant 身份回答。拆开后配合
+    SFTConfig(completion_only_loss=True)，loss 只落在 assistant 段。
+    """
+    text = example["text"]
+    marker = IM_START + "assistant\n"
+    # 🔴 rfind 而非 find（2026-10-18 修）：多轮样本若用 find 取第一个 assistant，
+    # completion 会包含「第二轮的 user 提问 + 第二个 assistant 标记」，
+    # 等于教模型续写用户输入。取最后一个 assistant 后，前面各轮作为上下文、
+    # 只监督最后一轮回答——这是多轮 SFT 的标准切法，对单轮样本行为不变。
+    idx = text.rfind(marker)
+    if idx < 0:
+        # 非 ChatML 样本：整条当作 completion，prompt 留空
+        return {"prompt": "", "completion": text}
+    prompt = text[: idx + len(marker)]
+    completion = text[idx + len(marker):]
+    return {"prompt": prompt, "completion": completion}
 
 
 def main():
@@ -97,13 +130,23 @@ def main():
             r=args.lora_r,
             lora_alpha=args.lora_alpha,
             lora_dropout=args.lora_dropout,
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+            target_modules=[t.strip() for t in args.targets.split(",") if t.strip()],
             bias="none",
         )
 
     print(f"[info] 读取数据集: {args.data_path}")
     raw = load_dataset("json", data_files=args.data_path, split="train")
-    data = raw.map(build_text, remove_columns=raw.column_names)
+    masked = False
+    if args.mask_prompt:
+        data = raw.map(split_prompt_completion, remove_columns=raw.column_names)
+        masked = True
+        # 自检：打印一条处理结果，确认 prompt/completion 切得对、没被二次套模板
+        _s = data[0]
+        print("[check] prompt 尾部: %r" % _s["prompt"][-40:])
+        print("[check] completion 头部: %r" % _s["completion"][:40])
+        print("[check] prompt 含答案? %s" % ("是(异常)" if len(_s["completion"]) and _s["completion"][:12] in _s["prompt"] else "否(正确)"))
+    else:
+        data = raw.map(build_text, remove_columns=raw.column_names)
 
     # 保存间隔按 1/4 程：颗粒度越细，「随时暂停」的代价越低（之前是 1/2 程，中途杀一次最多白丢半程）
     save_steps = args.save_steps if args.save_steps else (max(args.max_steps // 4, 5) if args.max_steps else 100)
@@ -129,6 +172,7 @@ def main():
         packing=False,
         report_to="none",
         seed=42,
+        **({"completion_only_loss": True} if masked else {}),
     )
 
     trainer = SFTTrainer(
@@ -137,10 +181,21 @@ def main():
         train_dataset=data,
         peft_config=peft_config,
         processing_class=tokenizer,
-        formatting_func=lambda ex: ex["text"],
+        **({} if masked else {"formatting_func": lambda ex: ex["text"]}),
     )
 
     resume = args.resume_from_checkpoint
+    if masked:
+        # 终极自检：看 trainer 真正 tokenize 后的样本，确认没被二次套 chat template、掩码位置正确
+        try:
+            _d = trainer.train_dataset[0]
+            _ids = _d["input_ids"]
+            _lab = _d["labels"]
+            n_masked = sum(1 for x in _lab if x == -100)
+            print("[check2] 处理后样本: %r" % tokenizer.decode(_ids)[:160])
+            print("[check2] 掩码token数=%d / 总token数=%d (掩码应≈prompt长度)" % (n_masked, len(_ids)))
+        except Exception as e:
+            print("[check2] 跳过(%s)" % e)
     print(f"[info] 开始训练 ...{' 续训自 ' + resume if resume else ''}")
     trainer.train(resume_from_checkpoint=resume)
     trainer.save_model(args.output_dir)

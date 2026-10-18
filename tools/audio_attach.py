@@ -261,8 +261,14 @@ def main():
                 continue
             if (i + 1) % 50 == 0:
                 el = time.time() - tt
-                print("  [pre] %d/%d  %.0fs  (%.2fs/条)" % (
-                    i + 1, len(todo), el, el / (i + 1)), flush=True)
+                print("  [pre] %d/%d  %.0fs  (%.2fs/条)  累计 %d 条" % (
+                    i + 1, len(todo), el, el / (i + 1), len(feats)), flush=True)
+            # 每 500 条原子落盘：中断可续，不会白跑
+            if (i + 1) % 500 == 0:
+                tmp = a.cache + ".tmp"
+                torch.save(feats, tmp)
+                os.replace(tmp, a.cache)
+                print("  [pre] 落盘 %d 条 -> %s" % (len(feats), a.cache), flush=True)
         torch.save(feats, a.cache)
         print("[pre] 完成 %d 条 -> %s (%.0fs, %.1fMB)" % (
             len(feats), a.cache, time.time() - tt,
