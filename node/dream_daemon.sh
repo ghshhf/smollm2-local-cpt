@@ -25,6 +25,11 @@ LORA="${DREAM_LORA:-}"          # 可选：编程 LoRA 适配器目录(含 adapt
 N="${DREAM_N:-4}"
 SLEEP="${DREAM_SLEEP:-5}"
 WORKERS="${DREAM_WORKERS:-8}"
+# 产粮温度：0=贪心(同任务逐字节重复，银行假增长)。0.7 提多样性，质量仍由
+# vid_verify + task_fit 闸门把关。A/B 评测走 dream_loop 默认 temp=0，不受影响。
+DREAM_TEMP="${DREAM_TEMP:-0.7}"
+# 任务池大小(向 dream_loop 要真值，避免硬编码；dream_loop 内部按取模取任务)
+POOL=$(python3 -c "import sys;sys.path.insert(0,'tools');import dream_loop;print(len(dream_loop.DREAM_BANK))" 2>/dev/null || echo 69)
 LORA_ARG=""
 [ -n "$LORA" ] && LORA_ARG="--lora $LORA"
 
@@ -52,17 +57,20 @@ worker() {
     local id=$1
     # 错峰启动：避免 8 个 worker 同时从 NAS 读 954M 模型造成惊群(Thundering Herd)。
     sleep $((id * 3))
-    # 错峰任务段：每个 worker 按 id 平移 offset，8×4=32 > 池长 29，保证全池(含物理世界函数)都被覆盖。
-    # 否则所有 worker 都从 DREAM_BANK[0] 顺序取，永远只做前 N 条，队尾任务饿死。
-    local off=$(( (id - 1) * N ))
     while true; do
-        echo "[worker $id] $(date '+%F %T') begin offset=$off"
+        # offset 每轮随机轮换：固定 offset 会把每个 worker 钉死在 32 条切片上
+        # （实测：池扩到 69 后队尾 37 条含物理种子永远饿死；且贪心生成下同一
+        # 任务反复产逐字节相同的代码，银行 441 行只有 17 个唯一定码）。
+        # RANDOM%POOL + dream_loop 内部取模 => 全池覆盖；temp=0.7 保燃料多样性。
+        local off=$(( RANDOM % POOL ))
+        echo "[worker $id] $(date '+%F %T') begin offset=$off temp=$DREAM_TEMP pool=$POOL"
         python3 -u tools/dream_loop.py \
             --base "$BASE" \
             ${LORA_ARG:+$LORA_ARG} \
             --no-memory \
             --n "$N" \
             --offset "$off" \
+            --temp "$DREAM_TEMP" \
             >> "logs/worker_${id}.log" 2>&1
         rc=$?
         echo "[worker $id] $(date '+%F %T') end rc=$rc sleep=${SLEEP}s"

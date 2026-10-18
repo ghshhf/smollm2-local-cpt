@@ -184,6 +184,15 @@ def cmd_add(a):
                 print("   - %s: %s" % (ch.get("name"), ch.get("detail")))
         sys.exit(1)
 
+    # 定码去重：贪心/低温生成下同一任务会产出逐字节相同的代码，
+    # 不去重则银行行数虚涨（实测 441 行只有 17 个不同定码，闸门"新增"被假增量蒙混）。
+    # rc=0 = 质量达标、只是燃料已在库，不算失败（accept 侧仍计 pass）。
+    dup = c.execute("SELECT id FROM triples WHERE code_text=?", (code_text,)).fetchone()
+    if dup:
+        print(f"SKIP 定码重复(#{dup[0]})，不重复入库  {a.task[:60]}")
+        c.commit()
+        sys.exit(0)
+
     c.execute("""INSERT INTO triples(task,code_path,code_text,video_path,checks_json,ngrams)
                  VALUES(?,?,?,?,?,?)""",
               (a.task, os.path.abspath(a.code), code_text, os.path.abspath(a.video),

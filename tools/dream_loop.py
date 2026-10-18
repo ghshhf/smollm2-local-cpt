@@ -602,7 +602,7 @@ def record_trial(task, used_memory, passed):
 
 # ── 主循环 ─────────────────────────────────────────────────────────────
 class Dreamer:
-    def __init__(self, base, lora, use_latent, steps, lr, ffmpeg=None):
+    def __init__(self, base, lora, use_latent, steps, lr, ffmpeg=None, temp=0.0):
         global FFMPEG
         if ffmpeg:
             FFMPEG = ffmpeg
@@ -610,6 +610,7 @@ class Dreamer:
         self.use_latent = use_latent
         self.steps = steps
         self.lr = lr
+        self.temp = temp
         ensure_dirs()
 
     def one_dream(self, spec, use_memory=True):
@@ -634,7 +635,7 @@ class Dreamer:
 
         try:
             prompt = build_prompt(task, hint, examples)
-            gen = gen_code(self.model, self.tok, prompt, max_new=512, temp=0.0)
+            gen = gen_code(self.model, self.tok, prompt, max_new=512, temp=self.temp)
             lang, code = extract_code(gen)
             print("   [gen] lang=%s 代码长度=%d" % (lang or "-", len(code or "")))
             if not code:
@@ -728,6 +729,8 @@ def main():
     ap.add_argument("--lr", type=float, default=0.05)
     ap.add_argument("--use-latent", action="store_true", help="开启测试时 latent 适配(默认关)")
     ap.add_argument("--no-memory", action="store_true", help="不做记忆检索(基线对照)")
+    ap.add_argument("--temp", type=float, default=0.0,
+                    help="生成温度。0=贪心(确定性，A/B 两臂必须同值才公平)；产粮集群用 0.7 提多样性")
     ap.add_argument("--ffmpeg", default=None)
     ap.add_argument("--smoke", action="store_true", help="不加载模型，只测管线")
     a = ap.parse_args()
@@ -736,7 +739,7 @@ def main():
         smoke()
         return
     d = Dreamer(a.base, a.lora, use_latent=a.use_latent, steps=a.steps,
-                lr=a.lr, ffmpeg=a.ffmpeg)
+                lr=a.lr, ffmpeg=a.ffmpeg, temp=a.temp)
     d.run(a.n, use_memory=not a.no_memory, offset=a.offset)
 
 
