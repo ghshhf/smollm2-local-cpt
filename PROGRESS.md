@@ -6,6 +6,19 @@
 
 ---
 
+## 2026-10-18 21:2x · 本地自动流铺满 + chat_v7 盲测验收 + node1 通道异常
+
+- **chat_v7 盲测验收**（`logs/chat_blind_v7.json`，队列自动接训练完）：30 题 avg_hit **11.3%** / mid 3.6% / full 0% / avg_chars 61.3 / 460s。**判据**：对话线内容层仍归底座（0.3B 预训练是中文网页无对话语料），LoRA 只教得会格式——与编程线同结论。另一台电脑今晚接手中文对话 v7 收尾 + 感情模块。
+- **给自己找活干**（用户要求：别再派活，自己盯着方向推进）：盘点 PROJECT.md 挂账 → 挑不需拍板、不打断自动流的活直接干：
+  ① **论文预消化引擎** `tools/paper_digest.py` + schtasks `PaperDigest`（30min/轮，21:05 首跑）：pollinations 免key端点当阅读引擎，英文摘要→中文四行卡（问题/方法/结论/借鉴点），增量记账 `data/frontier/digest/_digested.json`，产出 `data/frontier/digest/<桶>.md`。库存 340 篇在发霉，已滚雪球消化，schtasks 错开爬虫 10min、每轮 25 篇。
+  ② **听觉线排队**：`train_queue` 排 `audio_precompute` + `audio_align_train`（chat_v7 完自动接力，21:07 起 audio_precompute 在跑）。
+  ③ **记忆层 A/B** `tools/chat_memory_ab.py`（30 题 off/on 双臂，量化 TinyContext 记忆到底帮不帮对话，E-7 合规只读注入）已入库 + 排队列第 3 位。
+  ④ **本地档案腿** `fuel_relay.py` 兜底补完（落盘成功但 git 失败不再漏归档），首批 15 条已归档。
+- **node1 信箱通道异常**：约 21:2x 起连续 5 次查询无回传（echo/bank 均失败，SSH 复活 `bridge-mailbox` 无效，ECS /health 正常 200）。疑似 node1 实例重启或拉取器抖动。node1 本地 schtasks（自进化 evolve_loop + 0.4B 训练）应会自动续；待通道恢复再查自进化是否中断 + 0.4B 权重回捞（backups/0.4B/）。
+- **已推送**：c5e4d24（论文消化产出 + fuel_relay 兜底 + chat_blind_v7.json + 顺带推 f5c0a29 论文引擎 / 3dd3f8f 记忆层AB工具）。
+
+---
+
 ## 2026-10-18 20:35 · 热更新化：加种子/改温度/换代码全部零停集群（用户唯一要求）
 
 - **病灶**：此前每次加种子都要 pkill 集群→装文件→nohup 重启，20 分钟里停了三次，复产前 8 worker 全空转、954M 模型从 NAS 重载。
