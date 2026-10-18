@@ -53,6 +53,19 @@ def main():
     ap.add_argument("--no-git", action="store_true")
     a = ap.parse_args()
 
+    # 兜底: 上轮若落盘成功但归档失败(如 gitignore 漏改)，此后每轮都会因
+    # "无新增"早退而永久漏档——开跑先查一次未归档旧档。
+    if os.path.exists(DST) and not a.no_git:
+        r = subprocess.run(["git", "-C", HERE, "status", "--porcelain",
+                            "--", "data/fuel_relay/dream_fuel.jsonl"],
+                           capture_output=True, text=True)
+        if r.stdout.strip():
+            log("[relay] 发现未归档旧档，先补档")
+            git("add", "-f", "data/fuel_relay/dream_fuel.jsonl")
+            git("commit", "-m", "fuel_relay: 补档(上轮落盘未归档)")
+            subprocess.run(["git", "-C", HERE, "push", "origin", "main"],
+                           capture_output=True, timeout=180)
+
     # 1) 拉 ECS 信箱上的新燃料
     try:
         raw = fetch("%s/%s?key=%s" % (ECS, SRC, KEY)).decode("utf-8")
