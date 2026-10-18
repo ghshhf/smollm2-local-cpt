@@ -25,13 +25,13 @@ LORA="${DREAM_LORA:-}"          # 可选：编程 LoRA 适配器目录(含 adapt
 N="${DREAM_N:-4}"
 SLEEP="${DREAM_SLEEP:-5}"
 WORKERS="${DREAM_WORKERS:-8}"
-# 产粮温度：0=贪心(同任务逐字节重复，银行假增长)。0.5 提多样性又不让
-# 小模型胡言乱语(实测 0.7 时 80 帧任务写出 200 帧、标量当数组传，
-# task_fit 误杀率飙升)。质量仍由 vid_verify + task_fit 闸门把关。
-# A/B 评测走 dream_loop 默认 temp=0，不受影响。
-DREAM_TEMP="${DREAM_TEMP:-0.5}"
-# 任务池大小(向 dream_loop 要真值，避免硬编码；dream_loop 内部按取模取任务)
-POOL=$(python3 -c "import sys;sys.path.insert(0,'tools');import dream_loop;print(len(dream_loop.DREAM_BANK))" 2>/dev/null || echo 69)
+# 产粮温度/任务池均为「热文件」，worker 每轮循环重读：
+#   data/dream_temp.txt  一行一个温度(0=贪心确定性；0.5=产粮多样性)
+#   data/dream_pool.json 任务池(改种子=改这个文件)
+# 改文件 => 下轮 worker 自动生效，零停集群零重启(2026-10-18 热更新化)。
+# A/B 评测走 dream_loop 默认 temp=0 贪心，不读热文件，两臂确定性不受影响。
+# 内置池大小仅作热文件缺失时的兜底。
+POOL_DEFAULT=$(python3 -c "import sys;sys.path.insert(0,'tools');import dream_loop;print(len(dream_loop.DREAM_BANK))" 2>/dev/null || echo 69)
 LORA_ARG=""
 [ -n "$LORA" ] && LORA_ARG="--lora $LORA"
 
@@ -60,19 +60,36 @@ worker() {
     # 错峰启动：避免 8 个 worker 同时从 NAS 读 954M 模型造成惊群(Thundering Herd)。
     sleep $((id * 3))
     while true; do
-        # offset 每轮随机轮换：固定 offset 会把每个 worker 钉死在 32 条切片上
-        # （实测：池扩到 69 后队尾 37 条含物理种子永远饿死；且贪心生成下同一
-        # 任务反复产逐字节相同的代码，银行 441 行只有 17 个唯一定码）。
-        # RANDOM%POOL + dream_loop 内部取模 => 全池覆盖；temp=0.7 保燃料多样性。
-        local off=$(( RANDOM % POOL ))
-        echo "[worker $id] $(date '+%F %T') begin offset=$off temp=$DREAM_TEMP pool=$POOL"
+        # ── 热更新三件套：每轮重读，改文件即生效，永不停集群 ──────────
+        # ① 温度热文件(缺省/非法值回退 0.5)
+        local T
+        T=$(cat data/dream_temp.txt 2>/dev/null)
+        case "$T" in ''|*[!0-9.]*) T=0.5 ;; esac
+        # ② 任务池热文件(JSON 在则热挂，条数=其中 "task" 键数；md5 前缀进日志便于远程核对)
+        local poolf=data/dream_pool.json pl=0 poolargs="" pooln="$POOL_DEFAULT" pf="-"
+        if [ -f "$poolf" ]; then
+            pl=$(grep -c '"task"' "$poolf" 2>/dev/null) || pl=0
+            [ -z "$pl" ] && pl=0
+            if [ "$pl" -gt 0 ]; then
+                poolargs="--pool $poolf"
+                pooln="$pl"
+                pf=$(md5sum "$poolf" | cut -c1-8)
+            fi
+        fi
+        # ③ offset 每轮随机轮换：固定 offset 会把每个 worker 钉死在 32 条切片上
+        #   (实测：池扩到 69 后队尾 37 条含物理种子永远饿死；且贪心生成下同一
+        #   任务反复产逐字节相同的代码，银行 441 行只有 17 个唯一定码)。
+        #   RANDOM%pooln + dream_loop 内部取模 => 全池覆盖。
+        local off=$(( RANDOM % pooln ))
+        echo "[worker $id] $(date '+%F %T') begin offset=$off temp=$T pool=$pooln/$pf"
         python3 -u tools/dream_loop.py \
             --base "$BASE" \
             ${LORA_ARG:+$LORA_ARG} \
             --no-memory \
             --n "$N" \
             --offset "$off" \
-            --temp "$DREAM_TEMP" \
+            --temp "$T" \
+            ${poolargs:+$poolargs} \
             >> "logs/worker_${id}.log" 2>&1
         rc=$?
         echo "[worker $id] $(date '+%F %T') end rc=$rc sleep=${SLEEP}s"

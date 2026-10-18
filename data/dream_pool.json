@@ -1,0 +1,566 @@
+[
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个正弦波动画(0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "标准结构：fig,ax=plt.subplots(); x=np.linspace(0,4*np.pi,200); line,=ax.plot(x,np.sin(x)); update 里 line.set_ydata(np.sin(x+frame/10.0)); FuncAnimation(fig,update,frames=100,blit=False); ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个正弦波动画(频率=2, 0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "y=np.sin(2*x)；其余同标准正弦动画结构；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画两条不同颜色的正弦曲线(相位差 π/2, 0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "l1,=ax.plot(x,np.sin(x),'b'); l2,=ax.plot(x,np.cos(x),'r'); update 同时 set_ydata 两条；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画双正弦叠加拍频动画 y=sin(1.1x)+sin(0.9x) (0~20π, 200 帧)，保存为 out.mp4",
+  "hint": "y=np.sin(1.1*x)+np.sin(0.9*x)；标准动画结构；frames=200；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个正弦波动画并填充曲线下面积(0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "ax.fill_between(x, 0, np.sin(x)) 在 update 里重画；标准动画结构；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个余弦波动画(0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "把上面 sin 换成 np.cos 即可；FuncAnimation + ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画正弦+余弦叠加的动画(0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "必须画两条：l1=sin(x), l2=np.cos(x)，各不同颜色；update 里两条都 set_ydata；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个衰减正弦波动画(0~6π, 120 帧，振幅随时间衰减)，保存为 out.mp4",
+  "hint": "y = np.sin(x) * np.exp(-0.05*x)；衰减必须真实出现在公式里；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个余弦波动画(带标题'余弦波'和网格, 0~2π, 80 帧)，保存为 out.mp4",
+  "hint": "np.cos(x)；ax.set_title('余弦波'); ax.grid(True)；frames=80；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个高频余弦波动画(频率=5, 0~4π, 120 帧)，保存为 out.mp4",
+  "hint": "y=np.cos(5*x)；标准动画结构；frames=120；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画正弦+余弦叠加动画并加图例(图例标注 y1/y2, 0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "两条曲线各 ax.plot(..., label='y1'/'y2')；ax.legend()；必须含 np.cos；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个余弦相位移动动画(0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "y=np.cos(x - frame/10.0)；标准动画结构；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个方波动画(0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "用 np.sign(np.sin(x)) 造方波(无需额外库)；必须真实出现 sign/where；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个三角波动画(0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "用 2*np.arcsin(np.sin(x)) 造三角波(无需额外库)；必须真实出现 arcsin；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个阻尼振荡动画 y=sin(x)*exp(-0.1x) (0~8π, 150 帧)，保存为 out.mp4",
+  "hint": "y=np.sin(x)*np.exp(-0.1*x)；衰减 exp 必须真实出现；frames=150；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个多曲线对比动画(正弦/方波/三角波各一条, 0~4π, 100 帧)，保存为 out.mp4",
+  "hint": "三条曲线都要：sin(x) + np.sign(np.sin(x))(方波) + 2*np.arcsin(np.sin(x))(三角波)，各不同颜色；ax.plot 三条；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个李萨如(Lissajous)曲线动画, 100 帧，保存为 out.mp4",
+  "hint": "x=np.sin(3*t), y=np.sin(2*t)；标准动画结构(画参数曲线)；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "游戏模拟",
+  "verify": "video",
+  "task": "用 matplotlib 画一个旋转螺旋线动画(100 帧)，保存为 out.mp4",
+  "hint": "极坐标 r=t, theta=t；x=r*np.cos(theta), y=r*np.sin(theta) 转直角坐标 plot；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画牛顿冷却定律动画：一杯热水温度按 T(t)=T_env+(T0-T_env)*exp(-k*t) 指数衰减(100 帧)，保存为 out.mp4",
+  "hint": "T0=90, T_env=25, k=0.03；横轴时间 0~100，曲线逐帧延伸到 t=frame；同时用颜色从红渐变到蓝表示降温；公式 exp 必须真实出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画理想气体微观模型：N 个粒子在方盒内匀速运动并弹性碰撞壁，右侧柱状图实时显示粒子数分布(120 帧)，保存为 out.mp4",
+  "hint": "np.random 生成 60 个粒子的位置/速度，每帧位置+=速度*dt，越界则速度反向；散点 ax.scatter 画粒子；右侧子图 ax.bar 画瞬时统计；粒子+柱状都要出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画一维热传导动画：金属杆初始中间热两端冷，温度分布随热方程扩散趋于均匀(150 帧)，保存为 out.mp4",
+  "hint": "离散热方程 T_new[i]=T[i]+alpha*dt/dx^2*(T[i+1]-2*T[i]+T[i-1])；初始高斯温度峰；用 imshow 热力图或按位置 plot 曲线逐帧更新，颜色随时间变化；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画卡诺循环动画：p-V 图上依次经历等温膨胀、绝热膨胀、等温压缩、绝热压缩四过程闭合循环(100 帧)，保存为 out.mp4",
+  "hint": "两段等温 p=nRT/V、两段绝热 p*V^gamma=常数；曲线逐段画出形成闭合圈，工作点标记同步移动；多曲线+闭合路径必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画光的折射与反射动画：光线以可调入射角从空气射入水中，画出反射光线和折射光线并标注角度(80 帧)，保存为 out.mp4",
+  "hint": "斯涅尔定律 n1*sin(theta1)=n2*sin(theta2)，空气 n=1.0、水 n=1.33；界面画水平线，法线画虚线；入射角逐帧从 10° 增到 70°，反射角=入射角、折射角按公式算；ax.legend 图例标注三条光线；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画杨氏双缝干涉动画：两列相干余弦波叠加，屏幕上形成明暗相间干涉条纹且随波长变化(120 帧)，保存为 out.mp4",
+  "hint": "两列波 y1=np.cos(k*x1), y2=np.cos(k*x2)，x1/x2 为到两缝距离；屏上强度 I=|y1+y2|^2；画波面曲线+屏上条纹，波长逐帧变化；余弦+多曲线必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画多普勒效应动画：波源向右移动，前方波纹压缩、后方拉伸(100 帧)，保存为 out.mp4",
+  "hint": "以固定时间间隔从波源当前位置发出同心圆环波纹；波源每帧 x+=v*dt，v<波速；用 ax.scatter 或 ax.plot 画圆弧，前面圆环间距变小后面变大；余弦波纹+散点；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画弹簧振子简谐运动动画：物块在弹簧上振动，右侧同步画位移-时间余弦曲线(100 帧)，保存为 out.mp4",
+  "hint": "位移 x=A*np.cos(omega*t)；左侧画弹簧折线+物块方块随位移移动，右侧画已走过的位移曲线逐帧延伸；A=1.0, omega=2.0；余弦必须真实出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画抛体运动对比动画：不同发射角度的多条抛物线轨迹同时展开并落点标记(100 帧)，保存为 out.mp4",
+  "hint": "v0=20, g=9.8；对 30°/45°/60° 分别算 x=v0*cos(a)*t, y=v0*sin(a)*t-0.5*g*t^2；三条曲线不同颜色逐帧画出，落点画散点标记；多曲线+散点；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画绳上驻波动画：行波与反射波叠加形成驻波，节点与波腹位置随波长变化(120 帧)，保存为 out.mp4",
+  "hint": "y1=np.sin(k*x-omega*t), y2=np.sin(k*x+omega*t) 反射波；y=y1+y2=2*np.sin(k*x)*np.cos(omega*t)；节点画虚线标注；波长逐帧变；余弦/正弦+多曲线；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画熵增加动画：N 个粒子初始聚集在盒子左半，屏障消失后自发扩散布满全盒，实时显示左右粒子数差衰减到零(150 帧)，保存为 out.mp4",
+  "hint": "np.random 生成 50 个粒子初始 x 全在左半[0,0.5]，随机速度；每帧位置+=速度*dt，全区间 [0,1] 弹性反射；左侧子图画粒子散点，右侧画左右计数差随帧数衰减曲线；粒子+衰减必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画指数函数增长动画 y=exp(0.15x) (0~40, 100 帧，曲线逐帧向右延伸)，保存为 out.mp4",
+  "hint": "x=np.linspace(0,40,200)；y=np.exp(0.15*x)；update 里 set_xdata(x[:frame*2]) 逐步延伸；指数增长必须真实出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画对数函数增长动画 y=ln(x) (0.1~50, 100 帧，与 y=x 对比)，保存为 out.mp4",
+  "hint": "x=np.linspace(0.1,50,200)；画两条：l1=np.log(x), l2=x；对数增速放缓与直线对比，多曲线+图例；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画幂函数族对比动画 y=x^2, y=x^3, y=sqrt(x) (0~5, 100 帧)，保存为 out.mp4",
+  "hint": "三条不同颜色：x**2, x**3, np.sqrt(x)；多曲线同时逐帧延伸；ax.legend 标注；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画有理函数动画 y=1/x 展示双曲线与渐近线 (0.1~10, 100 帧)，保存为 out.mp4",
+  "hint": "x 正区间 y=1/x；画竖直渐近线 ax.axvline(0,ls='--') 和水平渐近线 ax.axhline(0,ls='--')；曲线逐帧延伸；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画 sigmoid 函数动画 y=1/(1+exp(-x)) 并同步画其导数钟形曲线 (100 帧)，保存为 out.mp4",
+  "hint": "y=1/(1+np.exp(-x))；导数 y*(1-y) 也是高斯形；两条曲线不同颜色同步逐帧延伸；指数 exp 必须真实出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画 tanh 与 sigmoid 对比动画 (-6~6, 100 帧)，保存为 out.mp4",
+  "hint": "l1=np.tanh(x), l2=1/(1+np.exp(-x))；两条曲线各颜色；多曲线+图例；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画高斯钟形曲线动画 y=exp(-x^2/(2*sigma^2)) 且 sigma 逐帧变化 (-5~5, 100 帧)，保存为 out.mp4",
+  "hint": "sigma 从 0.5 渐变到 3；y=np.exp(-x**2/(2*sigma**2))；衰减曲线逐帧重画；指数 exp 必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画 sinc 函数振荡衰减动画 y=sin(x)/x (-20π~20π, 100 帧)，保存为 out.mp4",
+  "hint": "x=np.linspace(-20*np.pi,20*np.pi,800) 去掉 0 点；y=np.sin(x)/x；振荡+衰减；曲线逐帧延伸；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画阶跃函数逼近动画：sigmoid 温度参数逐帧降低逼近方波 (100 帧)，保存为 out.mp4",
+  "hint": "y=1/(1+np.exp(-T*x))，T 从 1 增到 100，曲线越来越陡最终像方波；方波要素由极限形态呈现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画多项式函数动画 y=x^3-3x+1 展示三个零点与切线滚动 (-3~3, 100 帧)，保存为 out.mp4",
+  "hint": "y=x**3-3*x+1；导数 3*x**2-3 作切线斜率；零点位置画竖虚线标注；曲线+切线；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画分段函数动画：x<0 时 y=x^2，x>=0 时 y=sqrt(x)，接点处连续 (100 帧)，保存为 out.mp4",
+  "hint": "np.where(x<0, x**2, np.sqrt(np.abs(x)))；分段用两种颜色画；接点 x=0 画标记点；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画调幅 AM 信号动画 y=(1+0.5*sin(2π*0.5t))*sin(2π*5t) (200 帧)，保存为 out.mp4",
+  "hint": "载波 sin(2π*5t) 高频，包络 1+0.5*sin(2π*0.5t) 低频；画包络虚线+信号实线；余弦/正弦+多曲线；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画摆线动画：半径 r 的圆沿直线滚动，圆上一点画出摆线 x=r(t-sin t), y=r(1-cos t) (150 帧)，保存为 out.mp4",
+  "hint": "t 从 0 增到 6π；同时画滚动圆(ax.plot 圆参数方程)和已生成的摆线轨迹；圆滚动+轨迹逐帧延伸；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画心形线极坐标动画 r=1-cos(theta) (0~2π 逐帧绘制)，保存为 out.mp4",
+  "hint": "theta 数组逐帧增长；x=r*np.cos(theta), y=r*np.sin(theta)；心形逐段画出；极坐标转直角必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画玫瑰线动画 r=cos(3*theta) 三叶玫瑰逐帧旋转绽放 (150 帧)，保存为 out.mp4",
+  "hint": "theta 0~2π；x=r*cos(theta), y=r*sin(theta)；每帧整体旋转一个小角度；花瓣逐帧显现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画椭圆动画：参数方程 x=a*cos t, y=b*sin t，两个焦点标记且到焦点距离之和恒定 (100 帧)，保存为 out.mp4",
+  "hint": "a=3,b=2；焦点 (±c,0), c=sqrt(a²-b²)；画动点到两焦点的连线证明距离和=2a；余弦+文本标注；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画星形线动画 x=cos³t, y=sin³t 与内切圆滚动 (150 帧)，保存为 out.mp4",
+  "hint": "x=np.cos(t)**3, y=np.sin(t)**3；四尖星逐段画出；余弦/正弦立方必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画正多边形逼近圆动画：边数从 3 逐帧增到 60 (120 帧)，保存为 out.mp4",
+  "hint": "n 从 3 到 60；顶点 angle=np.linspace(0,2π,n+1)；x=np.cos(angle),y=np.sin(angle)；多边形逐帧变圆；网格背景；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画毕达哥拉斯树分形生长动画(迭代 8 层, 150 帧逐层展开)，保存为 out.mp4",
+  "hint": "递归/迭代画正方形+上方直角三角形；每帧多画一层；自相似结构；文本标注层数；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画李萨如曲线族动画：不同频率比 (a:b) 逐帧切换 (3:2→5:4→2:3, 150 帧)，保存为 out.mp4",
+  "hint": "x=np.sin(a*t), y=np.sin(b*t+phase)；频率比逐帧变；李萨如逐段重画；图例标注当前 a:b；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "信号处理",
+  "verify": "video",
+  "task": "用 matplotlib 画方波傅里叶级数合成动画：谐波项数 N 从 1 增到 20，合成波越来越像方波 (150 帧)，保存为 out.mp4",
+  "hint": "y=Σ(4/π)·sin((2k-1)x)/(2k-1)；每帧 N+1；方波形态由级数极限逼近；正弦级数必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "信号处理",
+  "verify": "video",
+  "task": "用 matplotlib 画锯齿波合成动画：谐波项数从 1 增到 15 (120 帧)，保存为 out.mp4",
+  "hint": "锯齿波 y=Σ(2(-1)^(k+1)/k)·sin(kx)；逐帧加项；曲线逐步变陡；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "信号处理",
+  "verify": "video",
+  "task": "用 matplotlib 画信号频谱动画：三个正弦分量叠加，右侧柱状图实时显示各分量幅度 (120 帧)，保存为 out.mp4",
+  "hint": "y=sin(2π*1x)+0.5*sin(2π*3x)+0.25*sin(2π*5x)；左图波形右图 ax.bar 频谱；柱状图必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "信号处理",
+  "verify": "video",
+  "task": "用 matplotlib 画采样混叠动画：高频正弦用低频率采样，逐帧降低采样率展示混叠假象 (120 帧)，保存为 out.mp4",
+  "hint": "原信号 sin(2π*10t)；采样点每帧减少；散点标记采样点+原曲线；散点+正弦；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "信号处理",
+  "verify": "video",
+  "task": "用 matplotlib 画调频 FM 信号动画：调制幅度逐帧增大，瞬时频率变化可见 (150 帧)，保存为 out.mp4",
+  "hint": "y=sin(2π*5*t + m*sin(2π*0.5*t))；m 从 0 增到 10；相位调制使波形疏密变化；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "信号处理",
+  "verify": "video",
+  "task": "用 matplotlib 画滤波动画：含噪信号逐帧被移动平均平滑，噪声方差衰减曲线同步显示 (150 帧)，保存为 out.mp4",
+  "hint": "signal=sin(2π*x)+np.random.normal(0,0.3)；卷积/滑动平均窗口逐帧加宽；衰减曲线显示残余误差；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画梯度下降动画：在碗形函数 f(x,y)=x²+y² 上从高处逐帧下滑到谷底 (120 帧)，保存为 out.mp4",
+  "hint": "x,y 初始 (4,4)；每帧 x-=lr*2x, y-=lr*2y；画等高线背景+下降轨迹红线+当前点标记；轨迹逐帧延伸；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画蒙特卡洛估 π 动画：随机散点落入单位正方形，内切圆计数逐帧更新，π 估计值收敛到 3.14 (200 帧)，保存为 out.mp4",
+  "hint": "np.random.uniform(-1,1,(n,2))；判定 x²+y²<=1；散点分两色+右侧 π 估计曲线；散点+柱状/曲线；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一维随机游走动画：粒子逐帧左右随机移动，位移方差随时间扩散 (200 帧)，保存为 out.mp4",
+  "hint": "每帧位置 += choice([-1,1])；画轨迹折线+当前点；右侧画位移绝对值包络 ±sqrt(t) 理论曲线；粒子+网格；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画冒泡排序动画：随机柱高逐帧比较交换变成有序，右侧显示比较次数 (150 帧)，保存为 out.mp4",
+  "hint": "arr=np.random.permutation(20)；每帧做一步比较交换；ax.bar 柱状图颜色随比较高亮；柱状图必须出现；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画 BFS 洪水填充动画：从网格中心出发逐帧向四邻扩散，访问次序着色 (150 帧)，保存为 out.mp4",
+  "hint": "30×30 网格；队列扩散；已访问格子 imshow 上色；网格+散点；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画康威生命游戏动画：随机初始网格按规则逐帧演化 (150 帧)，保存为 out.mp4",
+  "hint": "40×40 随机 0/1；每帧统计八邻域计数应用规则；imshow 二值图；网格演化；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画 K-means 聚类动画：散点数据逐帧重新分配簇并更新中心 (150 帧)，保存为 out.mp4",
+  "hint": "np.random 生成 3 簇高斯点；每帧算到 3 中心距离重分配+更新中心；散点按簇着色+中心大标记；散点+图例；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画 DLA 分形聚集生长动画：粒子随机游走粘附到簇上形成分形 (200 帧)，保存为 out.mp4",
+  "hint": "中心种子点；粒子从外围随机释放游走，邻接簇即粘附；散点画簇；粒子+网格；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画单摆动画：摆锤摆动同时右侧画相图(角度-角速度)轨迹 (150 帧)，保存为 out.mp4",
+  "hint": "θ''=-(g/L)sinθ 欧拉积分；左图摆线+摆锤，右图 ax.plot 相图逐帧延伸；相图是闭合椭圆(小角近似简谐)；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画双耦合振子动画：两个振子通过弹簧连接，能量此消彼长形成拍频 (200 帧)，保存为 out.mp4",
+  "hint": "两自由度耦合方程欧拉积分；画两振子位移曲线+中间弹簧；能量交换出现拍频包络；余弦+多曲线；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画二维波动方程动画：薄膜中心受击后波纹扩散衰减 (150 帧)，保存为 out.mp4",
+  "hint": "40×40 网格离散热方程 u_new=2u-u_old+c²∇²u；imshow 热力图逐帧更新；波纹扩散+衰减；网格；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画洛伦兹吸引子动画：三维混沌轨迹逐帧绘制 (dx,dy,dz 方程积分, 300 帧)，保存为 out.mp4",
+  "hint": "σ=10,ρ=28,β=8/3；dt=0.005 欧拉积分；ax.plot 三维轨迹线逐帧延伸；蝴蝶翅膀双叶结构；轨迹+文本标注参数；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画放射性衰变动画：剩余原子核数指数衰减，半衰期位置逐条标注 (150 帧)，保存为 out.mp4",
+  "hint": "N=N0*exp(-λt)；画衰减曲线+半衰期竖虚线(T½=ln2/λ)+逐帧减少的粒子散点；衰减+散点；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画三棱镜色散动画：白光入射棱镜分解成七色光谱，各色折射角不同 (120 帧)，保存为 out.mp4",
+  "hint": "棱镜画三角形；七种颜色光线入射角相同但折射角按波长略不同(红小紫大)；光线用不同颜色 ax.plot；文本标注红/橙/黄/绿/蓝/靛/紫；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "游戏模拟",
+  "verify": "video",
+  "task": "用 matplotlib 画一个小球弹跳动画：小球下落触地反弹，反弹高度逐次衰减 (100 帧)，保存为 out.mp4",
+  "hint": "y=v0*t-0.5*g*t*t，触地后 v 反向乘 0.8；ax.plot 小球圆点+地面水平线；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "游戏模拟",
+  "verify": "video",
+  "task": "用 matplotlib 画一个旋转正方形动画：正方形绕中心匀速旋转 (100 帧)，保存为 out.mp4",
+  "hint": "正方形四顶点坐标乘旋转矩阵 R(θ)=[[cosθ,-sinθ],[sinθ,cosθ]]，θ 逐帧增；ax.plot 闭合折线；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "游戏模拟",
+  "verify": "video",
+  "task": "用 matplotlib 画一个扩张圆动画：圆的半径从 0 逐帧增大 (100 帧)，保存为 out.mp4",
+  "hint": "Circle patch，radius=frame/100；ax.add_patch 逐帧更新；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "游戏模拟",
+  "verify": "video",
+  "task": "用 matplotlib 画一个自由落体动画：小球竖直加速下落并留下拖尾轨迹 (100 帧)，保存为 out.mp4",
+  "hint": "y=y0-0.5*g*t*t；ax.plot 拖尾线(只保留最近 20 帧)+当前小球点；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "游戏模拟",
+  "verify": "video",
+  "task": "用 matplotlib 画一个一维弹性碰撞动画：两球相向运动碰撞后反向弹开 (100 帧)，保存为 out.mp4",
+  "hint": "两球 x 匀速相向，碰撞帧互换速度；ax.plot 两个圆点+速度标注文本；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个行进波动画：正弦波形整体向右平移 (100 帧)，保存为 out.mp4",
+  "hint": "y=np.sin(x-frame*0.1)；固定 x=linspace(0,4π,200)；line.set_ydata 逐帧更新；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个时钟指针动画：一根线段绕端点匀速旋转 (100 帧)，保存为 out.mp4",
+  "hint": "线段端点=(cos θ, sin θ)，θ=2π*frame/100；ax.plot 从原点到端点；表盘圆形边框；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个同心圆涟漪动画：圆圈从中心逐帧向外扩散 (100 帧)，保存为 out.mp4",
+  "hint": "Circle patch radius 逐帧增、alpha 逐帧降；每 10 帧新增一个圆制造涟漪；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个进度条动画：水平条从 0 增长到 100% (100 帧)，保存为 out.mp4",
+  "hint": "ax.barh 单条矩形宽度=frame；右侧文本显示百分比；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个星空闪烁动画：随机分布的圆点明暗随机变化 (100 帧)，保存为 out.mp4",
+  "hint": "预生成 100 个随机坐标散点；每帧随机改各点 alpha(或大小)；scatter 的 set_alpha；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个简易单摆动画：摆锤绕固定悬挂点往复摆动 (100 帧)，保存为 out.mp4",
+  "hint": "θ=θ0*cos(sqrt(g/L)*t)；摆锤位置=(L sinθ, -L cosθ)；ax.plot 摆线+摆锤圆点；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画一个抛物线绘制动画：y=x² 曲线从左向右逐帧绘制 (100 帧)，保存为 out.mp4",
+  "hint": "x=linspace(0,4,200)；每帧只画前 frame*2 个点(line.set_data 截断)；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画一个阿基米德螺线绘制动画：r 与 θ 成正比的螺线逐帧绘制 (100 帧)，保存为 out.mp4",
+  "hint": "θ=linspace(0,6π,N) 逐帧增加 N；x=r cosθ, y=r sinθ, r=0.1*θ；逐帧截断绘制；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "数学函数",
+  "verify": "video",
+  "task": "用 matplotlib 画一个圆面积填充动画：圆内扇形面积逐帧增长 (100 帧)，保存为 out.mp4",
+  "hint": "Wedge patch theta1=0, theta2=2π*frame/100 逐帧扩大；圆形边框；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画一个旋转五角星动画：五角星绕中心旋转并做缩放呼吸 (100 帧)，保存为 out.mp4",
+  "hint": "五角星 10 个顶点(外半径 1 内半径 0.4 交替)；旋转矩阵+半径乘 1+0.2*sin(frame*0.1)；闭合折线；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "几何曲线",
+  "verify": "video",
+  "task": "用 matplotlib 画一个椭圆轨道动画：小球沿椭圆轨道运动并留下轨迹 (100 帧)，保存为 out.mp4",
+  "hint": "x=a cos t, y=b sin t, t=2π*frame/100；ax.plot 完整椭圆轨迹+当前小球点；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "信号处理",
+  "verify": "video",
+  "task": "用 matplotlib 画一个随机信号生成动画：折线信号从左向右逐帧延伸 (100 帧)，保存为 out.mp4",
+  "hint": "np.random.seed 固定；每帧 append 一个随机步进值；line.set_data 截断到当前帧；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个一维梯度下降动画：在抛物线函数上从高处逐帧下滑到谷底 (100 帧)，保存为 out.mp4",
+  "hint": "f(x)=x²；x -= lr*2x, lr=0.1；ax.plot 抛物线+当前点(小球标记)+下降轨迹线；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "算法可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个线性查找动画：指针逐帧右移直到命中目标值 (100 帧)，保存为 out.mp4",
+  "hint": "预生成 20 个随机柱高；目标值固定；指针矩形框逐帧右移，命中后高亮变绿；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画一个匀速圆周运动动画：小球沿圆轨道匀速运动并留下轨迹 (100 帧)，保存为 out.mp4",
+  "hint": "θ=2π*frame/100；位置=(R cosθ, R sinθ)；ax.plot 圆轨道+小球点+已走过的轨迹弧；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画一个台球滑行动画：小球在桌面上匀速直线滑行 (100 帧)，保存为 out.mp4",
+  "hint": "x 匀速线性增；桌面矩形边框+六个球袋圆点；小球圆点沿直线运动；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画一个水平弹簧振子简化动画：物块在水平弹簧上往复振动 (100 帧)，保存为 out.mp4",
+  "hint": "x=A*cos(ωt), ω=sqrt(k/m)；左侧墙+弹簧折线(振幅逐帧变)+物块矩形；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画一个漂浮物起伏动画：水面漂浮物随波上下简谐运动 (100 帧)，保存为 out.mp4",
+  "hint": "水面用正弦曲线逐帧相移；漂浮物圆点 y 跟随本地水面高度；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "物理仿真",
+  "verify": "video",
+  "task": "用 matplotlib 画一个光直线传播动画：光线从光源直线射出照亮屏幕 (100 帧)，保存为 out.mp4",
+  "hint": "光源点+屏幕竖线；ax.plot 直线光线逐帧延长(截断绘制)；照亮区域半透明矩形逐帧变宽；100 帧；ani.save('out.mp4',writer='ffmpeg')"
+ },
+ {
+  "domain": "UI可视化",
+  "verify": "video",
+  "task": "用 matplotlib 画一个热更新验证动画：黄色圆点从屏幕左侧平滑移动到右侧(100 帧)，保存为 out.mp4",
+  "hint": "fig,ax=plt.subplots(); line,=ax.plot([0],[0],\"yo\",ms=12); update 里 set_data([x],[0]); 100 帧; ani.save(\"out.mp4\",writer=\"ffmpeg\")"
+ }
+]

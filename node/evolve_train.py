@@ -30,7 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "tools"))
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
-from dream_loop import SYSTEM, DREAM_BANK, build_prompt  # noqa: E402
+from dream_loop import SYSTEM, DREAM_BANK, build_prompt, load_pool  # noqa: E402
 
 
 def main():
@@ -49,8 +49,10 @@ def main():
     torch.set_num_threads(8)
     random.seed(a.seed)
 
-    # ── 1) 读银行 + 按任务查 hint ─────────────────────────────────────
-    hint_of = {e["task"]: e.get("hint", "") for e in DREAM_BANK}
+    # ── 1) 读银行 + 按任务查 hint(池子走热加载文件，与推理时同源) ──────
+    pool = load_pool()
+    print("[evolve_train] 任务池: %d 条(来源 data/dream_pool.json)" % len(pool))
+    hint_of = {e["task"]: e.get("hint", "") for e in pool}
     c = sqlite3.connect(a.db, timeout=30)
     c.execute("PRAGMA busy_timeout=30000")
     rows = c.execute("SELECT id, task, code_text FROM triples ORDER BY id").fetchall()

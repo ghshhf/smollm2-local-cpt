@@ -613,6 +613,27 @@ def adapt_latent(model, tok, support, steps=8, lr=0.05):
     return latent, last
 
 
+# ── 任务池热加载 ───────────────────────────────────────────────────────
+# 池子外置到 data/dream_pool.json：改种子=改文件，worker 每轮 exec 新进程
+# 天然读到新池，停集群/重启从此绝迹。文件不在时回退内置 DREAM_BANK。
+POOL_PATH = "data/dream_pool.json"
+
+
+def load_pool(path=None):
+    path = path or POOL_PATH
+    try:
+        with open(path, encoding="utf-8") as f:
+            pool = json.load(f)
+        if isinstance(pool, list) and pool and "task" in pool[0]:
+            return pool
+        print("[pool] %s 格式异常，回退内置 DREAM_BANK" % path)
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print("[pool] %s 读取失败(%s)，回退内置 DREAM_BANK" % (path, e))
+    return DREAM_BANK
+
+
 # ── 沙箱执行 ───────────────────────────────────────────────────────────
 def run_code(code, run_id, timeout=90):
     d = os.path.join(DREAM_DIR, run_id)
@@ -680,7 +701,8 @@ def record_trial(task, used_memory, passed):
 
 # ── 主循环 ─────────────────────────────────────────────────────────────
 class Dreamer:
-    def __init__(self, base, lora, use_latent, steps, lr, ffmpeg=None, temp=0.0):
+    def __init__(self, base, lora, use_latent, steps, lr, ffmpeg=None, temp=0.0,
+                 pool_path=None):
         global FFMPEG
         if ffmpeg:
             FFMPEG = ffmpeg
@@ -689,6 +711,7 @@ class Dreamer:
         self.steps = steps
         self.lr = lr
         self.temp = temp
+        self.pool_path = pool_path
         ensure_dirs()
 
     def one_dream(self, spec, use_memory=True):
@@ -750,7 +773,8 @@ class Dreamer:
                 hook.detach()
 
     def run(self, n, use_memory=True, offset=0):
-        specs = [DREAM_BANK[(i + offset) % len(DREAM_BANK)] for i in range(n)]
+        pool = load_pool(getattr(self, "pool_path", None))
+        specs = [pool[(i + offset) % len(pool)] for i in range(n)]
         stats = {"pass": 0, "fail": 0}
         for spec in specs:
             try:
@@ -810,6 +834,8 @@ def main():
     ap.add_argument("--temp", type=float, default=0.0,
                     help="生成温度。0=贪心(确定性，A/B 两臂必须同值才公平)；产粮集群用 0.7 提多样性")
     ap.add_argument("--ffmpeg", default=None)
+    ap.add_argument("--pool", default="data/dream_pool.json",
+                    help="任务池 JSON 路径(热加载：改文件即换种子，无需重启集群)")
     ap.add_argument("--smoke", action="store_true", help="不加载模型，只测管线")
     a = ap.parse_args()
 
@@ -817,7 +843,7 @@ def main():
         smoke()
         return
     d = Dreamer(a.base, a.lora, use_latent=a.use_latent, steps=a.steps,
-                lr=a.lr, ffmpeg=a.ffmpeg, temp=a.temp)
+                lr=a.lr, ffmpeg=a.ffmpeg, temp=a.temp, pool_path=a.pool)
     d.run(a.n, use_memory=not a.no_memory, offset=a.offset)
 
 
