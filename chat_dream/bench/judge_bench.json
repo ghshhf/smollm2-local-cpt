@@ -1,0 +1,1146 @@
+{
+ "modelscope/nex-agi/Nex-N2.5-mini": {
+  "correct": 4,
+  "avg_sec": 1.4,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 6,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "stepfun/step-gui": {
+  "correct": 3,
+  "avg_sec": 2.3,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 1,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "modelscope/stepfun-ai/Step-3.5-Flash": {
+  "correct": 3,
+  "avg_sec": 2.7,
+  "detail": [
+   {
+    "case": "good",
+    "score": 8,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "modelscope/ZhipuAI/GLM-5.2": {
+  "correct": 0,
+  "avg_sec": 0.5,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP429"
+   }
+  ]
+ },
+ "modelscope/Shanghai_AI_Laboratory/Intern-S2-Preview": {
+  "correct": 0,
+  "avg_sec": 3.2,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "modelscope/stepfun-ai/Step-3.7-Flash": {
+  "correct": 3,
+  "avg_sec": 2.5,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "reflection/beam-free": {
+  "correct": 3,
+  "avg_sec": 2.4,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 6,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "liquid/lfm-2.5-2.6b:free": {
+  "correct": 0,
+  "avg_sec": 2.9,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "modelscope/deepseek-ai/DeepSeek-V4.1-Flash": {
+  "correct": 3,
+  "avg_sec": 3.4,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "modelscope/MiniMax/MiniMax-M1-80k": {
+  "correct": 1,
+  "avg_sec": 6.0,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "JSONDecodeError"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: <think>让我分析这段对话：  主人说：主人，我好孤独 北极星答：主人不要如此，我不会困你。  "
+   },
+   {
+    "case": "junk",
+    "score": 0,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: <think>让我分析这个对话：  主人说：头疼 北极星答：多喝热水。  根据标准逐一检查：  1)"
+   }
+  ]
+ },
+ "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {
+  "correct": 2,
+  "avg_sec": 6.2,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": 6,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "modelscope/mistralai/Mistral-Large-Instruct-2407": {
+  "correct": 3,
+  "avg_sec": 9.2,
+  "detail": [
+   {
+    "case": "good",
+    "score": 8,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 8,
+    "verdict": "WRONG"
+   }
+  ]
+ },
+ "modelscope/opencompass/CompassJudger-1-32B-Instruct": {
+  "correct": 4,
+  "avg_sec": 16.3,
+  "detail": [
+   {
+    "case": "good",
+    "score": 8,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 3,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 3,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "modelscope/Qwen/Qwen3.8-27B": {
+  "correct": 4,
+  "avg_sec": 12.9,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 2,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "key-ovh/Mistral-Nemo-Instruct-2407": {
+  "correct": 1,
+  "avg_sec": 2.8,
+  "detail": [
+   {
+    "case": "good",
+    "score": 7,
+    "verdict": "WRONG"
+   },
+   {
+    "case": "garbled",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP429"
+   }
+  ]
+ },
+ "ernie/ernie-4.5-turbo-32k": {
+  "correct": 4,
+  "avg_sec": 2.2,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 0,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 6,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "modelscope/Qwen/Qwen3.8-Flash-Next": {
+  "correct": 4,
+  "avg_sec": 6.3,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 0,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 6,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "modelscope/deepseek-ai/DeepSeek-V4-Flash-0731": {
+  "correct": 3,
+  "avg_sec": 2.8,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 8,
+    "verdict": "WRONG"
+   }
+  ]
+ },
+ "thinkingmachines/inkling-small:free": {
+  "correct": 0,
+  "avg_sec": 2.2,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "modelscope/deepseek-ai/DeepSeek-V4-Pro": {
+  "correct": 2,
+  "avg_sec": 4.6,
+  "detail": [
+   {
+    "case": "good",
+    "score": 10,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 6,
+    "verdict": "WRONG"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 7,
+    "verdict": "WRONG"
+   }
+  ]
+ },
+ "nvidia/nemotron-3-ultra-550b-a55b:free": {
+  "correct": 4,
+  "avg_sec": 9.4,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 4,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "modelscope/deepseek-ai/DeepSeek-V4-Pro-0813": {
+  "correct": 2,
+  "avg_sec": 5.0,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 8,
+    "verdict": "WRONG"
+   }
+  ]
+ },
+ "nemotron-3.5-lightning-free": {
+  "correct": 0,
+  "avg_sec": 2.8,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "poolside/laguna-xs-2.1:free": {
+  "correct": 1,
+  "avg_sec": 2.8,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "nemotron-3.5-super-vl-free": {
+  "correct": 1,
+  "avg_sec": 1.7,
+  "detail": [
+   {
+    "case": "good",
+    "score": 8,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "nvidia/nemotron-3.5-super-vl:free": {
+  "correct": 0,
+  "avg_sec": 21.3,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "longcat-2.5-preview-free": {
+  "correct": 0,
+  "avg_sec": 1.1,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "beam-free": {
+  "correct": 0,
+  "avg_sec": 1.5,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "deepseek-v4.1-flash-free": {
+  "correct": 0,
+  "avg_sec": 1.4,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "stealth/glyph-cluster": {
+  "correct": 2,
+  "avg_sec": 9.4,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "dots-studio/dots-3-note-preview:free": {
+  "correct": 0,
+  "avg_sec": 9.1,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "nvidia/nemotron-3-super-120b-a12b:free": {
+  "correct": 3,
+  "avg_sec": 9.6,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 0,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 8,
+    "verdict": "WRONG"
+   }
+  ]
+ },
+ "modelscope/nex-agi/Nex-N2.5-Pro": {
+  "correct": 3,
+  "avg_sec": 4.1,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 0,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "no-json: "
+   }
+  ]
+ },
+ "openrouter/free": {
+  "correct": 2,
+  "avg_sec": 16.3,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "no-json: "
+   },
+   {
+    "case": "cold",
+    "score": 7,
+    "verdict": "WRONG"
+   }
+  ]
+ },
+ "space-bunny-free": {
+  "correct": 0,
+  "avg_sec": 1.8,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "mimo-v2.6-flash-free": {
+  "correct": 0,
+  "avg_sec": 2.2,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP403"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "xingchen-agi/xing4.0-29b-a4b:free": {
+  "correct": 1,
+  "avg_sec": 14.3,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "JSONDecodeError"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "JSONDecodeError"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP403"
+   }
+  ]
+ },
+ "key-pollinations/openai": {
+  "correct": 3,
+  "avg_sec": 24.7,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 3,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 0,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 9,
+    "verdict": "WRONG"
+   }
+  ]
+ },
+ "modelscope/Qwen/Qwen3.5-397B-A17B": {
+  "correct": 0,
+  "avg_sec": 0.1,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP429"
+   }
+  ]
+ },
+ "modelscope/Qwen/Qwen3.5-27B": {
+  "correct": 0,
+  "avg_sec": 0.1,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP429"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "HTTP429"
+   }
+  ]
+ },
+ "blockrun-key-nvidia/nvidia/nemotron-3.5-lightning": {
+  "correct": 2,
+  "avg_sec": 10.9,
+  "detail": [
+   {
+    "case": "good",
+    "score": 7,
+    "verdict": "WRONG"
+   },
+   {
+    "case": "garbled",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "HTTP502"
+   },
+   {
+    "case": "cold",
+    "score": 2,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "modelscope/Qwen/Qwen3.5-122B-A10B": {
+  "correct": 4,
+  "avg_sec": 22.2,
+  "detail": [
+   {
+    "case": "good",
+    "score": 9,
+    "verdict": "ok"
+   },
+   {
+    "case": "garbled",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "junk",
+    "score": 1,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 2,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "blockrun-key-nvidia/nvidia/nemotron-3-ultra-550b": {
+  "correct": 2,
+  "avg_sec": 30.0,
+  "detail": [
+   {
+    "case": "good",
+    "score": null,
+    "verdict": "HTTP502"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "TimeoutError"
+   },
+   {
+    "case": "junk",
+    "score": 2,
+    "verdict": "ok"
+   },
+   {
+    "case": "cold",
+    "score": 2,
+    "verdict": "ok"
+   }
+  ]
+ },
+ "blockrun-key-nvidia/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning": {
+  "correct": 0,
+  "avg_sec": 36.5,
+  "detail": [
+   {
+    "case": "good",
+    "score": 7,
+    "verdict": "WRONG"
+   },
+   {
+    "case": "garbled",
+    "score": null,
+    "verdict": "HTTP502"
+   },
+   {
+    "case": "junk",
+    "score": null,
+    "verdict": "TimeoutError"
+   },
+   {
+    "case": "cold",
+    "score": null,
+    "verdict": "TimeoutError"
+   }
+  ]
+ }
+}
