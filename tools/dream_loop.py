@@ -76,7 +76,13 @@ def ensure_dirs():
 
 # ── 记忆检索(喂 few-shot) ───────────────────────────────────────────────
 def retrieve_examples(task, k=2):
-    """从三元组银行抽 top-k 相似历史成功代码，作为做梦的 few-shot 上下文。"""
+    """从三元组银行抽 top-k 相似历史成功代码，作为做梦的 few-shot 上下文。
+
+    🔴 只认库里的 code_text 快照，不按 code_path 读磁盘：
+       triple_bank 的设计原则是「存快照不存路径」（文件会被改/被清），
+       旧实现 `open(code=路径)` 在 data/dreams 被清理后会让 few-shot 静默失效，
+       且可能读到训练后被改过的版本 —— RSI 的燃料链会断在这里。
+    """
     try:
         p = subprocess.run(
             [sys.executable, os.path.join(HERE, "triple_bank.py"), "query",
@@ -84,15 +90,19 @@ def retrieve_examples(task, k=2):
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             cwd=ROOT)
         out = p.stdout or ""
-        ex = []
-        cur = None
+        blocks, cur = [], None
         for line in out.splitlines():
-            m = re.match(r"\s+code=(.+)", line)
-            if m and os.path.isfile(m.group(1).strip()):
-                cur = m.group(1).strip()
-                txt = open(cur, encoding="utf-8", errors="replace").read()
-                ex.append(txt[:1800])
-        return ex
+            if line.startswith("["):          # 新条目头 → 上一块结束
+                cur = None
+                continue
+            if line.strip() == "---":         # 代码块开始
+                cur = []
+                blocks.append(cur)
+                continue
+            if cur is not None:
+                cur.append(line[8:] if line.startswith(" " * 8) else line)
+        ex = [("\n".join(b)).strip() for b in blocks]
+        return [t[:1800] for t in ex if t][:k]
     except Exception as e:
         print("[retrieve] 跳过(err=%s)" % e)
         return []
@@ -221,16 +231,23 @@ def run_code(code, run_id, timeout=90):
 
 
 # ── 验收 + 入库 ────────────────────────────────────────────────────────
-def accept(task, code, video, quality, run_id):
+def accept(task, code, video, quality, run_id, skill=None):
+    """入库 = 三元组银行 + 精英档案，两者都在 triple_bank add 里一次完成（单一写入路径）。
+
+    skill 透传给银行 → 银行再传给精英档案分桶：生成端知道在练什么能力，
+    就别让精英档案的正则去猜（正则只作外部任务的兜底）。
+    """
     codefile = os.path.join(DREAM_DIR, run_id, "code.py")
+    cmd = [sys.executable, os.path.join(HERE, "triple_bank.py"), "add",
+           "--task", task, "--code", codefile, "--video", video or "__none__",
+           "--ffmpeg", FFMPEG]
+    if skill:
+        cmd += ["--skill", skill]
     try:
-        p = subprocess.run(
-            [sys.executable, os.path.join(HERE, "triple_bank.py"), "add",
-             "--task", task, "--code", codefile, "--video", video or "__none__",
-             "--ffmpeg", FFMPEG],
-            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=ROOT)
-        line = (p.stdout or p.stderr).strip().splitlines()
-        print("   [accept]", line[0] if line else "")
+        p = subprocess.run(cmd, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", cwd=ROOT)
+        for line in (p.stdout or p.stderr).strip().splitlines():
+            print("   [accept]", line)
         return p.returncode == 0
     except Exception as e:
         print("   [accept] 失败 err=%s" % e)
@@ -298,7 +315,7 @@ class Dreamer:
             print("   [exec] 成功 用时%.1fs 产出视频=%s" % (res["sec"], bool(res["video"])))
 
             if res["video"]:
-                ok = accept(task, code, res["video"], 1.0, run_id)
+                ok = accept(task, code, res["video"], 1.0, run_id, skill=spec.get("skill"))
                 record_trial(task, use_memory, ok)
                 return ok
             else:
@@ -340,15 +357,7 @@ def smoke():
     else:
         print("[smoke] ffmpeg 产片 OK")
         ok = accept("冒烟测试-视频闸门", code, vid_path, 1.0, rid)
-        print("[smoke] 视频验收 accept=%s" % ok)
-    try:
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("dream_elite", os.path.join(HERE, "dream_elite.py"))
-        de = importlib.util.module_from_spec(spec); spec.loader.exec_module(de)
-        act, why = de.EliteArchive().add("冒烟测试-视频闸门", code, vid_path, 0.95)
-        print("[smoke] elite=%s (%s)" % (act, why))
-    except Exception as e:
-        print("[smoke] elite err=%s" % e)
+        print("[smoke] 视频验收 accept=%s（精英档案由 triple_bank add 一并写入）" % ok)
     print("[smoke] 完成（exec→视频验收→入库→精英档案 通路 OK）")
 
 

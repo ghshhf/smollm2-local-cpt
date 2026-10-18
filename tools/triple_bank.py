@@ -152,7 +152,8 @@ def cmd_add(a):
         spec.loader.exec_module(de)
         q = float(data.get("quality") or 0.0)
         act, why = de.EliteArchive().add(a.task, code_text,
-                                          os.path.abspath(a.video), q)
+                                          os.path.abspath(a.video), q,
+                                          skill=getattr(a, "skill", None))
         print("ELITE %s (%s)" % (act, why))
     except Exception as e:
         print("ELITE skip (err: %s)" % e)
@@ -221,6 +222,8 @@ def main():
     p.add_argument("--code", required=True)
     p.add_argument("--video", required=True)
     p.add_argument("--ffmpeg", default=None)
+    p.add_argument("--skill", default=None,
+                   help="技能轴标签(如 三角波/场热力图)，透传给精英档案分桶；不传则正则推断")
     p.set_defaults(fn=cmd_add)
 
     p = sub.add_parser("query")
