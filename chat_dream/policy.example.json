@@ -1,0 +1,85 @@
+{
+  "auto": {
+    "n": 96,
+    "train_every": 50,
+    "stop_at": 500,
+    "temp": 0.8,
+    "epochs": 3,
+    "anchor": 120,
+    "best_of": 1,
+    "batch": 32
+  },
+  "gates": {
+    "enabled": [
+      "garble",
+      "symbol",
+      "antipersona",
+      "leak",
+      "script",
+      "format",
+      "degenerate",
+      "persona",
+      "service",
+      "emotion",
+      "life",
+      "honesty",
+      "length",
+      "conflict"
+    ],
+    "th": {
+      "garble_odd": 0.22,
+      "script_ratio": 0.3,
+      "script_min_len": 20,
+      "anchor_selfplay": 0.1,
+      "anchor_dom": 0.03,
+      "len_lo": 0.25,
+      "len_hi": 4.0,
+      "repeat": 0.45,
+      "max_len": 400,
+      "prefix_repeat": 1.0
+    }
+  },
+  "routes": {
+    "expand": 0.12,
+    "selfplay": 0.25,
+    "emotion": 0.3,
+    "life": 0.28,
+    "replay": 0.05
+  },
+  "gen_len": {
+    "greet": 40,
+    "identity": 80,
+    "emotion": 64,
+    "life": 60,
+    "chat": 90,
+    "clarify": 90,
+    "qa": 90,
+    "other": 90
+  },
+  "lex": {},
+  "vote": {
+    "n": 1,
+    "sim": 0.3,
+    "min_bank": 200
+  },
+  "adapter": {
+    "blacklist": [
+      "adapter_r2_n174",
+      "adapter_r3_n246",
+      "adapter_r4_clean"
+    ]
+  },
+  "judge": {
+    "enabled": true,
+    "min_score": 6.0,
+    "url": "http://127.0.0.1:8787/v1/chat/completions",
+    "model": "modelscope/nex-agi/Nex-N2.5-mini",
+    "auth": "",
+    "batch": 8,
+    "models": [
+      "modelscope/nex-agi/Nex-N2.5-mini",
+      "ernie/ernie-4.5-turbo-32k",
+      "stepfun/step-audio-2-mini"
+    ]
+  }
+}
