@@ -6,6 +6,17 @@
 
 ---
 
+## 2026-10-18 20:35 · 热更新化：加种子/改温度/换代码全部零停集群（用户唯一要求）
+
+- **病灶**：此前每次加种子都要 pkill 集群→装文件→nohup 重启，20 分钟里停了三次，复产前 8 worker 全空转、954M 模型从 NAS 重载。
+- **设计（三层热化）**：①种子外置 `data/dream_pool.json`（94 条），`dream_loop.load_pool()` 每轮进程启动重读，文件缺失/格式错自动回退内置 DREAM_BANK；②温度外置 `data/dream_temp.txt`（0.5），daemon worker 循环每轮 cat，非法值回退 0.5；③代码天然热（worker 每轮 exec 新 python 进程），daemon.sh 新版搭 evolve 周期复产便车自动上岗。`evolve_train.py` 训练池同步改 `load_pool()`，训的与推理时同源。A/B 两臂均不传 `--pool`/`--temp`（默认），同读同文件同贪心，公平性不变。
+- **部署实录（node1，全程 W=8 零停机）**：5 文件（dream_loop.py 61058B / dream_daemon.sh 5548B / evolve_train.py 7021B / dream_pool.json 32488B / dream_temp.txt）走 ECS 信箱落盘。🔴 **运维坑**：mailbox 执行层会把**函数体内**的 `$1/$2/$B` 提前展开成空 ⇒ URL 变 `\B/...` ⇒ curl 静默失败 ⇒ 禁用函数、URL 全字面量化才通（`get(){...}` 与 `B=...;curl $B/x` 均中招，扁平 `curl 'http://...'` 正常）。
+- **验证**：`begin offset=74 pool=93`（旧 daemon 启动时算的 POOL=93，offset 覆盖到 74 证明 worker 已读文件池）；worker_1 单轮入库 2/4（此前 12 分钟才 1 条，易任务池+去重生效）；热加种子演示：池 93→94 追加"黄点横移"验证任务，`W_STILL=8` 进程零动。
+- **本地自动化腿**：`tools/fuel_relay.py` + schtasks `FuelRelay`（15min/轮，SYSTEM）：拉 ECS 上 node1 外送的 `dream_fuel.jsonl` → 按 output 定码去重合并 → 有增量 `git add -f` 归档并 push（fuel 是进化史不可重建物证，ECS 同名文件逐周期被覆盖；`.gitignore` 的 `*.jsonl` 全局规则不动，只显式强纳这一个文件）。首批 15 条已归档（36c6c92）。
+- **未完成**：daemon 新版要等 20:34 周期复产才上岗（届时温度文件机制生效，当前新旧混跑但行为一致 temp=0.5）；chat_v7 训练未完（队列自动接盲测）。
+
+---
+
 ## 2026-10-18 20:20 · 🏆 首个自进化周期裁决：ADOPT（机器自己拍板，无人在场）
 
 - **周期全记录**（node1 19:54:32→19:58:54，共 4 分 22 秒）：闸门 bank=471/new=162/uniq=25 全过 → 停 8 worker 让核 → 自训 25 条 distinct（25 步 50s，loss 1.34→0.16，trainable 2.16M/496M=0.44%）→ A/B（offset=8，8 题确定性+贪心）→ **bare 0/8 vs 自训 LoRA 4/8** → ADOPT：`DREAM_LORA` 热切换，daemon 以适配器模式复产（8 worker 全活）→ 29 条燃料导出上传 ECS。
