@@ -11,22 +11,22 @@ import re
 import time
 from collections import OrderedDict, Counter
 
-# (类别名, [关键词正则], 是否核心相关) —— 顺序即优先级，首个命中即归属
+# (类别名, [关键词正则], 是否核心相关) —— 顺序即优先级，首个命中即归属；中英双语关键词
 RULES = [
-    ("推理时学习/TTT", r"test[- ]time|fast weight|ttt|in[- ]context (weight|learning)|learning at inference|test[- ]time train", "core"),
-    ("记忆与经验", r"memory|experience (replay|bank)|episodic|knowledge edit", "core"),
-    ("持续学习/防遗忘", r"continual|catastrophic forgetting|lifelong|forgetting", "core"),
-    ("蒸馏/训练效率/小模型", r"distill|small (language )?model|efficient (training|inference)|pruning|quantiz|sparse (auto|attention)|data (selection|curation)|sft|fine[- ]tun", "core"),
-    ("RL/自进化", r"reinforcement|reward|self[- ](improv|evol|play|generat)|policy optimization|rsi|curriculum", "evo"),
-    ("视觉/多模态", r"vision|visual|multimodal|multi[- ]modal|vlm|image|video understand|caption|grounding|segment", None),
-    ("音频/语音", r"\baudio\b|speech|asr|whisper|acoustic|voice", None),
-    ("代码/编程", r"code generation|programming|software engineer|\bswe\b|repository|coding agent", None),
-    ("Agent/检索/RAG", r"\bagent|agentic|retrieval|\brag\b|search (agent|engine)|tool use|orchestrat|web ", None),
-    ("生成模型", r"diffusion|text[- ]to[- ]image|image generation|generative model|video generation|gan\b", None),
-    ("评测/基准", r"benchmark|evaluation|evaluating|\bevals?\b", None),
-    ("机器人/世界模型", r"robot|manipulation|world model|embodied|navigation", None),
-    ("安全/对齐", r"safety|alignment|jailbreak|honesty|hallucinat|watermark", None),
-    ("长文本/推理链", r"long context|chain[- ]of[- ]thought|reasoning|chain of thought", None),
+    ("推理时学习/TTT", r"test[- ]time|fast weight|ttt|in[- ]context (weight|learning)|learning at inference|测试时|推理时学习|快权重", "core"),
+    ("记忆与经验", r"memory|experience (replay|bank)|episodic|knowledge edit|记忆|经验回放|知识编辑", "core"),
+    ("持续学习/防遗忘", r"continual|catastrophic forgetting|lifelong|forgetting|持续学习|灾难遗忘|终身学习|防遗忘", "core"),
+    ("蒸馏/训练效率/小模型", r"distill|small (language )?model|efficient (training|inference)|pruning|quantiz|sparse (auto|attention)|data (selection|curation)|sft|fine[- ]tun|蒸馏|小模型|剪枝|量化|微调", "core"),
+    ("RL/自进化", r"reinforcement|reward|self[- ](improv|evol|play|generat)|policy optimization|rsi|curriculum|强化学习|奖励|自我进化|自进化|策略优化", "evo"),
+    ("视觉/多模态", r"vision|visual|multimodal|multi[- ]modal|vlm|image|video understand|caption|grounding|segment|视觉|多模态|图像|视频理解|分割|检测", None),
+    ("音频/语音", r"\baudio\b|speech|asr|whisper|acoustic|voice|语音|音频|声学", None),
+    ("代码/编程", r"code generation|programming|software engineer|\bswe\b|repository|coding agent|代码生成|编程|软件工程|程序", None),
+    ("Agent/检索/RAG", r"\bagent|agentic|retrieval|\brag\b|search (agent|engine)|tool use|orchestrat|web |智能体|检索|工具调用", None),
+    ("生成模型", r"diffusion|text[- ]to[- ]image|image generation|generative model|video generation|gan\b|生成式|扩散|图像生成|视频生成", None),
+    ("评测/基准", r"benchmark|evaluation|evaluating|\bevals?\b|评测|基准|评估", None),
+    ("机器人/世界模型", r"robot|manipulation|world model|embodied|navigation|机器人|世界模型|具身|导航", None),
+    ("安全/对齐", r"safety|alignment|jailbreak|honesty|hallucinat|watermark|安全|对齐|越狱|幻觉|水印", None),
+    ("长文本/推理链", r"long context|chain[- ]of[- ]thought|reasoning|chain of thought|长文本|思维链|推理链", None),
 ]
 
 def classify(text):
@@ -104,13 +104,13 @@ table{{border-collapse:collapse;margin:8px 0}}td,th{{border:1px solid #ccd;paddi
 .kpi b{{font-size:26px;color:#3465a4;display:block}} ul{{padding-left:20px;margin:6px 0}} li{{margin:6px 0}} a{{color:#246;text-decoration:none}} a:hover{{text-decoration:underline}}
 small{{color:#667}}</style></head><body>
 <h1>前沿论文爬取·分类报告</h1>
-<p>生成时间 {now} ｜ 数据源 arXiv(cs.AI/LG/CL/CV) + HuggingFace Daily Papers ｜ 每小时自动抓取（FrontierCrawl）</p>
+<p>生成时间 {now} ｜ 数据源 arXiv 12类 + HuggingFace Daily + OpenAlex 中英双路 ｜ 每 30 分钟自动抓取（FrontierCrawl）</p>
 <div class="kpi">
 <div><b>{total}</b>唯一论文(去重后)</div><div><b>{n_core}</b>★现役核心(本地线)</div><div><b>{n_evo}</b>◆自进化储备</div>
 <div><b>{len(cat_sorted)}</b>分类桶</div><div><b>{len(files)}</b>归档日文件</div>
 </div>
 <h3>爬取台账</h3><table><tr><th>归档文件</th><th>条数</th></tr>{file_rows}</table>
-<p><small>去重说明：按 arXiv id 全局去重；跨日重复（如 10-15 回填与 10-17 重叠）只算一篇。每小时一轮 5 源×30 条，命中已见过的自动跳过，日志见 logs/frontier_crawl.log。</small></p>
+<p><small>去重说明：双轨去重——arXiv/HF/OpenAlex id + 标题指纹（归一化后 md5，跨源同一论文不同 id 体系也能拦）；跨日重复只算一篇。每 30 分钟一轮：arXiv 12 类×25 + HF 30 + OpenAlex 中英各 50，命中账本的自动跳过，日志见 logs/frontier_crawl.log。</small></p>
 <h3>分类明细</h3><p><small>★红=现役核心（推理时学习/记忆/持续学习/蒸馏效率，直接喂本地线）｜◆金=自进化储备（RL/做梦/三元组银行/RSI 线未来主粮）｜黑=一般参考</small></p>
 {"".join(rows)}
 </body></html>"""

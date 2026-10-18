@@ -33,6 +33,30 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DB = os.path.join(ROOT, "data", "triple_bank.db")
 VERIFY = os.path.join(HERE, "vid_verify.py")
+TASKVERIFY = os.path.join(HERE, "task_verify.py")
+
+
+def check_task_fit(task, code_text):
+    """任务符合度闸门（2026-10-18 补）。返回 (ok, detail_dict)。
+
+    🔴 为什么必须加在写入路径上：vid_verify 只验「视频能不能播 / 画面动不动」，
+    从不验「代码做的是不是题目要求的事」。实测 7 条验签通过的样本里，
+    帧数 7/7 全错（要 100/120 帧，一律写 frames=40），余弦/方波/三角波/李萨如/
+    螺旋线/衰减 6 项要素全缺，唯一代码只有 4 个 —— 全是 sin 波相位平移。
+    做梦跑了几十轮，精英合格率 0。闸门缺失 ⇒ 银行喂的是错误教材。
+    """
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("task_verify", TASKVERIFY)
+        tv = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(tv)
+        r = tv.verify(task or "", code_text or "")
+        return bool(r["pass"]), r
+    except Exception as e:
+        # 闸门自身故障不应静默放行，也不应阻断入库：记为 unknown 并放行，
+        # 但把异常写进 detail，便于发现。
+        return True, {"error": "task_verify 异常: %s" % e, "pass": True,
+                      "checks": [], "quality": 0.0}
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS triples (
@@ -68,7 +92,13 @@ CREATE TABLE IF NOT EXISTS trials (
 
 def conn():
     os.makedirs(os.path.dirname(DB), exist_ok=True)
-    c = sqlite3.connect(DB)
+    # 🔴 2026-10-18 并发护甲：做梦改成多 worker 并发后，add/query/trial 子进程会
+    #    同时打库。默认 rollback journal + busy_timeout=0 会直接 "database is locked"。
+    #    WAL 允许「一写多读」并发、busy_timeout 让写者自旋等锁不立即报错。
+    c = sqlite3.connect(DB, timeout=30)
+    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA synchronous=NORMAL")
+    c.execute("PRAGMA busy_timeout=30000")
     c.executescript(SCHEMA)
     return c
 
@@ -140,6 +170,20 @@ def cmd_add(a):
         sys.exit(1)
 
     code_text = open(a.code, encoding="utf-8", errors="replace").read()
+
+    # 任务符合度闸门（在视频验签之后、写库之前）
+    fit_ok, fit = check_task_fit(a.task, code_text)
+    if not fit_ok:
+        detail = json.dumps(fit, ensure_ascii=False)[:4000]
+        c.execute("INSERT INTO rejects(task,code_path,video_path,reason,detail) VALUES(?,?,?,?,?)",
+                  (a.task, a.code, a.video, "task_mismatch", detail))
+        c.commit()
+        print("REJECT task_mismatch")
+        for ch in fit.get("checks") or []:
+            if not ch.get("pass"):
+                print("   - %s: %s" % (ch.get("name"), ch.get("detail")))
+        sys.exit(1)
+
     c.execute("""INSERT INTO triples(task,code_path,code_text,video_path,checks_json,ngrams)
                  VALUES(?,?,?,?,?,?)""",
               (a.task, os.path.abspath(a.code), code_text, os.path.abspath(a.video),

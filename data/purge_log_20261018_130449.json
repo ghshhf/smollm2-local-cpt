@@ -1,0 +1,164 @@
+{
+  "ts": "20261018_130449",
+  "moved": [
+    {
+      "id": 3,
+      "task": "用 matplotlib 画一个正弦波动画(0~4π, 100 帧)，保存为 out.mp4",
+      "code_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\_seed_sin.py",
+      "video_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\out.mp4",
+      "created_at": "2026-10-18 00:03:55",
+      "sha256": "4b01ae78cf938cb7",
+      "pass": false,
+      "quality": 0.75,
+      "fails": [
+        "帧数符合: 任务 100 帧 / 代码 40 帧"
+      ],
+      "constraints": {
+        "frames": 100,
+        "domain_pi": 4.0,
+        "outfile": "out.mp4",
+        "animated": true
+      }
+    },
+    {
+      "id": 4,
+      "task": "用 matplotlib 画一个衰减正弦波动画(0~6π, 120 帧，振幅随时间衰减)，保存为 out.mp4",
+      "code_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_092754_482\\code.py",
+      "video_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_092754_482\\out.mp4",
+      "created_at": "2026-10-18 01:28:43",
+      "sha256": "686b9462b638a41a",
+      "pass": false,
+      "quality": 0.4,
+      "fails": [
+        "帧数符合: 任务 120 帧 / 代码 40 帧",
+        "定义域符合: 任务 0~6π (18.8496) / 代码 12.5664",
+        "任务要素齐备: 缺: 衰减"
+      ],
+      "constraints": {
+        "frames": 120,
+        "domain_pi": 6.0,
+        "outfile": "out.mp4",
+        "animated": true,
+        "symbols": [
+          "衰减"
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "task": "用 matplotlib 画正弦+余弦叠加的动画(0~4π, 100 帧)，保存为 out.mp4",
+      "code_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093103_53\\code.py",
+      "video_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093103_53\\out.mp4",
+      "created_at": "2026-10-18 01:31:55",
+      "sha256": "c6c804c66b0464f1",
+      "pass": false,
+      "quality": 0.6,
+      "fails": [
+        "帧数符合: 任务 100 帧 / 代码 40 帧",
+        "任务要素齐备: 缺: 余弦"
+      ],
+      "constraints": {
+        "frames": 100,
+        "domain_pi": 4.0,
+        "outfile": "out.mp4",
+        "animated": true,
+        "symbols": [
+          "余弦"
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "task": "用 matplotlib 画一个衰减正弦波动画(0~6π, 120 帧，振幅随时间衰减)，保存为 out.mp4",
+      "code_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093155_232\\code.py",
+      "video_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093155_232\\out.mp4",
+      "created_at": "2026-10-18 01:32:42",
+      "sha256": "686b9462b638a41a",
+      "pass": false,
+      "quality": 0.4,
+      "fails": [
+        "帧数符合: 任务 120 帧 / 代码 40 帧",
+        "定义域符合: 任务 0~6π (18.8496) / 代码 12.5664",
+        "任务要素齐备: 缺: 衰减"
+      ],
+      "constraints": {
+        "frames": 120,
+        "domain_pi": 6.0,
+        "outfile": "out.mp4",
+        "animated": true,
+        "symbols": [
+          "衰减"
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "task": "用 matplotlib 画一个多曲线对比动画(正弦/方波/三角波各一条, 0~4π, 100 帧)，保存为 out.mp4",
+      "code_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093242_600\\code.py",
+      "video_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093242_600\\out.mp4",
+      "created_at": "2026-10-18 01:33:34",
+      "sha256": "c6c804c66b0464f1",
+      "pass": false,
+      "quality": 0.6,
+      "fails": [
+        "帧数符合: 任务 100 帧 / 代码 40 帧",
+        "任务要素齐备: 缺: 方波、三角波"
+      ],
+      "constraints": {
+        "frames": 100,
+        "domain_pi": 4.0,
+        "outfile": "out.mp4",
+        "animated": true,
+        "symbols": [
+          "方波",
+          "三角波"
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "task": "用 matplotlib 画一个李萨如(Lissajous)曲线动画, 100 帧，保存为 out.mp4",
+      "code_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093334_558\\code.py",
+      "video_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093334_558\\out.mp4",
+      "created_at": "2026-10-18 01:34:28",
+      "sha256": "c6c804c66b0464f1",
+      "pass": false,
+      "quality": 0.5,
+      "fails": [
+        "帧数符合: 任务 100 帧 / 代码 40 帧",
+        "任务要素齐备: 缺: 李萨如"
+      ],
+      "constraints": {
+        "frames": 100,
+        "outfile": "out.mp4",
+        "animated": true,
+        "symbols": [
+          "李萨如"
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "task": "用 matplotlib 画一个旋转螺旋线动画(100 帧)，保存为 out.mp4",
+      "code_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093428_915\\code.py",
+      "video_path": "D:\\work\\_local_ai\\train_15b\\data\\dreams\\run_20261018_093428_915\\out.mp4",
+      "created_at": "2026-10-18 01:35:23",
+      "sha256": "c6c804c66b0464f1",
+      "pass": false,
+      "quality": 0.5,
+      "fails": [
+        "帧数符合: 任务 100 帧 / 代码 40 帧",
+        "任务要素齐备: 缺: 螺旋"
+      ],
+      "constraints": {
+        "frames": 100,
+        "outfile": "out.mp4",
+        "animated": true,
+        "symbols": [
+          "螺旋"
+        ]
+      }
+    }
+  ],
+  "kept": []
+}

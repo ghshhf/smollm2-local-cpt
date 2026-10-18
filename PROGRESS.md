@@ -6,7 +6,328 @@
 
 ---
 
-## 2026-10-18 12:50-13:00 · 做梦出题从「纯随机」改成「按短板」+ 做梦×模块接线方案
+## 2026-10-18 19:00 · 爬虫升级：arXiv 4→12 类 + OpenAlex 中英双路 + 双轨去重
+
+- 源扩到 4 路：arXiv **12 类**×25（+MA/RO/NE/SE/CR/IR/stat.ML/eess.AS）+ HF 30 + **OpenAlex 英**（title_and_abstract 核心词近 5 天 article，补 LNCS/Springer 期刊）+ **OpenAlex 中**（title 搜 CS 中文词，窗口 4 个月，滤 Zenodo/PhilPapers 自出版 junk）。实测一轮 325 候选→**新增 241 篇（中文 44）**（旧版每天 0-4 篇）。
+- **双轨去重**：id（arXiv/HF/OpenAlex W-id/DOI）+ **标题指纹**（归一化 md5[:8]）；账本 `_seen_ids.json` 升级 `{"ids","titles"}`（兼容旧扁平列表）。实测价值：按 id 数 367 篇 vs 按 id+指纹 340 篇 → **27 篇跨源重复只有指纹拦得住**。
+- `classify_frontier.py` RULES 补中文关键词（否则中文论文全落"其他"）；`split_frontier_by_category.py` 去重同步双轨。
+- 探测排除：OpenReview 403 / SemanticScholar 429 / PapersWithCode API 已关 / ChinaXiv 404 / 机器之心非论文源 / paper.edu.cn JS 渲染无 API。
+- schtasks FrontierCrawl（30min/轮）自动生效，今日累计 245 篇。
+
+## 2026-10-18 18:37-18:52 · DREAM_BANK 加 11 条物理世界函数 + 任务池 29→69 + 修 worker offset 饿死 bug
+
+- **真 bug**：daemon 不给 worker 传 `--offset`，8 worker 全从 `DREAM_BANK[0]` 顺序取，`--n 4` ⇒ **队尾任务永远饿死**（物理种子加进去排不上队）。已修：worker 按 id 错峰 `offset=(id-1)*N`，8×4=32 覆盖全池。
+- 物理种子 11 条：牛顿冷却/理想气体粒子盒/一维热传导/卡诺循环/斯涅尔折射/双缝干涉/多普勒/弹簧简谐/抛体/驻波/熵增（全带公式 hint，要求产 mp4）。
+- 任务池 **29→69**：数学函数 12 + 几何曲线 8 + 信号处理 6 + 算法可视化 8 + 物理补充 6（一次加够直接起跑）。部署 md5 与本地一致，worker_7 实测在跑物理仿真任务。
+
+---
+
+## 2026-10-18 18:00-18:25 · 双机自进化闭环合龙：本地腿自动化（提纯语料 + 夜间 RSI + 队列自动验收）
+
+- **发现并修复的闭环缺陷**：银行 325 条入库但**唯一定码仅 15 条**（8 worker 同批题产出高度趋同）。旧闸门只看 bank 增量 → cycle=0(18:14) 停机后自训发现唯一样本 15<24 → train_fail rc=2 → 裸模复活（失败路径验证 OK，但白停一轮）。**修复=双闸门**：`bank新增≥20 AND 唯一定码≥20` 才训（node1 `evolve_cycle.sh` 已热更新，实测 cycle=1 正确拒绝空转）。
+- **燃料外送（node1→本地自动管道）**：`evolve_cycle.sh` 每周期末尾跑 `tools/export_triples_to_sft.py` 并上传 ECS `dream_fuel.jsonl`（已随周期脚本推上 node1；首次手工导出 15 条已验证）。
+- **本地腿三件套**（本地 `tools/`，均已部署）：
+  - `corpus_curate.py`：清掉 v1 负迁移根因——card_code 1463→**1052**（剔除 411 条纯定义无调用样本）+ 15 条 dream 燃料 → `data/code_sft_v2.jsonl`（1067 条，带 `_src` 溯源）。
+  - `nightly_rsi.py` + schtasks **NightlyRSI**（SYSTEM，每日 00:30）：拉 ECS 燃料→增量≥20 且队列无代码任务→提纯合并→排「训练+自动盲测」job（lr 1e-4/1ep/r16 qkvo，比 v1 的 2e-4 更保守）。实测跑通：fetched 15、增量不足正确不排。
+  - 队列现状（`train_queue.py status`）：① chat_v7_03b 在跑（750/1500，~21:00 完）→ ② **chat_v7_blind_eval**（30 题盲测自动验收）→ ③ **code_v2_curated**（训练+`code_eval` 自动盲测，产出 `logs/code_eval_codeqwen05b_v2.json` 与裸模 8/20、v1 6/20 直接对比）。
+- **双机分工定型**：node1=做梦产粮+视频域适配器自进化（evolve_loop）；本地=北极星对话/代码模块重训+盲测（nightly_rsi + 队列）。两条腿都不再需要人工触发。
+
+## 2026-10-18 17:30-17:55 · 全自动自进化闭环部署 node1（自训→自测→自裁决→自切换，无人在场）
+
+- **背景**：用户裁定"自举=让 node1 自己改自己，不是人肉搬适配器"。此前代码 LoRA A/B（裸 2/8 vs LoRA 0/8）只是人工的一次性实验；本轮把整条回路固化成 node1 常驻脚本。
+- **新增文件**（node1 `/mnt/workspace/node1/dream/`，本地源在 `node/`）：
+  - `evolve_train.py`：CPU 自训器。读 triple_bank → 去重 → cap 200 条 → **直接 import dream_loop 复用 SYSTEM/DREAM_BANK/build_prompt**（协议逐字同构，银行无 hint 就查表）→ completion-only loss（prompt 段 -100）→ LoRA r16 q/k/v/o（守接口契约第 0 条）→ lr 1e-4 / 1 epoch / fp32 / torch 8 线程。退出码 0=训完 2=样本不足。
+  - `evolve_cycle.sh`：单周期编排。闸门(银行新增≥20 才训)→停集群让核→自训→A/B(同 `--offset` 轮转评测集防过拟合固定 8 题,两臂公平)→裁决 lora_accept>bare_accept → ADOPT:`DREAM_LORA` 热切换重启 / REJECT:适配器归档 `models/evolve_lora_rej_*` 裸模重启 → 写 `.evolve_state.json`+`logs/evolve_history.log`+报告上 ECS。**所有失败路径都复活集群（宁可不进化不能停机）**，mkdir 锁防周期重叠。
+  - `evolve_loop.sh`：常驻触发器，每 20min 跑一次 cycle（cycle 自带闸门，不达标空转）。
+  - `tools/dream_loop.py` 加 `--offset`（默认 0，向后兼容）。
+- **部署实况**：2026-10-18 17:54 evolve_loop 起跑（pid 195754），首周期 gate 初始化基线 bank=253、new=0<20 不训、8 worker 未打断。预计 ~18:10 银行新增≥20 触发首个真实周期（训 200 条 CPU 约 25-35min + A/B 2×8 约 12min，首裁决 ~18:50）。
+- **运维教训（重踩）**：mb.py 拼装=`cmd + " 2>&1 | curl ..."`——**只有最后一段管道进 curl**，中途 `&&` 链断或最后段为空=整单无回传。远程命令必须整体包 `{ ...; } 2>&1`，且末尾放汇总 echo。另：`A && B && nohup X &` 的 `&` 会把整条链后台化（shell 优先级），部署命令必须前台 brace 执行。
+- **待验证**：首个 ADOPT/REJECT 裁决结果；`evolve_report_c<N>.txt` 自动上传 ECS 可查。
+
+## 2026-10-18 17:15-17:29 · 代码 LoRA 反哺做梦引擎 A/B 实测（负资产，不上线）
+
+### 0) 触发器
+- 用户指令：「既然那个模块已经训练完了，里面一些东西能不能把它丢到远程，让它用起来更好呢？相当于就是哪里不会自己改自己。」→ 把本地训完的代码 LoRA（`out_lora_code_qwen`，8.7MB）推到 node1，A/B 验证对做梦引擎有没有用。
+
+### 1) A/B 设计（对照极干净）
+- 任务是**确定性顺序**（`DREAM_BANK[i%18]`，`--n 8` 固定同一批 8 题）+ **贪心解码**（temp=0）→ 输出差异只可能来自 LoRA 权重。
+- 指标：`通过(入库)` = 过完 vid_verify + task_fit 全闸门的真通过（ELITE skip 不计入）。
+- A/B 期间停 daemon 让出全核防 exec 超时误判；脚本 `node/n1_ab_test.sh`，日志 `logs/ab_bare.log` / `logs/ab_lora.log`。
+
+### 2) 结果（硬数据）
+| 指标 | 裸 Qwen0.5B | +代码 LoRA |
+|---|---|---|
+| 通过入库 | **2/8** | **0/8** |
+| vid_verify_fail（静止） | 3 | 2 |
+| exec 失败 | 2 | 1 |
+| **跑通但不产视频** | 0 | **4** |
+| task_mismatch | 1 | 1 |
+
+- LoRA 全拒，且引入新故障模式「exec 成功但无 mp4 产出」（4/8）。根因：通用代码问答语料教的是"写代码回答问题"，不是"写脚本落盘产文件"。
+- **裁决：负资产，不上线。** daemon 已用裸模式重启（pid 167972，8 worker，`lora=none`）。银行 triples=176 / rejects=174。
+- 附带基建：`dream_daemon.sh` 新增 `DREAM_LORA` 环境变量开关（空=裸模型，设了自动传 `--lora`），下次任何适配器都可一键 A/B 后热切换；`node/n1_daemon_start.sh bare|lora` 一键重启+自检。
+
+### 3) 未完成项
+- [ ] **正路已指明**：要提升做梦引擎，得用**做梦域自己的数据**训——三元组银行已入库 176 条动画代码（全过闸门）就是现成语料，训"动画域 LoRA"再走同一套 A/B 流程。这才是 RSI 正形（银行→训练→回灌→再银行）。
+- [ ] chat_v7_03b 本地训练在跑（step 500/1500，ETA 今晚 ~22:00），训完接盲测验收。
+- [ ] `dream_code_sft.jsonl`（13 条）待接入夜间 polaris 代码 LoRA 重训。
+
+---
+
+### 0) 触发器
+- 用户指令：「远程现在给他拉满，他现在只是在搞自进化相关的。因为那边那个服务暂时就是先搞这个东西。」→ node1 专跑自进化，资源吃满。
+
+### 1) 诊断（关键纠偏）
+- 旧 daemon 单进程串行 + 60s sleep，单推理只占 1 核；`top` 显示 us≈12% 是**相对 64 核**视角 ≈ 1 核，没拉满。
+- ⚠️ **tty 终端污染陷阱**：一次 `top` 读数掺进了 `train_remote_v4.py`/`v1_02_alpha_ladder.py` 等训练日志（连 loss 都冒出来），一度误判 node1 有别进程抢资源、内存吃紧。实查 `ps` + `free`：**无其他重负载进程、27GB 空闲为真**；污染来自某长驻进程 stdout 接到了同一伪终端。
+
+### 2) 改动（3 个文件，走 ECS 中转拉到 node1）
+- **并发护甲**：`tools/triple_bank.py` + `tools/dream_elite.py` 的 `conn()` 加 `PRAGMA journal_mode=WAL` + `busy_timeout=30000` + `synchronous=NORMAL`。多 worker 经子进程(add/query/trial)并发打库不锁死。
+- **swarm daemon**：`node/dream_daemon.sh` 升级为集群——`DREAM_WORKERS`(默认 8) 个 self-healing worker，每 worker `OMP/MKL/OPENBLAS_NUM_THREADS=1` → 合计正好压满 cgroup 8 核；错峰 `id*3s` 加载模型防 NAS 惊群；`trap` 清理孤儿；轻量银行快照。
+- **控制脚本**：`node/n1_swarm_ctl.sh`（诊断+自适应 worker 数+拉文件+起集群+报告），规避信箱对多行内联命令压成一行导致脚本错乱（改用「写脚本文件→ECS→node1 bash」）。
+
+### 3) 验证（node1 实测）
+- `workers=8` 全活；cgroup `quota 800000 / period 100000 = 8 核`封顶。
+- `top` 瞬时 us≈12%(相对64核) = **≈7.5 核在用 ≈ 94% cgroup 预算** → 已拉满；`ps` 累计 `sum_pcpu=733%` 印证。
+- 内存：启动后 used 1.1→**19.3GB**，可用 9.3GB，8 个 Qwen 模型不 OOM。
+- 银行：triples 29→**51**、rejects 33→**55**，持续涨（8 worker 吞吐远高于单进程）。
+- DB：`locked=0 / OperationalError=0`（WAL 生效）；`Traceback=4/worker` 全部是**模型代码 `ani.save` ffmpeg 运行时失败被 `[exec] 失败` 正常拒收**，非基础设施 bug。
+
+### 4) 待办（继承 + 不变）
+- [ ] `ani.save` flaky ffmpeg 报错：加重试 / 执行前清 `out.mp4`（已确认非锁问题）。
+- [ ] 提通过率：恢复记忆检索（先修 max_new 截断 + 防复读）。
+- [ ] #3 下游链路待接入夜间 polaris 代码 LoRA 重训（`data/dream_code_sft.jsonl` 13 条已就绪）。
+
+---
+
+## 2026-10-18 16:10-16:25 · 做梦闭环代码容错加固（import/blit/savefig/format 四连修）+ daemon 重启
+
+### 0) 触发器
+- 实测 `--n 8` 前台验证一度 **0/8 全拒**，逐一排查是代码执行期崩溃类，非模型纯质量；逐一定位修复。
+
+### 1) 四连修（`tools/dream_loop.py::inject_imports`，本地 30085→31070 字节）
+- **修复 A — fig,ax 注入顺序（NameError）**：旧版把 `fig, ax = plt.subplots()` prepend 到代码最顶，先于 `import matplotlib.pyplot as plt` 执行 → `NameError: plt 未定义`。改：fig,ax 行进 `head` 末尾（排在所有 import 之后）；并**无条件预置 plt import**（Qwen 自带 import 也不冲突，重复 import 无害）。
+- **修复 B — 去掉危险字符串替换**：旧版 `plt.figure()`→`fig` 会把 `fig = plt.figure()` 改成 `fig = fig` 致崩。改为：Qwen 没显式写 `fig, ax = plt.subplots()` 就直接注入一行，若 Qwen 自另定义则被覆盖，无害。
+- **修复 C — 强制 blit=False**：`re.sub(r'blit\s*=\s*True','blit=False')`。blit=True 要求 update 精确 return 可变 artist 元组，弱模型常写错 → FuncAnimation 崩/静止；blit=False 永远安全。
+- **修复 D — savefig→ani.save 重写 + 剥 format**：弱模型常写 `plt.savefig('out.mp4')`（savefig 不支持 mp4 会崩）。若已建好 FuncAnimation(ani) 则重写为 `ani.save(..., writer='ffmpeg', fps=20)`；并剥掉 `format='mp4'`（与 writer 冲突会崩）。
+
+### 2) 验证效果（node1 硬编码 `--n 8`，同批 8 任务）
+- 修复前 0/8 → 修复 A+B 后 1/8 → 修复 C+D 后 **2/8**（入库 #27 正弦波、#28 余弦波）。
+- 剩余 6 拒：3× `vid_verify_fail`（Qwen 产出静止 mp4，update 未逐帧动——模型质量，闸门正确拦截）；1× `task_mismatch`(缺:余弦，SYSTEM 第5条已约束但 0.5B 仍偶漏)；2× `ani.save` 偶发 ffmpeg 报错（flaky）。
+- 结论：全部**崩溃类**已清零，剩余拒绝均为「正确过滤弱模型劣质样本」，符合闭环设计意图（RSI 自举从好例出发，拒绝坏例）。
+
+### 3) daemon 重启（7×24 常驻，跑加固后代码）
+- node1：`nohup bash dream_daemon.sh`（pid 105089，loop 105094），`daemon.log` 16:21:13 round=1 begin。
+- 文件 `tools/dream_loop.py` 31070 字节、16:16 落盘，已通过 ECS 中转拉取确认。
+- 银行快照：triples=29（round1 内 +1）、rejects=33。
+
+### 4) 远程 CPU（同前实测，未变）
+- cgroup 硬限 8 核（quota 800000/period 100000）；推理态 us≈12%、sleep 态 id≈99.8%。
+
+### 5) 待办（继承 + 新增）
+- [ ] 2× `ani.save` flaky ffmpeg 报错根因（疑帧/文件残留，可加重试或清 out.mp4）。
+- [ ] 提通过率：恢复记忆检索（先修 max_new 截断+防复读）或加 few-shot 好例。
+- [ ] 扩池已做（DREAM_BANK 6→18、SYSTEM 第5条），可再扩 SOFT 波形池。
+- [ ] #3 下游链路已就绪：`export_triples_to_sft.py` 产出 `data/dream_code_sft.jsonl`（13 条），待接入夜间 polaris 代码 LoRA 重训。
+
+---
+
+## 2026-10-18 15:00-15:10 · 自我进化闭环正式 7×24 运行（实测 CPU 占用 + 自动增长）
+
+### 0) 闭环运行状态（实测）
+- daemon(pid 42609) 常驻 node1，连续 round 11→17 全部 rc=0，无崩溃；每轮 ~40-50s 推理 + sleep 60s。
+- `triples` 13→**18**（#18=正弦+余弦叠加动画）；`rejects`=11、`trials`=118；每轮 ~1 入库 / 3 失败（通过率 ~17-25%）。
+- ELITE 去重闸门生效：`[accept] ELITE skip 近重复解法(3gram>=0.82)` 已触发，防刷重复样本。
+
+### 1) 远程 CPU 占用（cgroup 实测，非 nproc 假象）
+- 约束：`/sys/fs/cgroup/cpu/cpu.cfs_quota_us=800000` / `cpu.cfs_period_us=100000` = **硬限 8 核**（nproc=64 是假象）。
+- 推理态：`vmstat` 6s → `r=8`（满队列吃满 8 核配额），全局 `us≈12%`（=8核/64核总量），`id≈88%`。
+- sleep 态（两轮间 60s）：idle≈99.8%。
+- 结论：闭环 7×24 自动进化，但只占服务器总算力 ~12%，且每轮后 sleep 让出，不影响同机其他任务。
+
+### 2) 未完成（同前）
+- [ ] 恢复记忆检索提通过率（需先修 max_new+示例长度防复读）
+- [ ] 通过率提纯 / 扩简单任务池
+- [ ] 自我生成代码 → polaris 训练燃料下游链路（RSI 收口）
+
+---
+
+## 2026-10-18 14:25-15:00 · 做梦闭环从「管道断裂」到「首条自我样本入库 #13」
+
+### 0) 卡点根因（三轮定位，已全修）
+- **根因1·few-shot 复读+截断**：`retrieve_examples` 注入 3 个长示例(~500-600字符)，Qwen 退化成「示例1/2/3 回放」且 max_new=512 预算被吃光→闭围栏 ``` 被截断→`extract_code` 正则要求闭围栏→匹配失败→代码长度=0。polaris-0.3B 代码底座本就为 0，更不可能出码。
+- **修复1**：`dream_daemon.sh` 默认加 `--no-memory`（先出活），做梦者改用 `Qwen2.5-0.5B-Instruct`（polaris 代码底座为0，自举产不出代码）。
+- **根因2·裸代码无围栏**：新 SYSTEM 下 Qwen 吐裸代码（无 ```python 围栏）→ 同上匹配失败。
+- **修复2**：`extract_code` 加裸代码 fallback（全文含 import/def 即整段取）。
+- **根因3·FuncAnimation 小 bug**：旧 SYSTEM 下 Qwen 生成的动画代码 FuncAnimation 调用/函数定义错（rc=1）。
+- **修复3**：`SYSTEM` 重写，强制标准 FuncAnimation 骨架（只改 update 函数体，调用方式固定 blit=False）+ 禁止 plt.gcf 替代 fig。
+
+### 1) 闭环打通硬数据
+- 前台 `--n 6`：6 个 task **1 个 ACCEPT 入库 #13**（正弦+余弦叠加动画，exec 成功生成 mp4→vid_verify 通过→accept+进 elite 档案），5 个 rc=1（小 bug）。
+- 通过率 ~17%（RSI 自举早期正常）。`triples` 12→13（首条由做梦生成的自我进化样本）。
+- 全链路验证：生成→extract→run_code→视频产出→vid_verify→accept 闸门(task_mismatch 正确拒不符合任务的)→入库，全部活。
+
+### 2) 部署
+- `dream_daemon.sh`（Qwen base + --no-memory）已 nohup 常驻 node1（pid 42609，每轮 ~60s + sleep 60）。每轮新 python 进程重读 dream_loop.py，新逻辑自动生效。
+
+### 3) 未完成
+- [ ] 恢复记忆检索（few-shot）：用干净正样本 #13 作示例提通过率；需先修 max_new(512→1024)+示例长度限制+防复读指令，避免根因1 复发。
+- [ ] 通过率提纯：当前 ~17%，需微调 SYSTEM / 扩充简单任务池让早期正样本更快积累。
+- [ ] 自我生成代码 → polaris 训练燃料的下游链路（RSI 闭环收口）未接。
+
+---
+
+## 2026-10-18 14:00-14:25 · 打通本机↔node1 直连隧道 + 魔搭仓库当数据面（信箱退休）
+
+### 0) 硬数据
+
+| 通道 | 200MB 单向 | 速率 | 1.3GB 预估 |
+|---|---|---|---|
+| ECS 信箱 / scp 隧道 | 未跑完（8MB 即断） | **~94KB/s** | ~4h |
+| 魔搭数据集仓库 → node1 | 65.5s | **3.05MB/s** | ~7min |
+| 本机 → 魔搭仓库 | 35.6s | **5.62MB/s** | 家宽上行瓶颈 |
+| 模型仓库 → node1（Qwen-0.5B 954MB） | 70s | ~13.6MB/s | 模型库 CDN 更快 |
+
+结论：**信箱慢的根因是 ECS 出网带宽，不是轮询**。改造信箱收益为零，必须换通道。
+
+### 1) 通道 A：SSH 反向隧道（控制面，秒级）
+
+- 边界：ECS 只开 22/80/8081/3389；80 被阿里云备案网关拦（`{"error":"not found"}`）；7000/6022 未开；
+  魔搭 gateway 代理要阿里云账号 cookie。**只有 22 可用**。
+- 方案：node1 主动 `ssh -R 127.0.0.1:9022:127.0.0.1:22` 到 ECS（不改安全组、不用 GatewayPorts），
+  本机 `ProxyJump` 两跳直连。握手 1.2~1.5s，之后 1s 级；**支持多行/管道/heredoc + 真实 exit code**。
+- 密钥：本机 `D:/work/_local_ai/_tunnel/node1_key` → node1 `/root/.ssh/authorized_keys`；
+  node1 `~/.ssh/ecs_tunnel_key` → ECS `C:\ProgramData\ssh\administrators_authorized_keys`。
+- Windows 坑：ProxyJump 下 `ControlMaster` 复用必失败（`mux_client_request_session: read from master failed`），已移除。
+- 交付：`node/n1.sh`（`--alive/--put/--get/-f/命令`）、`node/tunnel_up.sh`（幂等守护，已挂进 `dream_daemon.sh` 开头）。
+
+### 2) 通道 B：魔搭仓库中转（数据面，3MB/s）
+
+- 交付：`tools/ms_relay.py`（`push/push-dir/pull/ls/rm`，`--model` 走模型仓库 `hhhlhuk/polaris-03b`，
+  默认走数据集仓库 `hhhlhuk/polaris-relay`，两端各一份）。
+- Token 坑：`~/.modelscope/credentials/session` 那个 32 位 hex **已失效**（E3001）；
+  能用的是 `deploy_aliyun/ms_token.txt` 的 36 位 UUID。脚本按 env→ms_token.txt→credentials 逐个试登录。
+- 坑：`upload_file` 默认 `repo_type='model'`，数据集必须显式传 `repo_type='dataset'`（否则文件进模型库、pull 404）。
+- 实测：并发 Range 4 路**不提速**（1.85MB/s < 单流 3MB/s），瓶颈在账号侧限速，不要再加并发。
+
+### 3) 做梦线现状（阻塞项）
+
+- node1 `dream_daemon.sh` 连跑 9 轮：**0 ACCEPT / 32 REJECT**，库内 12 条全是手写 seeds。
+- 失败主因：`[gen] 代码长度=0` —— **polaris-0.3B 连代码块都产不出来**；老 rejects 则是 `frames=40` 恒定错。
+- 已停 daemon，改用 `Qwen2.5-0.5B-Instruct` 作教师跑探针（`logs/qwen_probe.log`），待结果定夺。
+
+### 4) 文档
+
+`docs/direct-channel-2026-10-18.md`（架构/实测/用法/失败模式/明确不做的三件事）。
+
+---
+
+## 2026-10-18 13:20-13:55 · 第四路判官结果 + 做梦线整体搬到魔搭 + 邮件箱换隧道
+
+### 0) 第四路 `codeqwen15b_remap` 最终数据（模块跨底座搬运的判官）
+
+| 路 | 底座 | 挂载 | strict | loose | 格式层 |
+|---|---|---|---|---|---|
+| 1 | Qwen2.5-0.5B | 裸 | 40% | 85% | — |
+| 2 | Qwen2.5-0.5B | 编程 LoRA | 30% | 65% | — |
+| 3 | Qwen2.5-1.5B | 裸 | 50% | 95% | — |
+| **4** | **Qwen2.5-1.5B** | **0.5B 训的 LoRA 经 remap 搬过来** | **50%** | **90%** | **100/100/100/100** |
+
+结论（层一成立的最强形式）：
+- **格式层 100% 全项**（代码块/语言标注/配说明/正常收尾），模块把「开口方式」完整搬过去了。
+- **内容层 strict 50% = 裸 1.5B 的 50%**，搬运零损伤；而挂在 0.5B 上时是 30%（比裸 0.5B 的 40% 低 10pt）。
+- 即：**小底座上训练会压内容能力，搬到强底座后这个副作用消失**。这正好印证「format 归模块、content 归底座」。
+- 唯一 strict_fail 是 `mkdir: command not found`（Windows 执行环境缺 coreutils），非模型问题。
+- 明细 `logs/code_eval_codeqwen15b_remap.json`，流水线日志 `logs/p2_pipeline.log`。
+
+### 1) 做梦线整体迁到魔搭 node1（本机实测跑不了）
+
+环境对比（实测）：
+
+| | matplotlib | ffmpeg | Qwen-0.5B | 可用内存 |
+|---|---|---|---|---|
+| 本机 | ❌ 缺 | ❌ 缺 | — | 剩余 ~12GB（对话线占 3.3GB）|
+| node1 | ✅ 3.10.8 | ✅ /usr/bin | ✅ 已下 | 26GB 空闲 |
+
+- 工具链 `/mnt/workspace/node1/dream/`：8 个 py + `data/triple_bank.db`，42KB 走 ECS `/upload` 中转。
+- 修了两处 Windows 硬编码：`dream_loop.py` 的 `FFMPEG` 改 `_find_ffmpeg()`（先认 vidcut 静态包，回落 `shutil.which`）；`run_code` 的 PATH 注入加空目录保护。
+- **分工定调**：node1（8 核/28GB）跑 7×24 做梦循环；本机跑识图/音频/编程 eval；GPU 夜间到场再训预训练。
+- 本机 `venv` 缺 matplotlib/ffmpeg **不是 bug**——做梦本来就不该在本机跑。
+
+### 2) 手写 15 套规范骨架当冷库种子
+
+- `tools/dream_seeds.py`，15 条覆盖三角/正弦余弦/衰减/Lissajous/螺旋/3D 曲面/热力图/傅里叶/布朗/条形竞赛/Julia/冒泡/生命游戏/抛体。
+- node1 上 `--check` **15/15 PASS**（任务符合度静态校验）。
+- `--run` 真实渲染：**7 ACCEPT 入库 + 0 task_fail + 3 vid_fail**（螺旋线/3D/热力图被判「画面不动」）。
+- 入库带精英档案分桶，例：`多序列对比|折线+funcanim q=0.83`。
+
+### 3) 冒烟模式污染库（已发现，待修）
+
+`dream_loop.py --smoke` 会走 `accept()` 真入库，写入「冒烟测试-视频闸门」这种垃圾条目。修法：smoke 只验签不落库。**未改**。
+
+### 4) 传输通道：邮件箱 → frp 隧道
+
+- 魔搭自带端口代理 `MODELSCOPE_NOTEBOOK_PROXY_URL` 需阿里云账号 cookie，**不适合机器间自动通信**（实测 4 种 token 全 302）。
+- ECS 只开 22/80/8081/3389；**80 空闲**。
+- 已部署：`frps.exe` 在 ECS `C:\Users\administrator\`，监听 **0.0.0.0:80**（bindPort 与 vhostHTTPPort 复用 80），token `k0u4mail2026`。
+- 魔搭侧 frpc 走 `ghfast.top` 镜像取（GitHub release 在魔搭下载只有 601K 坏包；ECS 直传 13MB 超时，出网仅 ~1KB/s）。
+- 目标：`http://47.99.131.12/` → 魔搭 8010 的 `tools/exec_server.py`（exec/put/get/tail/ls，token 鉴权），把远程当本机用。
+
+---
+
+
+### 0) 硬数据（这条最重要）
+
+装上任务符合度校验后回扫 `triple_bank` 全表：
+
+| 项 | 结果 |
+|---|---|
+| 入库样本 | 7 条，**任务符合度合格 0 条** |
+| 唯一代码 | 只有 **4 个**（#4=#7，#6=#8=#9=#10） |
+| 两两 3-gram 相似度 | 0.84 ~ 1.00（几乎同一份代码） |
+| 帧数符合 | **7/7 全错**：任务要 100/120 帧，代码一律 `frames=40` |
+| 要素缺失 | 余弦/方波/三角波/李萨如/螺旋/衰减 6 项全缺 |
+| 定义域错 | 2 条（要 0~6π，写 4π） |
+
+具体：#6 要「正弦+余弦叠加」，代码只有 `np.sin(x)`；#9 要李萨如、#10 要螺旋线，代码还是 sin 波相位平移。**没有一条实现自己的任务，但 vid_verify 全部放行**。
+
+### 1) 根因：验签函数缺乏判别力
+
+`vid_verify.py` 的 6 项检查（可解码/分辨率/音轨/黑场/静音/画面在动）全部是**产物层**——它知道视频能不能播、画面动不动，永远不知道代码做的是不是题目要求的事。等同于无监督验收。
+
+### 2) 第二个污染形态（新发现）
+
+模型总写 `frames=40` 不是巧合：**原 few-shot 示例全是 40**。它不只复读 prompt 文本（`check_pollution` 查的），还会把示例里的**错误常量当规范抄走**。文本指纹闸门对这类污染完全失效。
+
+### 3) 修法（三个工具，已落地）
+
+**`tools/task_verify.py`（新建）** — 静态任务符合度校验，不执行代码。从任务文本抽可机验约束 → 对 AST 比对：
+- 帧数 `N 帧` vs `frames=N`（严格相等）
+- 定义域 `0~Kπ` vs `linspace` 上界数值（容差 1e-6）
+- 输出名 `保存为 X.mp4` vs `save('X')`
+- 要素：21 条关键词→必需 token 规则，且**分软硬**：缺标准函数（余弦/方波/三角波/衰减）硬拦，缺写法不唯一的（螺旋/李萨如）只告警
+- 动画：`FuncAnimation` + `save`
+- 抽不出约束 → 放行（绝不用脆规则卡死）
+- `--selftest` 5/5（3 正例 + 2 反例）。**正例必测**：只测反例能测出漏检，测不出误杀，而误杀会把合格产物挡在银行外，做梦白跑。
+
+**`tools/triple_bank.py`** — 在 `cmd_add` 的 vid_verify 之后、写库之前加 `check_task_fit()` 闸门。放在唯一写入路径上，做梦/回填/手工全部绕不过。`task_mismatch` 进 rejects。
+
+**`tools/bank_purge.py`（新建）** — 历史脏数据迁移，`--apply` 才动。不删除，转 rejects（失败料是回灌原料）。同步清精英档案。日志 `data/purge_log_20261018_130449.json`（含 sha256 可追溯）。
+
+**执行结果**：`triples 0 条 | rejects 8 条 | elites 0 条`。
+
+**`tools/dream_autorun.py`** — 失败回灌从「技能粒度」升到「维度粒度」。原来 `_reject_skills()` 只知道哪个技能失败过，重抽同一个题模型照错不误。新增 `_reject_focus()` 解析 rejects.detail（兼容 checks 数组 / fails 字符串两种格式）→ `_focus_hint()` 把具体错因翻译成 prompt 里的硬提示，按任务相关性过滤（没有 π 的题不注入定义域提示）。
+
+实测解析结果：`帧数符合 7 / 任务要素齐备 6 / 定义域符合 2`，提示已正确注入 hint。
+
+### 4) 冷启动状态（未完成）
+
+银行清空后做梦无 few-shot 可检索。**当前真实状态：能力 0，可入库样本 0，rejects 8 条带精确诊断**。这是诚实起点，之前 `memory=on pass=100%` 是验签太松造成的假象。
+
+优先补的燃料来源不是让模型自己生（会再污染），而是**人工/强模型写规范骨架**（`教师始终云端强模型`）。
+
+---
+
 
 ### 1) 做梦的进化压力（`tools/dream_autorun.py` `make_spec()`）
 

@@ -1,0 +1,92 @@
+[
+  {
+    "idx": 0,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s00\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 1,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s01\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 2,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s02\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 3,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s03\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 4,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s04\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 5,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s05\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 6,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s06\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 7,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s07\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 8,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s08\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 9,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s09\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 10,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s10\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 11,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s11\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 12,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s12\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 13,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s13\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  },
+  {
+    "idx": 14,
+    "ok": false,
+    "stage": "exec",
+    "err": "Traceback (most recent call last):\n  File \"D:\\work\\_local_ai\\train_15b\\data\\seeds\\s14\\code.py\", line 1, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'\n"
+  }
+]

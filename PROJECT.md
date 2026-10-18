@@ -52,17 +52,17 @@ B 轨（结构扩容）  本地       推理中进化（TTT）+ 模块插入（�
 
 | # | 能力线 | 状态 | 硬证据（实测，非推测） |
 |---|---|---|---|
-| 1 | **中文对话** | 🔴 未达标 | in-set completion CE = **1.578**，达标(<0.60) 仅 **14/439 = 3.2%**。过拟合探针 PASS ⇒ 管道无 bug，是**数据量差一个数量级**（404 条 × 4ep）。已产 v7 语料 3000 条待训。 |
-| 2 | **编程** | 🟡 格式已会，内容受限 | 0.3B + 代码 LoRA：代码块 33%、strict **0/3**。裸 0.3B strict 0/4、代码块 0%；裸 Qwen2.5-0.5B strict 2/4、代码块 100%。**根因=0.3B 预训练语料无代码**。 |
-| 3 | **代码生视频 + 做梦（RSI）** | 🟢 闭环跑通 | coder 底座（Qwen2.5-0.5B + LoRA）做梦 **6/6 过 vid_verify 闸门**，三元组银行 #3→#9，通过率 1/3→6/6 自我爬升。 |
-| 4 | **识图** | 🔴 未达标，已冻结 | v5 盲测灾难幻觉（猫/人/长颈鹿拼接）；v6 val_loss 1.5552 但盲测仍弱视觉拼接。且仍挂 **0.2B(214M)** 未升 0.3B。按用户指示冻结。 |
+| 1 | **中文对话** | 🔴 未达标 | in-set completion CE = **1.578**，达标(<0.60) 仅 **14/439 = 3.2%**。v7 语料 3000 条，`chat_v7_03b` 训练中（0.3B 北极星底座，1500 步，~21:00 完，队列自动接盲测）。 |
+| 2 | **编程** | 🟡 格式已会，内容受限 | 0.5B + 代码 LoRA v1（1463 条语料）：**格式层满分**（20/20 代码块+EOS），**内容层负迁移** strict 6/20 vs 裸 Qwen0.5B 8/20（净 -4）。根因=语料 22% 纯定义无调用、72% 无 print。提纯版 v2（1052+15=1067 条）已产待训。 |
+| 3 | **代码生视频 + 做梦（RSI）** | 🟢 **全自动闭环运行中** | node1 8-worker 集群 7×24 产粮；任务池 **69 条**（UI/物理/数学/几何/信号/算法）；银行 380+ 条。**evolve_loop 自进化闭环**：银行→自训动画域 LoRA→A/B（同 offset 贪心解码）→赢则热切换/输则归档，无人在场。首支视频域 LoRA 待双闸门（新增≥20 且唯一定码≥20，曾实锤 15<24 空转已修）。 |
+| 4 | **识图** | ⚪ 冻结，用户定调不搞独立模块 | v5 盲测灾难幻觉；v6 仍弱。**用户 2026-10-18 定调：现在不搞识别图片；识图不作为独立模块，未来作为做梦闭环的感知功能长出**（代码→视频→自看→对比→改代码），等银行视觉样本够了再说。 |
 | 5 | **听觉** | 🟡 骨架就绪 | Whisper-small encoder(88.2M, d=768) 已下；AISHELL-1 **8197 对 / 10.6h**；`tools/audio_attach.py` 三阶段管线；按说话人留出 S0024/S0025 做真盲测。 |
-| 6 | **自进化 / 记忆层** | 🟢 部分跑通 | 三元组银行 9 条 + 精英档案（quality-diversity 去重）；记忆层 TinyContext 7 条 profile 常驻。 |
+| 6 | **自进化 / 记忆层** | 🟢 闭环跑通，质量待验 | 三元组银行 380+ 条 + 精英档案；**全自动自训-自测-自裁决已部署 node1**（`node/evolve_*.sh|py`）。记忆层 TinyContext 7 条 profile 常驻，30 题对照未做。 |
 
 ### 一句话诊断
-> **做梦（RSI）是"达标后的加速器"，不是"从 0 到达标"的捷径。**
-> 对话/识图现在连基础达标都没到，此时接 RSI 是空中楼阁。正确顺序：先补地基 → 再踩油门。
-> 编程线已证明 RSI 管线成立，故其固化常驻；对话/听觉先走监督训练到达标。
+> **做梦（RSI）已从"达标后的加速器"升级为"自进化闭环"**：机制端到端跑通、8 核拉满、无人在场自转；剩余瓶颈是 0.5B 底座质量（静态视频/漏波形被闸门正确拦下，通过率 ~25%）。
+> 对话线仍要先到达标（CE<0.60）再接 RSI——这是 0.3B 的当前主任务。
+> 识图不搞独立模块（用户定调），等闭环视觉样本积累后作为感知功能内嵌。
 
 ---
 
@@ -105,12 +105,27 @@ B 轨（结构扩容）  本地       推理中进化（TTT）+ 模块插入（�
 ### 做梦 / RSI 闭环
 | 脚本 | 职责 |
 |---|---|
-| `tools/dream_loop.py` | **做梦编排器**：记忆检索(few-shot) → 生成代码 → 沙箱执行 → `vid_verify` 闸门 → 入库/回灌 rejects |
+| `tools/dream_loop.py` | **做梦编排器**：记忆检索(few-shot) → 生成代码 → 沙箱执行 → `vid_verify` 闸门 → 入库/回灌 rejects。带 `--offset`（评测集轮转）、`--lora`（适配器 A/B）、`inject_imports` 容错（import/blit/savefig/format 四连修） |
 | `tools/dream_elite.py` | MAP-Elites 式**精英档案**，quality-diversity 去重（同域同签名只留最高质） |
-| `tools/dream_autorun.py` | 周期自转调度器（原子锁 + 自管 utf-8 日志 + 任务微扰） |
-| `tools/vid_verify.py` | 视频验收闸门 v2：每项 0~1 partial credit + `--min-quality`；**无声可视化不再误杀**（`--require-audio` 才硬要求） |
-| `tools/triple_bank.py` | 三元组银行（sqlite），过闸才入库，拒收也落盘 |
-| `tools/weak_to_strong.py` | 弱到强升级（LEASH 思路）：弱提议 → 评估器验收 → 教师精炼（可插拔，未配则诚实标 pending） |
+| `tools/task_verify.py` | **第 7 道闸门**：任务约束符合度（点名波形必须真画出来，HARD_SYMBOLS 集） |
+| `tools/dream_seeds.py` | 做梦「规范教材」：15 个人工骨架模板 |
+| `tools/vid_verify.py` | 视频验收闸门 v2：每项 0~1 partial credit + `--min-quality`；**「画面在动」为 HARD 项**（帧差阈值，静态动画一律拒） |
+| `tools/triple_bank.py` | 三元组银行（sqlite，**WAL+busy_timeout 并发护甲**），过闸才入库，拒收也落盘 |
+| `tools/bank_purge.py` | 把不满足任务约束的历史样本迁去 rejects（可审计、可回滚） |
+| `tools/export_triples_to_sft.py` | 银行 → card_code 格式 SFT 燃料（`data/dream_code_sft.jsonl`） |
+| `tools/corpus_curate.py` | 语料提纯：剔「纯定义无调用」样本（card_code 1463→1052） |
+| `tools/nightly_rsi.py` | 本地夜间腿：拉 node1 燃料→提纯→排训练+盲测（schtasks 已删，改手动/队列触发） |
+
+### 自进化闭环（node1 常驻，无人在场）
+| 脚本 | 职责 |
+|---|---|
+| `node/dream_daemon.sh` | **8-worker 集群守护**：每 worker 限 1 BLAS 线程压满 cgroup 8 核；错峰 offset 覆盖全任务池；`DREAM_LORA` 环境变量热切换适配器 |
+| `node/n1_daemon_start.sh` | 一键重启自检（bare/lora 模式） |
+| `node/n1_swarm_ctl.sh` | 集群拉满控制（按可用内存自适应 worker 数） |
+| `node/evolve_loop.sh` | **自进化常驻触发器**：20min 自检银行增量 |
+| `node/evolve_cycle.sh` | **一个自进化周期**：双闸门（新增≥20 且唯一定码≥20）→停集群→`evolve_train.py` 自训→A/B→裁决 adopt/reject→复活集群→燃料外送 ECS |
+| `node/evolve_train.py` | CPU 自训器：import dream_loop 复用 SYSTEM/DREAM_BANK/build_prompt（**训推协议逐字同构**），completion-only loss，lr1e-4/1ep，只挂 q/k/v/o |
+| `node/n1_ab_test.sh` | 适配器 A/B（同批确定性任务+贪心解码，可复用） |
 
 ### 推理时学习（TTT）
 | 脚本 | 职责 |
@@ -138,9 +153,9 @@ B 轨（结构扩容）  本地       推理中进化（TTT）+ 模块插入（�
 ### 爬虫 / 情报
 | 脚本 | 职责 |
 |---|---|
-| `tools/ai_frontier_crawl.py` | arXiv(cs.AI/LG/CL/CV) + HF Daily Papers → 14 桶分类 |
-| `tools/split_frontier_by_category.py` | 物理拆分到 `data/frontier/by_category/` |
-| `tools/classify_frontier.py` | 分类规则 |
+| `tools/ai_frontier_crawl.py` | **四路情报爬虫**：arXiv **12 类**×25（cs.AI/LG/CL/CV/MA/RO/NE/SE/CR/IR/stat.ML/eess.AS）+ HF 30 + OpenAlex 英（近 5 天 article，补 LNCS/Springer 期刊）+ OpenAlex 中（4 个月窗口，滤自出版 junk）。**双轨去重**：id + 标题指纹（md5[:8]），账本 `_seen_ids.json` = {"ids","titles"}。实测一轮 325 候选→新增 241 篇（旧版每天 0-4 篇） |
+| `tools/classify_frontier.py` | 14 桶分类规则（**RULES 中英双语关键词**，否则中文论文全落"其他"） |
+| `tools/split_frontier_by_category.py` | 物理拆分到 `data/frontier/by_category/`（去重同步双轨） |
 
 ### 识图线（冻结，仅供修复参考）
 `tools/vlm_attach.py` · `tools/vlm_data.py` — 已知坑：infer 须显式 `--init <snapshot>/projector.pt`（否则默认加载 align 的）；v6 projector 实为 `ps=1`；`fc2` 必须 std=0.01 初始化（零初始化会让 RMSNorm 反向炸 nan）。
@@ -163,10 +178,10 @@ B 轨（结构扩容）  本地       推理中进化（TTT）+ 模块插入（�
 
 ## 七、下一步（按优先级，未完成）
 
-- [ ] **对话**：`chat_v7_03b` 训练（3000 条）→ in-set CE<0.60 → 盲测命中率
-- [ ] **对话**：0.3B 中位长度过拟合探针（判定"数据不足" vs "底座表征不足"）
-- [ ] **听觉**：特征预计算完成 → align 阶段训投影 → CER 盲测
-- [ ] **做梦**：`dream_autorun.py` 常驻（schtasks 30min 周期，coder 底座持续产码回灌）
-- [ ] **编程**：0.4B 预训练把代码语料并入 `owner_corpus`（让北极星自己会写代码）
+- [ ] **今晚（另一台电脑）**：中文对话 v7 收尾讨论 + **感情模块**立项讨论（私有仓库协作，先把需求聊清楚再动手）
+- [ ] **对话**：`chat_v7_03b` 训练完（~21:00）→ 队列自动跑 30 题盲测 → in-set CE 验收（<0.60 才算学会）；0.3B 中位长度过拟合探针
+- [ ] **做梦**：node1 `evolve_loop`（pid 常驻，20min/周期）**首个 ADOPT/REJECT 裁决结果**待确认（报告自动上 ECS `evolve_report_c*.txt`）；通过率 ~25% 的瓶颈在 0.5B 底座，任务池 69 条持续产粮
+- [ ] **编程**：0.4B 预训练把代码语料并入 `owner_corpus`（让北极星自己会写代码）；本地 code_v2 训练任务已撤销（负迁移证据确凿，改走 node1 自进化线）
 - [ ] **0.4B**：远程训练收尾 + 权重回捞入 `backups/0.4B/`
-- [ ] **识图**：解冻后先修部署坑 + 迁 0.3B 重训 align/joint
+- [ ] **听觉**：特征预计算完成 → align 阶段训投影 → CER 盲测
+- [ ] **识图**：冻结中（用户 2026-10-18 定调），不排期；未来作为做梦闭环的感知功能内嵌，等银行视觉样本积累

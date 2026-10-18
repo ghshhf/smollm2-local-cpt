@@ -1,14 +1,14 @@
 {
-  "generated": "2026-10-18 07:37",
-  "total": 122,
+  "generated": "2026-10-18 19:04",
+  "total": 340,
   "categories": {
     "推理时学习/TTT": {
-      "count": 3,
+      "count": 5,
       "file": "data\\frontier\\by_category\\推理时学习_TTT.jsonl",
       "tier": "core"
     },
     "记忆与经验": {
-      "count": 9,
+      "count": 21,
       "file": "data\\frontier\\by_category\\记忆与经验.jsonl",
       "tier": "core"
     },
@@ -18,27 +18,32 @@
       "tier": "core"
     },
     "蒸馏/训练效率/小模型": {
-      "count": 13,
+      "count": 19,
       "file": "data\\frontier\\by_category\\蒸馏_训练效率_小模型.jsonl",
       "tier": "core"
     },
     "RL/自进化": {
-      "count": 29,
+      "count": 60,
       "file": "data\\frontier\\by_category\\RL_自进化.jsonl",
       "tier": "evo"
     },
     "视觉/多模态": {
-      "count": 25,
+      "count": 49,
       "file": "data\\frontier\\by_category\\视觉_多模态.jsonl",
       "tier": null
     },
+    "音频/语音": {
+      "count": 15,
+      "file": "data\\frontier\\by_category\\音频_语音.jsonl",
+      "tier": null
+    },
     "代码/编程": {
-      "count": 2,
+      "count": 10,
       "file": "data\\frontier\\by_category\\代码_编程.jsonl",
       "tier": null
     },
     "Agent/检索/RAG": {
-      "count": 14,
+      "count": 48,
       "file": "data\\frontier\\by_category\\Agent_检索_RAG.jsonl",
       "tier": null
     },
@@ -48,22 +53,22 @@
       "tier": null
     },
     "评测/基准": {
-      "count": 7,
+      "count": 13,
       "file": "data\\frontier\\by_category\\评测_基准.jsonl",
       "tier": null
     },
     "机器人/世界模型": {
-      "count": 2,
+      "count": 3,
       "file": "data\\frontier\\by_category\\机器人_世界模型.jsonl",
       "tier": null
     },
     "安全/对齐": {
-      "count": 1,
+      "count": 5,
       "file": "data\\frontier\\by_category\\安全_对齐.jsonl",
       "tier": null
     },
     "其他": {
-      "count": 9,
+      "count": 84,
       "file": "data\\frontier\\by_category\\其他.jsonl",
       "tier": null
     }

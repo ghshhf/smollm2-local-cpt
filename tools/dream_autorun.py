@@ -145,6 +145,85 @@ def _reject_skills():
         return set()
 
 
+def _reject_focus():
+    """从 rejects.detail 解析「上次具体栽在哪个维度」→ {维度: 次数}。
+
+    🔴 为什么「攻短板」不能只做到技能粒度（2026-10-18 实测）：
+      装上 task_verify 后回扫发现，7 条入库样本里 7 条都栽在同一个坑 ——
+      任务要 100/120 帧，代码一律写 frames=40。技能维度上这是「三角波/衰减振荡/
+      参数曲线」等多种技能，看上去失败得很分散；但真实病因只有一个：
+      模型把 few-shot 示例里的 frames=40 当成规范抄走（示例全是 40）。
+      ⇒ 只按技能重抽同一个题，模型还是会写 40。必须在出题时把这个坑点亮。
+
+    detail 来自 task_verify 的 checks（name/pass），兼容旧 vid_verify blob（解析失败即跳过）。
+    """
+    out = {}
+    try:
+        import sqlite3
+        p = os.path.join(ROOT, "data", "triple_bank.db")
+        if not os.path.exists(p):
+            return out
+        c = sqlite3.connect(p)
+        rows = c.execute("SELECT reason, detail FROM rejects").fetchall()
+        c.close()
+    except Exception:
+        return out
+    for reason, detail in rows:
+        if not detail:
+            continue
+        try:
+            j = json.loads(detail)
+        except Exception:
+            continue
+        if not isinstance(j, dict):
+            continue
+        # 格式一：task_verify 原始输出（checks 数组）
+        for ch in (j.get("checks") or []):
+            if isinstance(ch, dict) and not ch.get("pass") and ch.get("name"):
+                out[ch["name"]] = out.get(ch["name"], 0) + 1
+        # 格式二：bank_purge 迁移时写的摘要（fails = ["维度: 说明", ...]）
+        for s in (j.get("fails") or []):
+            if isinstance(s, str) and ":" in s:
+                name = s.split(":", 1)[0].strip()
+                if name:
+                    out[name] = out.get(name, 0) + 1
+        if reason:
+            out["_reason:" + str(reason)] = out.get("_reason:" + str(reason), 0) + 1
+    return out
+
+
+# 失败维度 → prompt 里要点亮的硬约束（把上一次的具体错因写进 hint）
+FOCUS_TIPS = {
+    "帧数符合": "帧数必须与任务完全一致：FuncAnimation(fig, upd, frames=N) 的 N 就写任务给的那个数字，"
+               "不许用 40 或任何默认值",
+    "定义域符合": "linspace 的上界必须等于任务给的 Kπ，例如 0~6π 就写 np.linspace(0, 6*np.pi, 200)",
+    "任务要素齐备": "任务里点名的每一条曲线/每一种波形都必须真的出现在代码里：要余弦就写 np.cos，"
+                 "要方波就写 np.sign(np.sin(x))，要三角波就写 2*np.pi*np.arcsin(np.sin(x))，"
+                 "要衰减就乘 np.exp(-k*x)",
+    "输出文件名符合": "anim.save 的文件名必须与任务给定的完全一致",
+    "产出动画": "必须用 FuncAnimation 生成动画并 save 成 mp4，不许只画静态图",
+}
+
+
+def _focus_hint(focus, task=""):
+    """把失败维度翻译成 prompt 里的一段硬提示；没有可点亮的项就返回空串。
+
+    按任务相关性过滤：定义域这条只在任务真的给了 π 定义域时才注入，
+    否则给「小球抛体」这种题加「linspace 上界要等于 Kπ」只会误导。
+    """
+    tips = []
+    task = task or ""
+    for name, desc in FOCUS_TIPS.items():
+        if not focus.get(name):
+            continue
+        if name == "定义域符合" and ("π" not in task and "pi" not in task.lower()):
+            continue
+        tips.append("- %s" % desc)
+    if not tips:
+        return ""
+    return ("\n【上次同类任务的实测错误，这次必须避免】\n" + "\n".join(tips))
+
+
 def make_spec():
     """出题三路混合：把「纯随机」换成「有方向的进化压力」。
 
@@ -190,6 +269,8 @@ def make_spec():
     a = random.choice([2, 3, 4, 5, 6]) if "{A}" in tpl else 0
     f = random.choice([80, 100, 120, 150])
     task = tpl.format(A=a, F=f)
+    # 失败回灌：把 rejects 里的具体错因点亮进 hint（不只是按技能重抽同一个题）
+    hint = hint + _focus_hint(_reject_focus(), task)
     return {"skill": skill, "domain": skill, "verify": "video", "task": task, "hint": hint}
 
 

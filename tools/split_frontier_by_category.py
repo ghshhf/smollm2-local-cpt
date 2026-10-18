@@ -6,7 +6,7 @@
   data/frontier/by_category/_index.json    类别 -> 条数 + 文件映射
 用法: python tools/split_frontier_by_category.py
 """
-import os, sys, json, glob, re, time
+import os, sys, json, glob, re, time, hashlib
 from collections import OrderedDict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -18,14 +18,27 @@ OUT_DIR = os.path.join(ROOT, "data", "frontier")
 CAT_DIR = os.path.join(OUT_DIR, "by_category")
 
 
+def title_hash(title):
+    """与 ai_frontier_crawl.py 同款标题指纹（跨源去重必须同算法）"""
+    t = re.sub(r"[^0-9a-z\u4e00-\u9fff]", "", str(title or "").lower())
+    return hashlib.md5(t.encode("utf-8")).hexdigest()[:8] if t else ""
+
+
 def main():
     papers = OrderedDict()
+    seen_th = set()
     for fp in sorted(glob.glob(os.path.join(OUT_DIR, "2026-*.jsonl"))):
         for ln in open(fp, encoding="utf-8"):
             ln = ln.strip()
             if not ln:
                 continue
             d = json.loads(ln)
+            # 双轨去重：id + 标题指纹（OpenAlex 与 arXiv 同一论文 id 不同，靠指纹拦）
+            th = title_hash(d.get("title"))
+            if d["id"] in papers or (th and th in seen_th):
+                continue
+            if th:
+                seen_th.add(th)
             papers[d["id"]] = d
     for p in papers.values():
         name, tier = classify(p.get("title", "") + " " + (p.get("abstract") or "")[:600])

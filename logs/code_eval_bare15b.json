@@ -1,0 +1,282 @@
+{
+  "tag": "bare15b",
+  "model": "D:\\work\\_local_ai\\train_15b\\model\\Qwen2.5-1.5B-Instruct",
+  "adapter": null,
+  "n": 20,
+  "seconds": 1624.4,
+  "agg": {
+    "pass": 10,
+    "loose_pass": 3,
+    "fmt_pass": 6,
+    "strict_fail": 1,
+    "fail": 0
+  },
+  "format_rate": {
+    "code_block": 1.0,
+    "lang_tagged": 1.0,
+    "has_prose": 1.0,
+    "has_eos": 1.0
+  },
+  "results": [
+    {
+      "id": "py_sq",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nfor i in range(1, 11):\n    print(i**2)\n```\n\n这段代码使用了 `range` 函数生成从 1 到 10 的整数序列，并通过循环将每个数字的平方打印出来，每行一个。"
+    },
+    {
+      "id": "py_sum",
+      "verdict": "loose_pass",
+      "detail": "stdout='1 鍔犲埌 100 鐨勫拰鏄�: 5050' 未精确匹配但关键片段全中",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\n# 计算从 1 到 100 的所有整数之和\n\ntotal_sum = sum(range(1, 101))\n\nprint(\"1 加到 100 的和是:\", total_sum)\n```\n\n这段代码首先使用 `range` 函数生成一个从 1 到 100（不包括 101）的序列，然后使用内置函数 `sum` 来求这个序列中所有元素的总和。最后，通过 `print` 函数输出结果。"
+    },
+    {
+      "id": "py_rev",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\n# 定义一个函数来反转字符串\ndef reverse_string(s):\n    return s[::-1]\n\n# 输入字符串\ninput_str = \"abcdef\"\n\n# 调用函数并打印结果\nreversed_str = reverse_string(input_str)\nprint(reversed_str)  # 输出: fedcba\n\n# 关键说明：这段代码定义了一个名为reverse_string的函数，该函数使用Python的切片功能来反转输入的字符串。然后调用这个函数，并将结果存储在变量reversed_str中，最后打印出反转后的字符串。\n```\n\n这段代码首先定义了一个名为`reverse_string`的函数，它接受一个字符串`s`作为参数，并返回其反转版本。接着，我们定义了要反转的字符串`input_str`为\"abcdef\"。然后，我们通过调用`reverse_string`函数并将结果赋值给`reversed_str`，最后打印出反转后的字符串。"
+    },
+    {
+      "id": "py_prime",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return False\n    return True\n\nprint(is_prime(97))  # 输出: True\n```\n\n这段代码定义了一个函数 `is_prime` 来检查一个数字是否为素数。它首先检查输入是否小于或等于1（因为1和负数不是素数），然后从2到该数字的平方根进行循环检查是否有任何因子。如果找到任何一个因子，则返回False；如果没有找到，则返回True。最后，我们调用这个函数并打印结果。"
+    },
+    {
+      "id": "py_fib",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\ndef fibonacci(n):\n    fib_sequence = [1, 1]\n    while len(fib_sequence) < n:\n        next_value = fib_sequence[-1] + fib_sequence[-2]\n        fib_sequence.append(next_value)\n    return fib_sequence\n\nprint(','.join(map(str, fibonacci(10))))\n```\n\n这段代码定义了一个函数 `fibonacci` 来生成斐波那契数列的前 `n` 项，并使用列表推导式和循环来计算这些值。然后，它将结果转换为字符串并用逗号分隔，最后打印出结果。"
+    },
+    {
+      "id": "py_wordcnt",
+      "verdict": "loose_pass",
+      "detail": "stdout='a:2\\nb:3\\nc:1' 未精确匹配但关键片段全中",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nfrom collections import Counter\n\ndef count_chars(s):\n    # 使用Counter统计字符出现次数\n    char_count = Counter(s)\n    \n    # 按字母顺序排序并打印结果\n    for c in sorted(char_count.keys()):\n        print(f\"{c}:{char_count[c]}\")\n\n# 测试用例\ncount_chars(\"aabbbc\")\n```\n\n关键说明：\n这段代码使用了Python的`collections.Counter`类来统计字符串中每个字符的出现次数。然后，它通过将字符列表转换为字典（使用sorted函数进行排序），最后打印出每个字符及其对应的计数。"
+    },
+    {
+      "id": "py_vowel",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\ndef count_vowels(s):\n    vowels = 'aeiou'\n    return sum(1 for char in s if char.lower() in vowels)\n\ns = \"hello world\"\nprint(count_vowels(s))  # 输出: 3\n```\n\n这段代码定义了一个函数 `count_vowels`，它接受一个字符串参数 `s`，然后遍历这个字符串中的每个字符，检查该字符是否是元音字母（区分大小写），如果是，则计数器加1。最后返回计数值。在主程序中，我们使用示例字符串 \"hello world\" 调用这个函数，并打印结果。"
+    },
+    {
+      "id": "py_intersect",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\n# 定义两个列表\nlist1 = [1, 2, 3]\nlist2 = [2, 3, 4]\n\n# 求交集并排序\nintersection = sorted(list(set(list1) & set(list2)))\n\n# 打印结果\nprint(intersection)\n```\n\n关键说明：这段代码首先将两个列表转换为集合以去除重复项，然后计算这两个集合的交集（使用 `&` 运算符），最后将结果转换回列表并进行排序。由于Python中的集合自动去重，所以不需要显式地删除重复元素。"
+    },
+    {
+      "id": "py_date",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nfrom datetime import datetime\n\n# 原始日期字符串\ndate_str = \"2026-10-18\"\n\n# 将日期字符串中的横杠替换为斜杠\nformatted_date = date_str.replace('-', '/')\n\nprint(formatted_date)\n```\n\n关键说明：这段代码首先导入了 `datetime` 模块，然后定义了一个包含原始日期字符串的变量。接着使用 `replace()` 方法将日期字符串中的横杠（'-'）替换为斜杠（'/'）。最后，代码打印出格式化后的日期字符串。"
+    },
+    {
+      "id": "py_json",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport json\n\n# 定义一个字典\ndata = {\"a\": 1, \"b\": 2}\n\n# 将字典转换为JSON字符串\njson_string = json.dumps(data)\n\n# 打印JSON字符串\nprint(json_string)\n```\n\n这段代码首先导入了 `json` 模块，然后定义了一个包含两个键值对的字典 `data`。接着使用 `json.dumps()` 函数将这个字典转换为JSON格式的字符串，并将其存储在变量 `json_string` 中。最后，通过 `print()` 函数输出这个JSON字符串。"
+    },
+    {
+      "id": "js_sq",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "js",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```javascript\nfor (let i = 1; i <= 5; i++) {\n    console.log(i * i);\n}\n```\n\n这段代码使用了 `for` 循环来遍历从 1 到 5 的数字，并将每个数字的平方打印出来。每行输出一个结果。"
+    },
+    {
+      "id": "js_rev",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "js",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```javascript\nlet arr = [1, 2, 3];\narr.reverse();\nconsole.log(arr); // 输出: [3, 2, 1]\n```\n\n这段代码首先定义了一个名为 `arr` 的数组，并将其值设置为 `[1, 2, 3]`。然后使用了 `reverse()` 方法来反转数组中的元素顺序。最后，通过 `console.log()` 打印出反转后的数组。"
+    },
+    {
+      "id": "sh_ls",
+      "verdict": "strict_fail",
+      "detail": "执行失败: C:\\WINDOWS\\TEMP\\tmpqhq28nhh.sh: line 4: mkdir: command not found\nC:\\WINDOWS\\TEMP\\tmpqhq28nhh.sh: line 7: cd: /tmp/polari",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "bash",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```bash\n#!/bin/bash\n\n# 创建目录 /tmp/polaris_eval_test\nmkdir -p /tmp/polaris_eval_test\n\n# 进入新创建的目录\ncd /tmp/polaris_eval_test\n\n# 打印当前工作目录\npwd\n\n# 删除目录（注意：此操作不可逆）\nrm -rf .\n```\n\n关键说明：\n- `mkdir -p` 命令用于在指定路径下创建父级目录，如果这些目录不存在的话。\n- `cd` 命令用于改变当前的工作目录。\n- `pwd` 命令显示当前工作的目录路径。\n- `rm -rf .` 是一个强大的命令，用于删除当前目录及其所有内容和子目录。务必谨慎使用，因为它会永久删除文件和目录。"
+    },
+    {
+      "id": "sh_sum",
+      "verdict": "loose_pass",
+      "detail": "stdout='The sum of numbers from 1 to 10 is: 55' 未精确匹配但关键片段全中",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "bash",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```bash\n#!/bin/bash\n\n# 初始化变量 sum 为 0\nsum=0\n\n# 使用 for 循环从 1 加到 10，并将结果累加到 sum 中\nfor (( i=1; i<=10; i++ ))\ndo\n    sum=$((sum + i))\ndone\n\n# 打印最终的 sum 值\necho \"The sum of numbers from 1 to 10 is: $sum\"\n```\n\n关键说明：这段脚本使用了 `for` 循环来遍历从 1 到 10 的数字，并通过 `+=` 运算符在每次迭代中将当前数字加到 `sum` 变量上。最后，它打印出所有这些数字相加的结果。"
+    },
+    {
+      "id": "fmt_http",
+      "verdict": "fmt_pass",
+      "detail": "命中 1/2",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport requests\n\nresponse = requests.get('https://api.github.com')\n\nprint(f'Response Status Code: {response.status_code}')\n```\n\n这段代码使用了 `requests` 库来发送 HTTP GET 请求，并打印出服务器返回的状态码。`requests` 是一个功能强大的库，用于处理 HTTP 命令行接口（CLI），它简化了与 Web 服务交互的过程。"
+    },
+    {
+      "id": "fmt_pandas",
+      "verdict": "fmt_pass",
+      "detail": "命中 3/3",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport pandas as pd\n\n# 读取CSV文件\ndf = pd.read_csv('your_file.csv')\n\n# 按某列降序排序并取前10行\ntop_10_sorted_df = df.sort_values(by='column_name', ascending=False).head(10)\n\nprint(top_10_sorted_df)\n```\n\n关键说明：\n- `pd.read_csv` 函数用于从 CSV 文件中读取数据。\n- `sort_values` 方法根据指定列进行降序排序。\n- `head(10)` 方法返回排序后的前10行数据。"
+    },
+    {
+      "id": "fmt_git",
+      "verdict": "fmt_pass",
+      "detail": "命中 2/2",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "bash",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```bash\ngit checkout main\ngit merge feature\ngit push origin main\n```\n\n说明：首先切换到 `main` 分支，然后合并 `feature` 分支，最后将 `main` 分支推送到远程仓库。"
+    },
+    {
+      "id": "fmt_sql",
+      "verdict": "fmt_pass",
+      "detail": "命中 4/4",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "sql",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```sql\nSELECT *\nFROM users\nWHERE age > 18\nORDER BY registration_date DESC\nLIMIT 20;\n```\n\n关键说明：此SQL语句首先从`users`表中筛选出年龄大于18岁的记录，然后按照`registration_date`字段降序排列这些记录，最后限制结果为前20条记录。"
+    },
+    {
+      "id": "fmt_try",
+      "verdict": "fmt_pass",
+      "detail": "命中 3/3",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\ntry:\n    x = 10 / 0\nexcept ZeroDivisionError as e:\n    print(\"错误：不能除以零\")\n```\n\n关键说明：\n这段代码使用了 `try` 和 `except` 结构来处理可能发生的异常。当尝试执行除法操作时（即 `x = 10 / 0`），如果发生除数为零的情况，Python 将抛出一个 `ZeroDivisionError` 异常。这个异常被捕获，并通过 `except` 子句中的代码块进行处理。在这个例子中，我们打印一条提示信息，告诉用户不能除以零。"
+    },
+    {
+      "id": "fmt_req",
+      "verdict": "fmt_pass",
+      "detail": "命中 3/3",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport requests\n\ndef post_request(url, data=None, headers=None, timeout=10):\n    \"\"\"\n    发送带有超时和错误处理的POST请求。\n\n    参数:\n        url (str): 要发送POST请求的目标URL。\n        data (dict or bytes): 用于填充POST数据的数据字典或二进制数据。\n        headers (dict): HTTP头部信息。\n        timeout (int): 请求超时时间（秒）。\n\n    返回:\n        requests.Response: 响应对象。\n    \"\"\"\n    try:\n        response = requests.post(\n            url,\n            data=data,\n            headers=headers,\n            timeout=timeout\n        )\n        return response\n    except requests.exceptions.RequestException as e:\n        print(f\"请求失败：{e}\")\n        return None\n\n# 使用示例\nurl = \"https://httpbin.org/post\"\ndata = {\"key\": \"value\"}\nheaders = {\"Content-Type\": \"application/json\"}\n\nresponse = post_request(url, data, headers)\nif response:\n    print(\"响应状态码:\", response.status_code)\n    print(\"响应内容:\", response.json())\n```\n\n这段代码定义了一个 `post_request` 函数，它接受目标 URL、POST 数据、HTTP 头部和超时时间作为参数，并返回一个包含响应对象的函数。如果请求发生错误，函数将捕获异常并打印错误消息。"
+    }
+  ]
+}

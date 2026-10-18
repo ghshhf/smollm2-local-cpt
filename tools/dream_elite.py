@@ -142,7 +142,11 @@ def bucket_of(task, code, skill=None):
 
 def conn():
     os.makedirs(os.path.dirname(DB), exist_ok=True)
-    c = sqlite3.connect(DB)
+    # 🔴 2026-10-18 并发护甲：多 worker 并发 add 会同时打精英库，必须 WAL+busy_timeout。
+    c = sqlite3.connect(DB, timeout=30)
+    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA synchronous=NORMAL")
+    c.execute("PRAGMA busy_timeout=30000")
     c.executescript("""
     CREATE TABLE IF NOT EXISTS elites (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -264,7 +268,9 @@ class EliteArchive:
         """从三元组银行全量重建（改桶规则后必跑）。幂等：先清空再逐条 add。"""
         if not os.path.exists(BANK):
             return 0, 0
-        b = sqlite3.connect(BANK)
+        b = sqlite3.connect(BANK, timeout=30)
+        b.execute("PRAGMA journal_mode=WAL")
+        b.execute("PRAGMA busy_timeout=30000")
         rows = b.execute(
             "SELECT task,code_text,video_path,checks_json FROM triples ORDER BY id").fetchall()
         self.c.execute("DELETE FROM elites")

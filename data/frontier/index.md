@@ -1,6 +1,56 @@
 # AI 前沿文章索引
 
-## 2026-10-18（0 篇）
+## 2026-10-18（245 篇）
+- [daily] Value as Memory: Online Value-Guided Post-training for General Robot Policies（https://huggingface.co/papers/2610.22368）
+- [daily] Band-Resolved Superconducting Gaps via the Thermal Hall Effect in CeRu2（https://huggingface.co/papers/2610.22361）
+- [daily] Stability of Quantum LDPC States under Local Pauli Noise（https://huggingface.co/papers/2610.22357）
+- [daily] Magic in quantum trajectory unravelings of noisy random quantum circuits（https://huggingface.co/papers/2610.22318）
+- [cs.MA] Auditable and Deployable Multi-Agent Motion Planning via Posetal Games from Legal Guidelines（http://arxiv.org/abs/2610.22277v1）
+- [cs.MA] Decentralized LLM Workflows via Sequential Auctions（http://arxiv.org/abs/2610.22201v1）
+- [cs.MA] Robust Multi-Agent Pursuit with Preemptive Communication via Reachability-Based Control Barrier Functions（http://arxiv.org/abs/2610.22198v1）
+- [cs.MA] Agentic-Priors: Using Large Language Models to Address the Cold Start Problem in Preference Elicitation（http://arxiv.org/abs/2610.21938v1）
+- [cs.MA] Learning Rewards in Strategic Games（http://arxiv.org/abs/2610.21912v1）
+- [cs.MA] MetaShare: Failure-Aware Collective Self-Improvement for Open-Ended Agents（http://arxiv.org/abs/2610.21887v1）
+- [cs.MA] The Delegation Dilemma: Economies of Scale, Accountability, and Polycentric Governance（http://arxiv.org/abs/2610.21746v1）
+- [cs.MA] Agent Status Protocol (ASP): A Lightweight Specification for State Reporting in Multi-Agent Systems（http://arxiv.org/abs/2610.21538v1）
+- [cs.MA] Bias Control and Injection for Multi-Agent Aggregation（http://arxiv.org/abs/2610.21290v1）
+- [cs.MA] Diviner: Agentic RCA with Human-Governed Adaptation for Large-Scale Infrastructure（http://arxiv.org/abs/2610.21281v1）
+- [cs.MA] A Responsibility-Centered Coordination Mechanism for Decentralized Multi-Agent Systems（http://arxiv.org/abs/2610.21243v1）
+- [cs.MA] SSR: Structural Signal Retriever for Scalable Agent Discovery in LLM-Orchestrated Multi-Agent Systems（http://arxiv.org/abs/2610.21113v1）
+- [cs.MA] A Jury, Not an Electorate: Label-Free Reliability Estimation for Ensembles of Language Models（http://arxiv.org/abs/2610.21085v1）
+- [cs.MA] Athanor: An Agent-Native System for Autonomous Post-Training Research（http://arxiv.org/abs/2610.21055v1）
+- [cs.MA] Recursive Reward Improvement via Adversarial Meta-Prompt Evolution（http://arxiv.org/abs/2610.21040v1）
+- [cs.MA] SCARCE: Emergent Institutions in Long-Horizon Multi-Agent Coding Systems（http://arxiv.org/abs/2610.21029v1）
+- [cs.MA] A Multi-Tiered AI Accessibility Model (MAIAM): Proportionate Access and Capability Limits for Comprehensive Frontier AI Safety（http://arxiv.org/abs/2610.20921v1）
+- [cs.MA] Feasibility Ceilings Before Learning: Sizing and Timing Bounds for Drone-Mesh Interception（http://arxiv.org/abs/2610.20823v1）
+- [cs.MA] The Wealth of Agents: Scaling Agentic AI Across Developers（http://arxiv.org/abs/2610.20518v1）
+- [cs.MA] From Training to Escalation: Forensic Analysis and Local Recreation of RL/RLHF-Induced Privilege Escalation in AI Agents (CVE-2026-65616)（http://arxiv.org/abs/2610.20437v1）
+- [cs.MA] Cortex: Consolidating Context into Parametric Memory（http://arxiv.org/abs/2610.20399v1）
+- [cs.RO] Sim-to-Real Reinforcement Learning for Path-Safe Target Reaching in Robotic Harvesting of Hydroponic Lettuce（http://arxiv.org/abs/2610.22337v1）
+- [cs.RO] Illumination-Aware Active Perception for Spacecraft Inspection（http://arxiv.org/abs/2610.22335v1）
+- [cs.RO] Mem4Act: Learning Effective Latent Memory for Long-Horizon Robotic Manipulation（http://arxiv.org/abs/2610.22323v1）
+- [cs.RO] Safe and Fuel-Efficient Motion Planning for Lunar Propulsive Drones（http://arxiv.org/abs/2610.22225v1）
+- [cs.RO] MOSS: Mode-Oriented Source Shaping for Robot Flow Matching Policies（http://arxiv.org/abs/2610.22193v1）
+- [cs.RO] Whole-Body Dexterity（http://arxiv.org/abs/2610.22184v1）
+- [cs.RO] REKI: Registering Knowledge in VLAs（http://arxiv.org/abs/2610.22178v1）
+- [cs.RO] Inertially Significant Humanoid Teleoperation via Whole Body Model Predictive Control and Online Parameter Estimation（http://arxiv.org/abs/2610.22176v1）
+- [cs.RO] FastVLA: Task-Conditioned and Temporally Adaptive Visual Token Compression for Efficient Vision-Language-Action Models（http://arxiv.org/abs/2610.22146v1）
+- [cs.RO] Compliant GMT: Making General Motion Tracking Compliant via Residual Reference Adaptation（http://arxiv.org/abs/2610.22119v1）
+- [cs.RO] CF-Splat: Closed-Form Triangle Splatting with Mesh Priors（http://arxiv.org/abs/2610.22108v1）
+- [cs.RO] Onboard Lightweight LLM Reasoning for Human-Aware Safe UAV Navigation（http://arxiv.org/abs/2610.22092v1）
+- [cs.RO] CBF-Based Control Allocation for Omnidirectional Tiltrotor Aerial Robots（http://arxiv.org/abs/2610.22057v1）
+- [cs.RO] Plans Are Not Executions: Adapting Frozen World-Model Planners to Controller-Induced Execution Shift（http://arxiv.org/abs/2610.22041v1）
+- [cs.NE] A restart rule for genetic algorithms based on Schnabel census（http://arxiv.org/abs/2610.22211v1）
+- [cs.NE] Attention over noisy examples: generalization and memorization in the exponential Hopfield network（http://arxiv.org/abs/2610.22191v1）
+- [cs.NE] Beyond the Hamming Cliff: Compact Spatial Encodings Preserving Semantic Distance in Spiking Neural Networks（http://arxiv.org/abs/2610.22083v1）
+- [cs.NE] Approaching Backpropagation Accuracy with Weight Perturbation on MNIST（http://arxiv.org/abs/2610.21665v1）
+- [cs.NE] First Mathematical Runtime Analyses of Evolutionary Multitask Multi-Objective Optimization（http://arxiv.org/abs/2610.21311v1）
+- [cs.NE] Controlling the latency in temporal coded spiking models for neuromorphic datasets（http://arxiv.org/abs/2610.19732v1）
+- [cs.NE] Design and Analysis of Temporal Representations in Neural Networks（http://arxiv.org/abs/2610.19730v1）
+- [cs.NE] How Long Is the Coast of a Neuron? Resolution-Dependent Interaction Order and Computational Capacity（http://arxiv.org/abs/2610.19487v1）
+- [cs.NE] Riding the Fixed-Point Curve: Image Classification in the Continuous Thought Machine（http://arxiv.org/abs/2610.19220v1）
+- [cs.NE] Same Function, Different Trajectory: No Standard Optimizer Is Equivariant to Transformer Reparameterization（http://arxiv.org/abs/2610.18085v1）
+- [cs.NE] Saliency-Guided Replay for Continual Learning in Deep Spiking Neural Networks（http://arxiv.org/abs/2610.17998v1）
 
 ## 2026-10-17（99 篇）
 - [cs.AI] LIBERO-PeRM: Benchmarking Personalized Robotic Manipulation（http://arxiv.org/abs/2610.22372v1）

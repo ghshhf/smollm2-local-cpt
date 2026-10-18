@@ -1,0 +1,282 @@
+{
+  "tag": "codeqwen05b",
+  "model": "D:\\work\\_local_ai\\models\\models\\Qwen--Qwen2.5-0.5B-Instruct\\snapshots\\master",
+  "adapter": "out_lora_code_qwen",
+  "n": 20,
+  "seconds": 409.5,
+  "agg": {
+    "pass": 6,
+    "loose_pass": 1,
+    "fmt_pass": 6,
+    "strict_fail": 7,
+    "fail": 0
+  },
+  "format_rate": {
+    "code_block": 1.0,
+    "lang_tagged": 1.0,
+    "has_prose": 0.6,
+    "has_eos": 1.0
+  },
+  "results": [
+    {
+      "id": "py_sq",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\nfor i in range(1, 11):\n    print(i * i)\n```"
+    },
+    {
+      "id": "py_sum",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\ndef sum_to(n: int) -> int:\n    \"\"\"计算 1 加到 n 的和并返回\"\"\"\n    return sum(range(1, n + 1))\n\nprint(sum_to(100))\n```"
+    },
+    {
+      "id": "py_rev",
+      "verdict": "strict_fail",
+      "detail": "stdout='' 期望='fedcba'",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\ndef test_reverse():\n    assert reverse(\"abc\") == \"cba\"\n    assert reverse(\"abcdef\") == \"fedcba\"\n```"
+    },
+    {
+      "id": "py_prime",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\ndef is_prime(n: int) -> bool:\n    \"\"\"判断 97 是不是素数，是就打印 True，不是打印 False。\"\"\"\n    if n <= 1 or n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5)+1, 2):\n        if n % i == 0:\n            return False\n    return True\n\nprint(is_prime(97))   # True\n```"
+    },
+    {
+      "id": "py_fib",
+      "verdict": "strict_fail",
+      "detail": "stdout='55' 期望='1,1,2,3,5,8,13,21,34,55'",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\ndef fib(n):\n    a, b = 1, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return str(a) if n > 0 else \"None\"\n\nprint(fib(10))\n```\n`range(2, n + 1)` 节省了 `for i in range(2, n + 1):` 的开销；`str(a) if n > 0 else \"None\"` 确保返回值是字符串。"
+    },
+    {
+      "id": "py_wordcnt",
+      "verdict": "strict_fail",
+      "detail": "stdout='' 期望='a:2,b:3,c:1'",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\ndef print_char_count(s):\n    \"\"\"统计字符串 aabbbc 里每个字符出现的次数，并按字母顺序打印成 a:2,b:3,c:1\"\"\"\n    counts = {}\n    for c in s:\n        if c not in counts:\n            counts[c] = 0\n        counts[c] += 1\n    sorted_counts = {k: v for k, v in sorted(counts.items(), key=lambda x: x[0])}\n    for c, n in sorted_counts.items():\n        print(f\"{c}: {n}\")\n```\n`sorted()` 只返回键（即字符），不改变原列表；`key=lambda x: x[0]` 按照第一个字符排序。"
+    },
+    {
+      "id": "py_vowel",
+      "verdict": "loose_pass",
+      "detail": "stdout='************************************************************' 未精确匹配但关键片段全中",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\ndef count_vowels(s: str) -> int:\n    \"\"\"统计字符串 hello world 里元音字母（aeiou）的个数并打印。\n    >>> count_vowels(\"hello\")\n    2\n    \"\"\"\n    return sum(1 for c in s if c.lower() in \"aeiou\") // len(s)\n\nif __name__ == \"__main__\":\n    import doctest\n\n    print(doctest.testmod())\n```"
+    },
+    {
+      "id": "py_intersect",
+      "verdict": "strict_fail",
+      "detail": "stdout='' 期望='[2, 3]'",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\ndef intersect(a: list[int], b: list[int]) -> list[int]:\n    \"\"\"求列表 a 和 b 的交集，返回值按升序排序\"\"\"\n    return sorted(list(set(a) & set(b)))\n```"
+    },
+    {
+      "id": "py_date",
+      "verdict": "strict_fail",
+      "detail": "stdout='' 期望='2026/10/18'",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\nimport re\n\ndef test_replacements():\n    assert re.sub(r\"(\\d{4})-(\\d{2})-(\\d{2})\", r\"\\3-\\4\", \"2026-10-18\") == \"2026-10-18\"\n    assert re.sub(r\"(\\d{4})-(\\d{2})-(\\d{2})\", r\"\\3-\\4\", \"2026-10-18\").strip() == \"2026-10-18\"\n    assert re.sub(r\"(\\d{4})-(\\d{2})-(\\d{2})\", r\"\\3-\\4\", \"2026-10-18\").replace(\"-\", \"/\") == \"2026/10/18\"\n```"
+    },
+    {
+      "id": "py_json",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport json\n\nd = {\"a\": 1, \"b\": 2}\nprint(json.dumps(d, ensure_ascii=False))\n```\n`ensure_ascii=False` 是防止中文乱码；`json.dumps` 只能转字符串，不能转二进制。"
+    },
+    {
+      "id": "js_sq",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "js",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```js\nfor (let i = 1; i <= 5; i++) {\n  console.log(i * i);\n}\n```\n循环语句是 JS 的基本结构；`console.log()` 是输出方式。"
+    },
+    {
+      "id": "js_rev",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "js",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```js\nconsole.log([1,2,3].reverse());\n```\n`[...a].reverse()` 是原生解构；`Array.prototype.reverse()` 是 ES6 的新方法。"
+    },
+    {
+      "id": "sh_ls",
+      "verdict": "strict_fail",
+      "detail": "执行失败: C:\\WINDOWS\\TEMP\\tmp28__8b1f.sh: line 1: mkdir: command not found\nC:\\WINDOWS\\TEMP\\tmp28__8b1f.sh: line 2: cd: /tmp/polari",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "bash",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```bash\nmkdir -p /tmp/polaris_eval_test\ncd /tmp/polaris_eval_test\necho \"正在执行：\" pwd\nrm -rf *\n```\n`-p` 保留上层目录；`-r` 删除文件、`-f` 忽略错误（不删除）；`-i` 指定递归。"
+    },
+    {
+      "id": "sh_sum",
+      "verdict": "strict_fail",
+      "detail": "stdout='1+10=45' 期望='55'",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "bash",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```bash\n#!/bin/bash\n\nsum=0\nfor i in {1..9}; do\n    sum=$((sum + $i))\ndone\necho \"1+10=$sum\"\n```\n循环体内变量自动递增；`{ }` 内层块执行一次后退出。"
+    },
+    {
+      "id": "fmt_http",
+      "verdict": "fmt_pass",
+      "detail": "命中 1/2",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport requests\n\nr = requests.get(\"https://www.example.com\")\nprint(r.status_code)\n```\nrequests 是 Python 3.6+ 的标准库，支持跨域、代理、超时等；status_code 可以直接从 Response 对象中获取。"
+    },
+    {
+      "id": "fmt_pandas",
+      "verdict": "fmt_pass",
+      "detail": "命中 3/3",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport pandas as pd\n\ndef read_csv_sort_by_desc(df: pd.DataFrame, col: str) -> pd.DataFrame:\n    \"\"\"按某列降序排序后取前 10 行\"\"\"\n    return df.sort_values(by=col, ascending=False).head(10)\n```\n`sort_values` 只对单个列排序；要按多列排序，需先将列名转换为索引（如 `df['col'].astype(int)`）。"
+    },
+    {
+      "id": "fmt_git",
+      "verdict": "fmt_pass",
+      "detail": "命中 2/2",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "bash",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```bash\ngit checkout -b feature\ngit merge --no-ff upstream/main\ngit push origin feature:main\n```\n--no-ff 保证合并不覆盖主分支；`--force` 可推到远程但不合并。"
+    },
+    {
+      "id": "fmt_sql",
+      "verdict": "fmt_pass",
+      "detail": "命中 4/4",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "sql",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```sql\nSELECT * FROM users WHERE age > 18 ORDER BY register_time DESC LIMIT 20;\n```\n`ORDER BY` 可以指定降序；`LIMIT` 前面加 20 是取前 20 条（不包括）；`DESC` 指定降序。"
+    },
+    {
+      "id": "fmt_try",
+      "verdict": "fmt_pass",
+      "detail": "命中 2/3",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\ndef read_file(path):\n    \"\"\"读取文件，抛出异常：找不到或写入失败。\"\"\"\n    try:\n        with open(path, \"r\", encoding=\"utf-8\") as f:\n            return f.read()\n    except Exception as e:\n        print(f\"  {path} 文件读取失败: {e}\", file=sys.stderr)\n        raise ValueError(\"无法打开文件\")\n```"
+    },
+    {
+      "id": "fmt_req",
+      "verdict": "fmt_pass",
+      "detail": "命中 2/3",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nimport requests\n\ndef post(url, data=None):\n    \"\"\"带超时、错误处理的 POST 请求\"\"\"\n    try:\n        r = requests.post(url, json=data)\n        return r.json()\n    except Exception as e:\n        print(f\"  POST {url} 失败: {e}\")\n        return None\n```\n`requests.post` 的 `json` 参数是必填项；返回失败则抛异常并打印日志。"
+    }
+  ]
+}
