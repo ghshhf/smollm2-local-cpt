@@ -1,0 +1,34 @@
+{
+  "tag": "pt135m_gutenberg",
+  "corpus": {
+    "path": "next_corpus_raw/gutenberg/pg23817.txt",
+    "bytes": 300000,
+    "han_chars": 79055,
+    "tokens": 200560,
+    "bits": 2400000.0,
+    "bits_per_token": 11.966493817311529
+  },
+  "baselines_bits": {
+    "gzip": 1223032.0,
+    "xz": 1054432.0
+  },
+  "model": {
+    "non_embed_params": 106203456,
+    "embed_params": 28311552,
+    "storage_bits": {
+      "fp32": 4304480256.0,
+      "fp16": 2152240128.0,
+      "ternary_w+fp16_emb": 620786292.48
+    }
+  },
+  "nll_bits": 828342.8633437484,
+  "bits_per_token_nll": 4.130149897007122,
+  "adjusted_rate": {
+    "fp32": 1793.8785828597267,
+    "fp16": 897.1118628597266,
+    "ternary_w+fp16_emb": 259.0060980597266
+  },
+  "online_rate_nll_only": 0.34514285972656183,
+  "token_per_han": 2.5369679337170323,
+  "notes": "三值口径 adjusted_rate 为乐观下界（NLL 来自 fp32 权重，前提=BitNet QAT 拉回 NLL）"
+}

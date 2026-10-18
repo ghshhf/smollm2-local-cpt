@@ -1,0 +1,178 @@
+{
+  "module": "polaris-code-zh",
+  "version": "0.1.0",
+  "kind": "behavior",
+  "summary": "编程行为模块：只规定「怎么给代码」（可运行、带关键说明、不啰嗦），代码知识由主干提供。实测边界：格式层能教，内容层教不了——内容层由底座预训练决定。",
+  "requires": {
+    "architecture_family": [
+      "llama",
+      "smollm2",
+      "qwen2",
+      "qwen2.5-coder",
+      "mistral",
+      "deepseek"
+    ],
+    "hidden_size": "any",
+    "num_hidden_layers": "any",
+    "num_key_value_heads": "any",
+    "vocab_size": "any",
+    "tokenizer": "any",
+    "attention_naming": {
+      "standard": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj"
+      ],
+      "alt": [
+        "query",
+        "key",
+        "value",
+        "out_proj"
+      ],
+      "fused_unsupported": [
+        "c_attn",
+        "query_key_value",
+        "Wqkv"
+      ]
+    },
+    "note": "不依赖任何主干常量。维度在装载时从目标主干 config.json 探测。"
+  },
+  "attach_points": [
+    {
+      "slot": "q",
+      "module_hint": "q_proj",
+      "dim": "hidden",
+      "class": "constant"
+    },
+    {
+      "slot": "k",
+      "module_hint": "k_proj",
+      "dim": "kv_dim",
+      "class": "constant"
+    },
+    {
+      "slot": "v",
+      "module_hint": "v_proj",
+      "dim": "kv_dim",
+      "class": "constant"
+    },
+    {
+      "slot": "o",
+      "module_hint": "o_proj",
+      "dim": "hidden",
+      "class": "constant"
+    }
+  ],
+  "forbidden_points": {
+    "gate_proj": "输出维 = intermediate_size，随主干扩容变化",
+    "up_proj": "同上",
+    "down_proj": "输入维 = intermediate_size，同上",
+    "embed_tokens": "vocab 可扩（追加词表即失效）",
+    "lm_head": "vocab 可扩，且直接改动输出分布，跨主干不可迁移"
+  },
+  "portability": {
+    "verdict": "与对话模块同结论：可移植性边界 = 预训练血统的边界",
+    "L0_same_lineage": {
+      "method": "zero-pad",
+      "shape_verified": true,
+      "behavior": "成立",
+      "measured": "max|diff| = 0.000e+00"
+    },
+    "L1_same_arch_diff_lineage": {
+      "method": "zero-pad",
+      "shape_verified": true,
+      "behavior": "partial"
+    },
+    "L2_cross_lineage": {
+      "method": "zero-pad (shape ok)",
+      "shape_verified": true,
+      "behavior": "FAIL",
+      "correct_path": "带走 data/ + eval/ 在目标主干上重训（小时级），不搬权重"
+    },
+    "shrink_case": {
+      "method": "svd-truncate",
+      "lossless": false,
+      "requirement": "装完必须重训补偿"
+    }
+  },
+  "training": {
+    "format": "peft-lora",
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "targets": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj"
+    ],
+    "max_seq_length": 1024,
+    "loss_mask": "completion_only",
+    "base": "polaris-0.3B (346.9M / 36L / hidden=576 / inter=4608)",
+    "data": "data/code_sft_v1.jsonl (1463 条，已清洗同问多答/空壳指令)"
+  },
+  "io": {
+    "chat_template": "chatml",
+    "system": "你是北极星，主人的私有编程助手。回答给可运行的代码，配一两句关键说明。",
+    "input": "<|im_start|>system\\n{system}<|im_end|>\\n<|im_start|>user\\n{query}<|im_end|>\\n<|im_start|>assistant\\n",
+    "output": "{answer}<|im_end|>",
+    "loss_mask": "completion_only"
+  },
+  "acceptance": {
+    "two_layer": {
+      "format_layer": {
+        "owner": "模块",
+        "checks": [
+          "有 ``` 代码块",
+          "带语言标注",
+          "块外有说明文字",
+          "以 <|im_end|> 收尾"
+        ],
+        "target": ">= 0.9"
+      },
+      "content_layer": {
+        "owner": "主干",
+        "checks": [
+          "提取代码块执行",
+          "stdout 与期望 strict 比对",
+          "失败退 loose 关键片段比对"
+        ],
+        "target": "相对裸底座的增量，不设绝对门槛"
+      }
+    },
+    "in_set_ce_lt": 1.0,
+    "in_set_ce_note": "编程答案长（中位 161 token、p90 657），不套用对话模块的 0.6 硬门槛；先看中位 CE < 1.0，再看格式层",
+    "blind_test_required": true,
+    "blind_test_set": "data/code_holdout_v1.jsonl (20 题，与训练集 4-gram 平均重叠 13.4%)",
+    "port_verify_max_diff": 0.0,
+    "port_behavior_test": "tools/code_eval.py 裸模型 vs 挂模块，两边 format 率必须有可见差异"
+  },
+  "baseline_measured": {
+    "note": "同 4 题、同 prompt 拼接、同评测器；本机 CPU bf16",
+    "bare_polaris_0.3b": {
+      "code_block": 0.0,
+      "lang_tagged": 0.0,
+      "has_eos": 0.0,
+      "strict_pass": "0/4",
+      "loose_pass": "0/4",
+      "sec_per_task": 75,
+      "symptom": "复述 prompt 后退化成复读，永不收尾"
+    },
+    "bare_qwen2.5_0.5b_instruct": {
+      "code_block": 1.0,
+      "lang_tagged": 1.0,
+      "has_eos": 1.0,
+      "strict_pass": "2/4",
+      "loose_pass": "3/4",
+      "sec_per_task": 22
+    },
+    "reading": "内容层 0% vs 75% 的差距来自底座预训练，模块无能为力；格式层对强底座是免费的，对自家 0.3B 才需要模块补"
+  },
+  "root_cause": "0.3B 预训练语料是 Ultra-FineWeb-zh 中文网页（3.7GB），无代码语料；且 R7-R10 古籍/小说阶段把指令跟随能力冲掉了，裸模型退化为复读机。SFT 1463 条只能补协议与格式，补不出代码表征。",
+  "next": [
+    "等 6 epoch 跑完量 format 层提升",
+    "给预训练配方加代码语料（唯一能真正解决内容层的办法）",
+    "在本机用 code_sft_v1.jsonl 在有代码底子的底座上重训行为模块（跨血统正解，小时级）"
+  ]
+}

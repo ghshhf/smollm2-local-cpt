@@ -1,0 +1,107 @@
+# 进展时间线（Progress Log）
+
+> 规则：**倒序，最新在最上**。每次动手后追加一段，只写**硬数据**与**未完成项**，不写感想。
+> 交付物写清路径，让下一个人（或未来的我）能直接接着干。
+> 配套：项目总纲见 `PROJECT.md`。
+
+---
+
+## 2026-10-18 · 做梦闭环跑通 + 对话语料合成 + 听觉线起步
+
+### 1) 做梦（RSI）闭环：从设计态 → 可跑态 🟢
+
+**新建**
+- `tools/dream_loop.py` — 做梦编排器（v2）：记忆检索(few-shot) → 生成 → 沙箱执行 → `vid_verify` 闸门 → 入库 + rejects 回灌
+- `tools/dream_elite.py` — MAP-Elites 精英档案（quality-diversity 去重）
+- `tools/dream_autorun.py` — 周期自转调度器（原子锁 + 自管日志）
+- `tools/weak_to_strong.py` — 弱到强升级骨架（LEACH 思路，教师接口可插拔）
+
+**改造**
+- `tools/vid_verify.py` → v2：每项 0~1 partial credit + `--min-quality`；**修致命误杀**——"有音轨"原为硬检查，导致所有无声的可视化 mp4 全部判死，改软检查 + `--require-audio`
+- `tools/ttt_infer.py` — 底座参数化（默认 0.2B，可传 0.3B）；修 `tie_word_embeddings=True` 时 `lm_head.weight` 缺失的误报
+- `tools/triple_bank.py` — 入库后顺带写精英档案
+
+**实测结果**
+| 项 | 结果 |
+|---|---|
+| 0.3B 上 latent 适配（ttt_latent） | 干净加载 346.9M / unexpected=0，4 步末损 2.9052，生成正常 ✅ |
+| 冒烟（无模型） | exec → 视频验收 ACCEPT → 入库 → 精英去重 skip 正确 ✅ |
+| 播种 | 手放正弦波动画示例入银行 #2，作 few-shot 自举起点 |
+| **0.3B 做梦** | ❌ 全败：生成 `代码块` 三个字 / 中文废话。根因=底座无代码预训练 |
+| **0.3B + 代码 LoRA（官方 code_eval）** | 代码块 33%、正常收尾 0%、**strict 0/3**、宽松 0/3 |
+| **coder 底座做梦**（Qwen2.5-0.5B + `out_lora_code_qwen/checkpoint-300`） | 首轮 **1/3** → 提示加固后 **6/6 全过**，银行 #3→#9 |
+
+**结论（重要）**：做梦*管线*完全成立；**0.3B 北极星无法自己写代码**（底座能力边界，非 bug）。
+RSI = 达标后的加速器，不是从 0 到达标的捷径。
+
+### 2) 中文对话：语料 404 → 3000 条 🟡
+
+**病灶（2026-10-18 实测，非推测）**
+- in-set completion CE = **1.578**；达标(<0.60) 仅 **14/439 = 3.2%** ⇒ 只学会抄写/套模板
+- 过拟合探针 **PASS**（最短样本近 40 步均 0.2845）⇒ 管道无 bug
+- 根因：数据量差一个数量级（404 条×4ep，每条答案只看 4 次）；词表成本 2.48 token/汉字放大 2.5×；EOS 弱
+- 另：`models/chat_lora_v4_port03b` 的 target 仍是旧 7 模块（含 gate/up/down），跨代不可靠，**弃用，须在 0.3B 上重训 q/k/v/o**
+
+**产出**
+- `data/chat_seeds/seeds_v7{,b,c,d}.py` — 教师手写种子 **333 组 / 13 域**（不是模板套壳）
+- `tools/synth_chat_data_v7.py` — 组合扩展器
+- `data/chat_sft_v7.jsonl` — **3000 条，完整 prompt 唯一 3000/3000，同问多答冲突 0**
+  - 单轮 692 / 多轮 2308；唯一问题 692
+  - 域分布：tech 367、identity 317、greeting 313、emotion 265、work 254、life 233、knowledge 228、study 216、ability 214、owner 200、opinion 198、clarify 155、boundary 40
+  - token：min 18 / p50 105 / p90 133 / p99 158 / max 182 / 总 296,154（均值 98.7）
+- `data/chat_holdout_v7.jsonl` — 真盲测 30 题（训练集完全没有的新问法 + 关键点）
+- `tools/chat_blind_eval.py` — 盲测执行器
+
+**过程中修掉的三个真问题**
+1. 答非问错配（把"话题相近"当"同义问法"共用答案池）→ 拆成独立组
+2. 同问多答冲突（首版 1012 条单轮全是一问多答，违反项目零冲突规范）→ 改索引配对一问一答
+3. **多轮 loss 污染**：`train_lora.py` 用 `find`（第一个 assistant）切 prompt，多轮样本会把第二轮 user 提问算进 loss = 教模型续写用户输入 → 改 `rfind`，实测 2308 条多轮**零污染**
+
+**训练**：已提交 `chat_v7_03b` 进 `train_queue`（0.3B + q/k/v/o LoRA，4 ep，`--max_seq_length 384`）
+
+### 3) 听觉线：0.3B 起步 🟡
+
+| 环节 | 状态 |
+|---|---|
+| Whisper-small encoder | ✅ 已下 922MB（88.2M 参数，d_model=768） |
+| AISHELL-1 | ✅ 24 说话人解包，**8197 对 / 10.6 小时**（中位 4.31s、22 字） |
+| `tools/audio_attach.py` | ✅ 新写：Whisper → pool → MLPProjector(768→576) → **0.3B**，early fusion，三阶段 |
+| 真盲测切分 | ✅ 按说话人留出 S0024/S0025（训练 7507 / 验证 690，人声完全没见过） |
+| 特征预计算 | 🔄 后台跑（1500+150 条，单条约 4s，慢在 transformers 5.19 强制 30s padding） |
+
+已对齐 VLM 踩过的坑：`fc2` 必须 `std=0.01` 微小随机初始化（零初始化会让 RMSNorm 反向炸 nan）。
+
+### 4) 识图线：冻结（按用户指示）
+- v5 盲测灾难幻觉；v6 val_loss 1.5552 但输出仍是弱视觉条件化的短语堆砌
+- v6 实为 **0.2B(214M)** 血统，未升 0.3B
+- 已知部署坑：infer 须显式 `--init <snapshot>/projector.pt`（否则默认加载 align 的 projector）；v6 projector 实为 `ps=1`
+
+### 5) 情报线
+- 论文爬虫 122 篇去重 / 14 桶分类 → `docs/frontier-crawl-report-2026-10-18.html`
+- 物理拆分 `data/frontier/by_category/`（13 个 jsonl + `_index.json`）
+
+### 未完成
+- [ ] `chat_v7_03b` 训练 + in-set CE 验收（<0.60 才算学会）
+- [ ] 0.3B 中位长度过拟合探针
+- [ ] 听觉特征预计算 → align 训练 → CER 盲测
+- [ ] `dream_autorun.py` 注册 schtasks 常驻（注册时 `RepetitionDuration MaxValue` 报错待修）
+- [ ] p2 管线（Qwen0.5B 代码 LoRA）step2 remap 1.5B + step3 四向评测收尾
+
+---
+
+## 2026-10-17 · 0.3B 权重归档 + 模块接口契约
+
+- 0.3B 权重（`polaris-03b_20261018`，1.39GB fp32，sha256 `90f2f64b…30b70`）分片 14 份入私有仓
+- 提交 `a5c85a4`：`backups/0.3B/` 含 14 分片 + `reassemble.py`（幂等 + sha256 自校验）+ provenance
+- 坑：ModelScope 遗留 `.gitattributes` 指向 git-lfs，本机无 lfs 导致 commit 失败 → 删除
+- 定模块接口契约（`docs/module-interface-spec.md`）：禁止硬编码主干维度，只许接恒定维 q/k/v/o + 残差流
+
+---
+
+## 2026-10-16 · 0.3B 扩容 + R6 封顶 + 记忆层选型
+
+- 0.3B 扩容完成：214.1M → **346.86M**（inter 3072→4608、层 30→36），保函数 logits `diff = 0.000000`
+- R6 封顶 done=7100，loss 1.74→1.41
+- 0.2B R6 权重归档 `backups/0.2B/r6_final_20261016/`（9 分片 + 拼回器 + provenance），提交 `c3be988`
+- 记忆层选型：**TinyContext**（PyPI `tinysuite-context` 0.5.1，MIT，SQLite+FTS5+sqlite-vec，天然满足 E-7 逐条可删）为主力；`mem0` 仅对照
+- E1/P3 终止裁决（不重跑）：必须继承的系统里，控制点从输入端移到输出端

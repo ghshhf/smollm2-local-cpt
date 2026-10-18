@@ -1,0 +1,78 @@
+#### TIME
+10-14 05:03:18
+#### PS_ALL(chain/train/boot/agent/cron/python)
+    181      15    07:23:34 /etc/dsw/runtime/python/bin/python3.9 /etc/dsw/runtime/bin/supervisord -c /etc/dsw/sys_configs/supervisor.conf
+    190     181    07:23:33 /etc/dsw/runtime/bin/pai-dsw runtime plugin start dsw-agent v1.0.0
+    206     190    07:23:33 /bin/bash /etc/dsw/cache/pre-install/plugin-packages/dsw-agent/v1.0.0/actions/start.sh
+    439     206    07:23:33 /etc/dsw/cache/pre-install/plugins/dsw-agent/v1.0.0/dsw-agent -enable-metric-collector --host=127.0.0.1 --port=8888
+   1907       1    07:21:09 python node_v5.py
+  99219     876    03:04:34 /etc/dsw/cache/pre-install/plugins/vscode/v4.122.0/code-server/lib/node /etc/dsw/cache/pre-install/plugins/vscode/v4.122.0/code-server/lib/vscode/out/bootstrap-fork --type=fileWatcher
+  99237     876    03:04:34 /etc/dsw/cache/pre-install/plugins/vscode/v4.122.0/code-server/lib/node --dns-result-order=ipv4first /etc/dsw/cache/pre-install/plugins/vscode/v4.122.0/code-server/lib/vscode/out/bootstrap-fork --type=extensionHost --transformURIs --useHostProxy=false
+ 130783       1    01:42:30 sh chain_v1.sh
+ 137451       1    01:25:09 sh chain_watch.sh
+ 165705  130783       11:22 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R5 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R5.npy --steps 400 --lr 3e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+ 167848  165705       05:42 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R5 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R5.npy --steps 400 --lr 3e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+ 167863  165705       05:41 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R5 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R5.npy --steps 400 --lr 3e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+ 170051    1907       00:00 /bin/sh -c cd /mnt/workspace/node1/chain; { echo '#### TIME'; date '+%m-%d %H:%M:%S'; echo '#### PS_ALL(chain/train/boot/agent/cron/python)'; ps -eo pid,ppid,etime,cmd | grep -E '[c]hain_v|[t]rain_remote_v4|[b]oot|[n]ode_v|[a]gent|[c]ron|[w]atch|[s]upervis' ; echo '#### CRONTAB'; crontab -l 2>&1 | head -20; echo '#### PS_TOTAL'; ps -e | wc -l; echo '#### W_DIR'; ls -la . | head -30; echo '#### PID_LOCK'; cat chain.pid 2>/dev/null || echo 'no chain.pid(老链无锁, 正常)'; echo '#### HEARTBEAT'; cat heartbeat 2>/dev/null || echo 'no heartbeat'; echo '#### STOP'; if [ -f stop ]; then echo present; else echo absent; fi; echo '#### DONE'; cat done_steps.txt 2>/dev/null; echo '#### CHUNK_PROGRESS(最近 step 行)'; grep '^step ' chain.log | tail -3; echo '#### LOG_TAIL'; tail -8 chain.log; echo '#### CKPT'; ls -la ckpt/ | head -12; } 2>&1 | curl -s -X POST 'http://47.99.131.12:8081/upload?name=r5chk1.txt&key=k0u4mail' --data-binary @-
+ 170052  170051       00:00 /bin/sh -c cd /mnt/workspace/node1/chain; { echo '#### TIME'; date '+%m-%d %H:%M:%S'; echo '#### PS_ALL(chain/train/boot/agent/cron/python)'; ps -eo pid,ppid,etime,cmd | grep -E '[c]hain_v|[t]rain_remote_v4|[b]oot|[n]ode_v|[a]gent|[c]ron|[w]atch|[s]upervis' ; echo '#### CRONTAB'; crontab -l 2>&1 | head -20; echo '#### PS_TOTAL'; ps -e | wc -l; echo '#### W_DIR'; ls -la . | head -30; echo '#### PID_LOCK'; cat chain.pid 2>/dev/null || echo 'no chain.pid(老链无锁, 正常)'; echo '#### HEARTBEAT'; cat heartbeat 2>/dev/null || echo 'no heartbeat'; echo '#### STOP'; if [ -f stop ]; then echo present; else echo absent; fi; echo '#### DONE'; cat done_steps.txt 2>/dev/null; echo '#### CHUNK_PROGRESS(最近 step 行)'; grep '^step ' chain.log | tail -3; echo '#### LOG_TAIL'; tail -8 chain.log; echo '#### CKPT'; ls -la ckpt/ | head -12; } 2>&1 | curl -s -X POST 'http://47.99.131.12:8081/upload?name=r5chk1.txt&key=k0u4mail' --data-binary @-
+#### CRONTAB
+/bin/sh: 1: crontab: not found
+#### PS_TOTAL
+58
+#### W_DIR
+总计 370631
+drwxr-xr-x 13 root root      4096 10月 14 04:51 .
+drwxr-xr-x  6 root root      4096 10月 12 02:02 ..
+drwxr-xr-x  2 root root      4096 10月 14 02:25 backup_corpus
+-rw-r--r--  1 root root      3161 10月 13 04:16 base_check.py
+drwxr-xr-x  2 root root      4096 10月 12 04:38 base_tok
+-rw-r--r--  1 root root       550 10月 12 23:31 bootstrap.log
+-rw-r--r--  1 root root 375627552 10月 13 03:01 cache_R4.npy
+-rw-r--r--  1 root root       236 10月 13 03:01 chain_fixrun2.log
+-rw-r--r--  1 root root     16166 10月 13 00:17 chain_fixrun.log
+-rw-r--r--  1 root root   3762528 10月 14 05:00 chain.log
+-rw-r--r--  1 root root         7 10月 14 04:51 chain.pid
+-rw-r--r--  1 root root     11564 10月 13 00:05 chain_reset.log
+-rw-r--r--  1 root root     11366 10月 14 03:20 chain_v1.sh
+-rw-r--r--  1 root root      7503 10月 14 03:20 chain_v2.sh
+-rw-r--r--  1 root root      1820 10月 14 03:38 chain_watch.sh
+drwxr-xr-x  2 root root      4096 10月 14 03:01 ckpt
+drwxr-xr-x  2 root root      4096 10月 13 22:16 ckpt_old
+-rw-r--r--  1 root root      4449 10月 14 02:21 clean_corpus.py
+-rw-r--r--  1 root root      2376 10月 13 00:49 convert_st.py
+drwxr-xr-x  2 root root      4096 10月 12 23:52 corpus_r4
+lrwxrwxrwx  1 root root        36 10月 12 23:52 corpus_R4 -> /mnt/workspace/node1/chain/corpus_r4
+drwxr-xr-x  2 root root      4096 10月 14 04:51 corpus_r5
+lrwxrwxrwx  1 root root        36 10月 14 04:51 corpus_R5 -> /mnt/workspace/node1/chain/corpus_r5
+drwxr-xr-x  2 root root      4096 10月 14 02:24 corpus_r6
+drwxr-xr-x  2 root root      4096 10月 14 02:25 corpus_reserve
+-rw-r--r--  1 root root         5 10月 14 04:51 done_steps.txt
+-rw-r--r--  1 root root        45 10月 14 04:51 heartbeat
+-rw-r--r--  1 root root      2422 10月 12 23:06 node1_boot.sh
+-rw-r--r--  1 root root      2811 10月 14 02:03 node1_gen.py
+#### PID_LOCK
+130783
+#### HEARTBEAT
+10-14 04:51:55 pid=130783 done=1200 stage=R5
+#### STOP
+absent
+#### DONE
+1200
+#### CHUNK_PROGRESS(最近 step 行)
+#### LOG_TAIL
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+[train] steps=400 lr=0.0003 accum=8 max_len=512 (fp32)
+[train] step 10/400 loss=2.3586 lr=8.40e-05 t=187s
+#### CKPT
+总计 836533
+drwxr-xr-x  2 root root      4096 10月 14 03:01 .
+drwxr-xr-x 13 root root      4096 10月 14 04:51 ..
+-rw-r--r--  1 root root       790 10月 14 04:39 config.json
+-rw-r--r--  1 root root       111 10月 14 04:39 generation_config.json
+-rw-r--r--  1 root root 856595368 10月 14 04:39 model.safetensors
+-rw-r--r--  1 root root         3 10月 14 04:39 step.txt

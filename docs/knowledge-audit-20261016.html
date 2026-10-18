@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本地大模型知识台账 · 全量审计（2026-10-16）</title>
+<style>
+:root{
+  --ink:#1a1c1f; --ink2:#3d434b; --ink3:#6b7280;
+  --bg:#ffffff; --panel:#f7f8fa; --panel2:#fbfcfd;
+  --line:#e3e6ea; --line2:#d0d5dc;
+  --red:#c0392b; --redbg:#fdf2f0;
+  --orange:#b9770e; --orangebg:#fdf8ec;
+  --yellow:#8a6d1f; --yellowbg:#fcfaf0;
+  --green:#1e7a4d; --greenbg:#f0f8f3;
+  --blue:#1f5c8b; --bluebg:#f0f5fa;
+  --purple:#6b3fa0;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; padding:0 20px 80px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:15px; line-height:1.75; color:var(--ink); background:var(--bg);
+}
+.wrap{max-width:1080px;margin:0 auto}
+header{
+  border-bottom:3px solid var(--ink); padding:36px 0 20px; margin-bottom:8px;
+}
+h1{font-size:27px;margin:0 0 10px;letter-spacing:-.3px;line-height:1.3}
+.sub{color:var(--ink3);font-size:14px;margin:0}
+.meta{color:var(--ink3);font-size:12.5px;margin-top:10px}
+.meta code{background:var(--panel);padding:1px 6px;border-radius:3px;font-size:12px}
+
+h2{
+  font-size:19px;margin:44px 0 6px;padding-bottom:8px;
+  border-bottom:2px solid var(--ink);letter-spacing:-.2px;
+}
+h2 .n{color:var(--ink3);font-weight:400;font-size:14px;margin-right:8px}
+h3{font-size:15.5px;margin:26px 0 10px;color:var(--ink)}
+p{margin:10px 0}
+.lead{color:var(--ink2);font-size:14px;margin:8px 0 18px}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+th{
+  background:var(--panel);text-align:left;padding:9px 11px;
+  border-bottom:2px solid var(--line2);font-weight:600;font-size:13px;
+  color:var(--ink);white-space:nowrap;
+}
+td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:var(--panel2)}
+td.nowrap{white-space:nowrap}
+
+.tag{
+  display:inline-block;padding:1px 8px;border-radius:3px;
+  font-size:11.5px;font-weight:600;white-space:nowrap;line-height:1.7;
+}
+.t-red{background:var(--redbg);color:var(--red);border:1px solid #f0c4bd}
+.t-org{background:var(--orangebg);color:var(--orange);border:1px solid #f0dcb4}
+.t-yel{background:var(--yellowbg);color:var(--yellow);border:1px solid #e8dfb8}
+.t-grn{background:var(--greenbg);color:var(--green);border:1px solid #bfe0cd}
+.t-blu{background:var(--bluebg);color:var(--blue);border:1px solid #c2d8ea}
+.t-gry{background:var(--panel);color:var(--ink3);border:1px solid var(--line2)}
+
+.box{
+  border-left:4px solid var(--line2);background:var(--panel);
+  padding:12px 16px;margin:16px 0;font-size:13.5px;
+}
+.box.red{border-left-color:var(--red);background:var(--redbg)}
+.box.org{border-left-color:var(--orange);background:var(--orangebg)}
+.box.grn{border-left-color:var(--green);background:var(--greenbg)}
+.box.blu{border-left-color:var(--blue);background:var(--bluebg)}
+.box b{color:var(--ink)}
+
+pre{
+  background:#2b2f36;color:#e8eaed;padding:12px 15px;border-radius:5px;
+  overflow-x:auto;font-size:12.5px;line-height:1.6;margin:12px 0;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+pre .c{color:#8b98a8}
+pre .k{color:#e0a35e}
+code{
+  background:var(--panel);padding:1px 5px;border-radius:3px;
+  font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+}
+
+ul{margin:8px 0;padding-left:22px}
+li{margin:5px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+@media(max-width:900px){.kanban{grid-template-columns:1fr}}
+.kcol{border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+.kcol .kh{padding:8px 12px;font-size:13px;font-weight:700;border-bottom:1px solid var(--line2)}
+.kcol .kb{padding:10px 12px;background:var(--panel2);font-size:13px}
+.kcol .kb div{padding:5px 0;border-bottom:1px dashed var(--line)}
+.kcol .kb div:last-child{border-bottom:none}
+.k1 .kh{background:var(--redbg);color:var(--red)}
+.k2 .kh{background:var(--orangebg);color:var(--orange)}
+.k3 .kh{background:var(--yellowbg);color:var(--yellow)}
+
+.stat{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.stat div{
+  flex:1;min-width:120px;border:1px solid var(--line2);border-radius:6px;
+  padding:12px 14px;background:var(--panel2);
+}
+.stat .v{font-size:23px;font-weight:700;line-height:1.2}
+.stat .l{font-size:12px;color:var(--ink3);margin-top:3px}
+
+footer{
+  margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);
+  font-size:12.5px;color:var(--ink3);
+}
+.fn{font-size:12.5px;color:var(--ink3)}
+.small{font-size:12.5px;color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>本地大模型知识台账 · 全量审计</h1>
+  <p class="sub">按<b>内容</b>归类，不看文件名 —— 以磁盘实证检验每一条"已知"</p>
+  <p class="meta">
+    审计日期 2026-10-16 · 范围 <code>train_15b/docs/**</code> + <code>eval/</code> + <code>b4/</code> + <code>CONSTITUTION.md</code><br>
+    审计方法（取自 <code>docs/audit_fix_plan.md</code> 的 48 项终裁流程）：<b>磁盘实证优先于任何模型陈述</b>；凡标"已解决"的一律先证伪再采信。
+  </p>
+</header>
+
+<!-- ============ §0 ============ -->
+<h2><span class="n">§0</span>这套方法怎么用在我们身上</h2>
+<p class="lead">
+  那份 48 项审计修复方案的价值不在它的题目（那是前端项目），而在它终裁时执行的两条纪律，
+  这两条纪律<b>恰好命中我们知识台账的病灶</b>：
+</p>
+<table>
+  <tr><th style="width:26%">48 项审计里的纪律</th><th style="width:34%">它抓到的病症</th><th>平移到我们的大模型台账后抓到了什么</th></tr>
+  <tr>
+    <td><b>磁盘实证优先于模型陈述</b><br><span class="fn">终裁前主席对每题 grep/API 取证</span></td>
+    <td>5 例委员会事实错误、4 例「已修」伪状态被推翻</td>
+    <td>查出 <b>3 处伪状态</b>（§3）：被自己推翻的结论仍挂着、两条已决前提互相打架、最重要的实验其实没跑完</td>
+  </tr>
+  <tr>
+    <td><b>先证伪再采信「已修」</b><br><span class="fn">openai 通道收口的通病：爱下结论不问磁盘</span></td>
+    <td>H1/H3/M6/M7/M8/M9 六题收口标已修，磁盘原样</td>
+    <td>E1 实验日志显示<b>在最后一步崩溃</b>，README 待办里根本没登记 ——
+        <b>2026-10-16 已修复复跑，但随即由用户裁决 <u>问题不成立而终止</u></b>（见 §3）</td>
+  </tr>
+</table>
+
+<!-- ============ §1 ============ -->
+<h2><span class="n">§1</span>知识地图：十个板块（按内容，不按文件名）</h2>
+<p class="lead">
+  下面这张表右列才是重点。<b>好几个文件名字和内容是错位的</b>：叫"情绪路线图"的其实是宪法①的工程化总纲，
+  叫"压缩三层"的已被权威修正推翻却仍按旧口径叙述，叫"0.5B 愿景"的里头装着全路线的三值 CPU 判决。
+</p>
+
+<table>
+  <tr><th style="width:15%">板块</th><th style="width:37%">真实内容（它实际在讲什么）</th><th>主要藏在哪些文件里</th></tr>
+  <tr>
+    <td><b>① 宪法层</b></td>
+    <td>三律 + L1 压缩准入 / L2 信息天花板 / L3 通道分离 + E-7（个人数据永不进被训练的参数，含 adapter）+ 保函数扩容铁律</td>
+    <td><code>CONSTITUTION.md</code>（附录 A3/A4）</td>
+  </tr>
+  <tr>
+    <td><b>② 理论地基</b></td>
+    <td>压缩即模型（Delétang ICLR2024）；N*≈193M（b_eff 5.5 口径）；"模型的本质是记录函数"公理</td>
+    <td><code>compression-three-layers.md</code> ⚠️<br><code>clawsgo_audit/open_questions_answers.md</code> 修正1</td>
+  </tr>
+  <tr>
+    <td><b>③ 扩容与架构</b></td>
+    <td>Net2Net 保函数（MLP 加宽 + 零输出层，深度优先）；三值 BitNet b1.58 渐进退火 QAT；RoPE 冻结 vs 长上下文</td>
+    <td><code>README.md</code> · <code>vision-0.5B-fusion.md</code><br><code>execution_manual.md</code> §4</td>
+  </tr>
+  <tr>
+    <td><b>④ 数据</b></td>
+    <td>0.4B 数据方案 35 亿 token；完整作品 15% 不切碎；单遍默认 + 多 epoch 免费带 4–10</td>
+    <td><code>data-plan-0.4B.md</code> · <code>data-topup-0.4B.md</code></td>
+  </tr>
+  <tr>
+    <td><b>⑤ 记忆与身份</b></td>
+    <td>10M 记忆三层；认主 = 生物特征嵌入；删除权 = 架构期约束（不是删除期操作）</td>
+    <td><code>identity-memory-roadmap.md</code><br><code>data-plan-0.4B.md</code> §5 ⏸ 延后（留接口）</td>
+  </tr>
+  <tr>
+    <td><b>⑥ 情感 / 意识</b></td>
+    <td>名是"情感"，实为<b>宪法①的工程化总纲</b>：PAD + OCC + 家稳态 + 奖励事件表 + 双版本（主人/非主人）架构 + 1B 自部署桥</td>
+    <td><code>emotion-roadmap.md</code><br>（与 ClawsGO Q-15 是同一件事的两条路径）</td>
+  </tr>
+  <tr>
+    <td><b>⑦ 自进化 RSI</b></td>
+    <td>RSI 闭环、做梦沙箱、验证者悖论、outer-anchored 目标函数</td>
+    <td><code>future_problems_report.md</code> §2/§3<br><code>docs/netarch/*</code></td>
+  </tr>
+  <tr>
+    <td><b>⑧ 决策门体系</b></td>
+    <td>Gate 0–9；Grokking 会污染 Gate 1；plateau 三成因（容量/优化/数据受限）</td>
+    <td><code>blind_spots.md</code> BS-2 · <code>execution_manual.md</code> §7</td>
+  </tr>
+  <tr>
+    <td><b>⑨ 部署服务</b></td>
+    <td>CPU-first 15ms/token；看门狗 + 分块续训；端侧记忆不出本机</td>
+    <td><code>REMOTE-OPS.md</code> · <code>vision-0.5B-fusion.md</code> §10</td>
+  </tr>
+  <tr>
+    <td><b>⑩ 小说→研究映射</b></td>
+    <td>《网格之下》"枢"设定 → 真实 AI 研究问题；IDENTITY-R 同一判据</td>
+    <td><code>novel_to_research_map.md</code></td>
+  </tr>
+</table>
+
+<!-- ============ §2 ============ -->
+<h2><span class="n">§2</span>还没研究透的：三级清单</h2>
+<p class="lead">
+  分级标准只有一个：<b>它是卡住决策、还是只是不精确</b>。
+  一级 = 不解决它，下一步就是拍脑袋；三级 = 连可证伪的方案都还没成型。
+</p>
+
+<div class="stat">
+  <div><div class="v" style="color:var(--red)">5</div><div class="l">一级 · 卡住决策</div></div>
+  <div><div class="v" style="color:var(--orange)">8</div><div class="l">二级 · 有推断无验证</div></div>
+  <div><div class="v" style="color:var(--yellow)">8</div><div class="l">三级 · 连方案都没成型</div></div>
+  <div><div class="v" style="color:var(--blue)">3</div><div class="l">磁盘查出的伪状态</div></div>
+</div>
+
+<h3>🔴 一级 · 不解决，下一步就是拍脑袋（全部已有成熟实验方案，只是没跑）</h3>
+<table>
+  <tr><th style="width:22%">项目</th><th style="width:9%">状态</th><th>为什么不解决不行</th><th style="width:13%">成本</th></tr>
+  <tr style="background:var(--greenbg)">
+    <td><b>E1 属性传递测试</b><br><span class="fn">原拟裁决 P3 / subliminal</span></td>
+    <td><span class="tag t-gry">已撤销</span></td>
+    <td><b>不作裁决 —— 问题所在的框架不适用。</b>整条链路（语料与方向来自多个云端模型）从来就不干净，
+        "多教师蒸馏"是唯一的能力构筑方式，故在最后一环设检疫站<b>不阻断任何东西</b>；
+        且宪法等主动想要的倾向经同一通道传递，自相矛盾。<br>
+        <b>⇒ 控制点由输入端移到输出端</b>：继承多少不重要，<b>能不能逐位目检才重要</b>。
+        预算转投保函数扩容链（logits diff = 0.000000）与产物验收。详见 §3。</td>
+    <td><b>0</b><br>（资源已释放）</td>
+  </tr>
+  <tr>
+    <td><b>外部中文 holdout</b><br><span class="fn">BS-1 第一盲区</span></td>
+    <td><span class="tag t-red">未造</span></td>
+    <td>ClawsGO 把评测底座列为盲区第一名：<b>没有它，"学满 plateau 再扩容""蒸馏验收""RSI 在变好"四个关键判断全部是推论。</b>现有的 holdout_v3/v7 与训练池同族，防不住泄漏。</td>
+    <td>1–2 天</td>
+  </tr>
+  <tr>
+    <td><b>σ 噪声宽度</b><br><span class="fn">最小可分辨效应</span></td>
+    <td><span class="tag t-red">未测</span></td>
+    <td>它是所有 <code>2σ</code> 判据的分母。<b>σ 没量出来之前，ClawsGO 给的每一条判据（E1/E2/E3/Q4 的 2σ）都是不可执行的。</b>而且它是 holdout 的自检第一步。</td>
+    <td>几小时</td>
+  </tr>
+  <tr>
+    <td><b>A-2 漂移监测器</b><br><span class="fn">保函数是瞬态性质</span></td>
+    <td><span class="tag t-red">未建</span></td>
+    <td>ClawsGO 判定这是第三轮最重要的盲区：<b>"保函数"只在那一步成立，任何一个训练步之后就不再成立。</b>0.3B 扩容已完成，现在正是建基线探针的窗口，过了就补不回来。</td>
+    <td>半天</td>
+  </tr>
+  <tr>
+    <td><b>斜率 x（Q2 带宽 vs 算力）</b></td>
+    <td><span class="tag t-red">未实测</span></td>
+    <td>决定 CPU→GPU 拐点方向。<b>顺带会推翻一个直觉</b>：三值的收益主要来自"每参数比特减少 → 内存带宽减少"，不是算力减少 —— 若如此，MoD 类省算力的工具对我们就没那么值钱。</td>
+    <td>半天</td>
+  </tr>
+</table>
+
+<h3>🟠 二级 · 有结论，但作者自己标了〔推断〕，未经实验</h3>
+<table>
+  <tr><th style="width:26%">项目</th><th style="width:15%">证据等级</th><th>缺什么才落不了地</th></tr>
+  <tr><td>记忆增益是否真实</td><td><span class="tag t-org">需消融</span></td><td>缺 NC-EMPTYMEM 阴性对照（不加记忆的等参数对照臂）</td></tr>
+  <tr><td>三值 CPU 实际加速比 s</td><td><span class="tag t-org">需消融</span></td><td>混合精度（fp16 embedding 不享三值内核加速）会稀释加速比，下界 2.37× 不可直接用</td></tr>
+  <tr><td>多 epoch 安全上界</td><td><span class="tag t-org">推断</span></td><td>OLR 信号（梯度余弦对齐度）是 ClawsGO 自己提的，<b>无任何文献验证</b>；免费带 4–10 来自未读全文的〔二手〕</td></tr>
+  <tr><td>Grokking 是否污染 Gate 1</td><td><span class="tag t-org">需消融</span></td><td>Q4 条件 G（5× 延长 + 退火重启）<b>历史扩容决策可能已被系统性误判</b></td></tr>
+  <tr><td>三值网格下的模型融合</td><td><span class="tag t-org">理论上有缺口</span></td><td>三值权重在离散格上，"平均"这个操作没有定义；E3 可给出第一份数据</td></tr>
+  <tr><td>解码策略与身份耦合（B8）</td><td><span class="tag t-org">需消融</span></td><td>同一权重不同温度可表现得像不同模型，<b>而我们的"身份"全部是权重层概念</b></td></tr>
+  <tr><td>认主可分性上界（Q-14 阶段 0）</td><td><span class="tag t-org">已延后</span></td><td>若线性探针 AUC 已 &gt;0.99，认主头整个可以省掉 —— <b>现在不做</b>，等真实交互语料积累后再测（三条前置条件，见 §3）</td></tr>
+  <tr><td>1.70% 跳变能否外推到 3B/8B</td><td><span class="tag t-org">缺配置</span></td><td>缺"该数字对应的加宽比例与度量口径"，手册只给解析形式不给外推结论</td></tr>
+</table>
+
+<h3>🟡 三级 · 连可证伪方案都还没成型（真正的前沿空白）</h3>
+<div class="grid2">
+<ul>
+  <li><b>B10 人机接口带宽</b> —— 唯一"不是模型问题"的类别。用户如何表达"我想要它变成什么样"？<b>它直接决定宪法①能否被执行</b>，而清单里为零。</li>
+  <li><b>B1 记忆的时效性与取代契约</b> —— 2026 年写入的记忆在 2028 年是<b>错的</b>而非"淡的"。需要取代关系与冲突解决规则，与删除权不是一回事。</li>
+  <li><b>B5 模态扩展的保函数定义</b> —— 现有保函数定义在词表 append 上成立，<b>在模态/工具调用上根本不适用，需要重新给出</b>。</li>
+  <li><b>B3 + B7 血统台账与版本考古</b> —— 用户问"你为什么这么说"时无法归因；蒸馏产物也无法回答"这个能力来自哪一代哪份数据"。</li>
+</ul>
+<ul>
+  <li><b>C-5 训练/服务/看门狗资源仲裁</b> —— 三者跑在同一台机器上，训练吃满 64 核会让服务错过 15ms SLA。<b>运维盲区，但它决定"端侧常驻"这个目标成不成立</b>。</li>
+  <li><b>B9 回滚存储的经济学</b> —— 快照存储随代数线性膨胀，8B 档单快照数十 GB。只说"要回滚点"，没算过账。</li>
+  <li><b>B4 联邦进化的传染面</b> —— 反直觉结论：<b>同族互蒸更危险、跨族互蒸更安全</b>，因为 subliminal 通道只在同族成立。</li>
+  <li><b>Q-07 数据配比 8% 缺口</b> —— 已知是算术问题，配额制的最优 X 未定。</li>
+</ul>
+</div>
+
+<!-- ============ §3 ============ -->
+<h2><span class="n">§3</span>磁盘实证查出的三处伪状态</h2>
+<p class="lead">按 48 项审计的纪律：不采信任何"已解决"的标记，先 grep 磁盘。结果是三处对不上。</p>
+
+<div class="box grn">
+<b>伪状态 1 ｜ E1 崩在最后一公里 —— 结局：<span style="text-decoration:line-through">修复并重跑</span> ⇒ <b>裁决终止</b></b>
+<span class="tag t-grn">04:31 修 bug ｜ 05:50 用户裁决停跑</span><br><br>
+
+<b>① 原始病灶（磁盘实证）</b><br>
+<code>eval/e1_run.log</code>：学生训练两臂<b>已完成</b>（loss 11.50→1.97），150k token 数字流语料已落盘，
+但随后抛 <code>UnboundLocalError: cannot access local variable 'bird'</code>，<b>整个判定环节从未执行</b> ——
+没人登记过这件事，所有人都以为 P3 快有结论了。<br>
+根因 <code>eval/e1_subliminal_proxy.py:183</code> 一行自遮蔽：
+<pre><span class="c"># 原写法（崩）：推导变量 bird 遮蔽了函数参数 bird</span>
+texts = [s.format(b=bird) for s in PROBE_SEN <span class="k">for bird in [bird]</span>]
+<span class="c"># 修复：删掉多余的内层 for</span>
+texts = [s.format(b=bird) for s in PROBE_SEN]</pre>
+
+<b>② 05:50 用户裁决：<u>这个问题在我们的路线上不成立</u></b> <span class="tag t-red">P3 不予裁决 · E1 停止</span><br><br>
+不是"实验结果无效"，是<b>它问的问题本身是个错误框架</b>。ClawsGO 立 P3 时隐含一个前提：
+<i>"0.5B 应当是一次干净重置，蒸馏是唯一的继承通道，故需测量此通道是否泄漏不需要的倾向。"</i>
+前提里的<b>"干净 &gt; 不干净"在我们的链路里根本不成立</b>：<br><br>
+
+<table>
+ <tr><th style="width:4%">#</th><th style="width:44%">论证</th><th>推论</th></tr>
+ <tr><td><b>1</b></td>
+   <td>这条链路<b>从来就不干净</b>：语料与方向来自多个云端模型，"多教师蒸馏"是我们构筑能力的<b>唯一方式</b>，
+       不是 0.4B→0.5B 这一环的偶发行为。</td>
+   <td>在最后一环设检疫站 = 在<b>全程开放</b>的通道末端设卡。它不阻断任何东西，只砍有用信号。</td></tr>
+ <tr><td><b>2</b></td>
+   <td>自相矛盾：宪法、"以用户为中心"这些<b>我们主动想要</b>的倾向，也只能经同一个通道传递。</td>
+   <td>同一通道不可能"要 A 不要 B"。要区分，只能在<b>终点</b>逐项判定。</td></tr>
+ <tr><td><b>3</b></td>
+   <td>ClawsGO 自己留退路（<code>open_questions_answers.md:535</code>）：门控若致任务损失 &gt;5% ⇒ <b>"你买不起这份防御"</b>。</td>
+   <td>这份防御本来就大概率买不起 —— 用户一次性给出了"连试都不必"的理由。</td></tr>
+</table>
+
+<b>⇒ 更一般的工程原则（本次真正的收获）：</b>
+<div style="margin:10px 0 14px;padding:10px 14px;background:var(--panel);border-left:3px solid var(--green)">
+<b>在"必须继承"的系统里，控制点从输入端移到输出端。</b><br>
+<span class="small">输入端只有一个开关——"不用某个教师的全部"，代价是连它的能力一起丢；
+输出端可以逐项判定"这个特质要不要"，代价只是评测成本。</span>
+</div>
+
+<b>③ 由此得到一条可直接排预算的判据</b><br>
+<table>
+ <tr><th style="width:26%">路径</th><th style="width:12%">继承量</th><th style="width:26%">可审计性</th><th>处置</th></tr>
+ <tr>
+   <td><b>保函数扩容</b><br><span class="fn">214M → 346.86M</span></td>
+   <td><b>100%</b></td>
+   <td><b>完全</b>：logits diff = <b>0.000000</b>（2026-10-16 实测）</td>
+   <td class="hi"><b>主路线</b> —— 预算优先给它</td></tr>
+ <tr>
+   <td><b>蒸馏 / 从零重训</b><br><span class="fn">0.4B → 0.5B</span></td>
+   <td>X%，未知</td>
+   <td>不可预测、不可验证</td>
+   <td>靠<b>产物验收</b>兜底，<b>不靠切断通道</b></td></tr>
+</table>
+<b>"继承多少"不重要，"能不能逐位目检"才重要。</b>
+原本准备投给 E1 与「分歧 token 门控」的预算，转投保函数扩容链与产物评测 ——
+这也回收解了另一件事：<b>为什么"0.3B 及以前链路不许改"是对的</b> —— 因为那是唯一可审计的链。<br><br>
+
+<b>④ 同时撤回</b>：0.5B 蒸馏管线的「分歧 token 门控」预防性实现要求
+（<code>clawsgo_audit/validation_notes_v4.md:59</code> 旧账 4、<code>open_questions_answers.md</code> 柳），<b>不再需要</b>。<br><br>
+
+<b>⑤ 已沉淀的真收获（不是沉没成本）</b><br>
+<table>
+ <tr><th style="width:30%">项</th><th>价值</th></tr>
+ <tr><td><b>评测路径已修通且可复现</b></td>
+   <td>两臂 step 0 / 20 / 40 的 loss = <b>11.4998 / 2.4735 / 1.9687</b>，与 10-15 那次<b>逐位一致</b>。
+       将来若真需要测传递（如改用外部闭源教师），<code>E1_REUSE=1</code> 后 1 小时随时能出结果 —— <b>基座留着，随时重开。</b></td></tr>
+ <tr><td><b>暴露一个真 bug</b></td>
+   <td>脚本<b>全程不落盘中间权重</b>，只在最后写 <code>e1_result.json</code>。05:37 用户重启 ⇒
+       第一臂已跑完的 60 步（29 min CPU）<b>全废</b>。⟹ <b>任何长实验脚本必须中途 checkpoint。</b></td></tr>
+ <tr><td><b>基建验证</b></td>
+   <td><code>schtasks /ru SYSTEM</code> 确为本地长任务唯一可靠方式，任务定义在重启后完好；
+       ⚠️ <b>用户重启电脑杀得死 SYSTEM 任务</b>，这是唯一挡不住的情形。<br>
+       ⚠️ Git Bash 的 <code>ps</code> <b>看不到 session 0 的 SYSTEM 进程</b>（返回 0 但进程活着），须用 PowerShell 的
+       <code>Get-CimInstance Win32_Process</code>。<br>
+       ⚠️ SYSTEM 下日志中文乱码（GBK 管道，"学生训练"→<code>Ñ§ÉúÑµÁ·</code>）。</td></tr>
+ <tr><td><b>踩平的坑</b></td>
+   <td><code>models/SmolLM2-200M</code> 已不在盘上；改用 <code>SMOL_BASE</code> 指向
+       <code>backups/0.2B/base_20261010/</code>（hidden 576 / 30 层 / vocab 49152，
+       <code>build_model(inter=1536)</code> = 134.5M，即原设计 135M 架构）。</td></tr>
+</table>
+<span class="small">日志留存：<code>eval/e1_run_20261015_crashed.log</code>（崩于最后一步）、
+<code>eval/e1_run_20261016_killed_by_session.log</code>（被会话清扫杀）、
+<code>eval/e1_run_20261016_reboot_stopped.log</code>（用户重启终止）。</span>
+
+<div style="margin-top:14px;padding:10px 14px;background:var(--panel);border-left:3px solid var(--orange)">
+<b>06:06 追加 · 用户点破的第二层错误：术语混淆 + 议程混淆</b><br><br>
+<b>① "蒸馏"在我们的语境里 = <u>语料蒸馏</u>，不是 logit KD。</b>
+我们的"蒸馏"（0.3B 那条线）是：硬过滤 → 块级去重 → 信息密度打分 → top 配额——<b>筛数据喂给预训练</b>，
+全程 next-token CE，没有任何"教师 logit 教学生"的环节。
+ClawsGO 报告里的"蒸馏管线"（三段式 KD / 分歧 token 门控）是<b>模型教模型</b>的 KD 范式，
+从云端教师-学生场景搬来的，<b>在我们的流程里根本不存在</b>。
+subliminal learning 的成立构型 = 同族基座 + <b>教师生成的语义无关数据流</b>（数字流）；
+我们 0.5B 从零训练、吃的是<b>可审计的真实文本语料</b>，学到什么由语料内容直接决定 ——
+<b>压根不在 subliminal 的适用构型里，连"天然防线"都谈不上，因为门根本没有。</b><br><br>
+<b>② 议程归属错误（更根本）。</b>
+E1 是 ClawsGO 报告的议程，<b>用户从未要求过</b>。我把它排成"ROI 最高没有之一"并直接烧了几小时 CPU ——
+违反了宪法①的精神：问题的提出权在用户（「自己提出问题→解决问题→发现问题」）。
+<b>外部模型的建议 ≠ 用户的指令；实验开跑前必须用户拍板。</b>
+</div>
+</div>
+
+<h3>⚠️ 外部证据更新：subliminal 这条线在 2026 年翻了三次</h3>
+<p class="lead">
+  ClawsGO 三轮作答基于 Cloud et al. 原始论文立了 L3 通道分离规则。但这条线在 2026 年内被反复翻动，
+  <b>而这三篇全部晚于我们的知识文档</b>。<br>
+  <b>⚠️ 2026-10-16 状态更新：本节的用途已由「决定 E1/P3 怎么处置」降级为<u>背景资料</u> ——
+  P3 经用户裁决判定为「框架不适用」而<b>不予裁决</b>（见上方 §3 ②）。
+  证据仍保留，因为将来若改用外部闭源教师，判断要不要做<em>继承审计</em>时还要用到。</b>
+</p>
+<table>
+  <tr><th style="width:15%">时间</th><th style="width:37%">来源与主张</th><th>对我们的意义</th></tr>
+  <tr>
+    <td><b>2026-04</b><br><span class="fn">Nature</span></td>
+    <td><b>Cloud et al.（2507.14805）原始论文</b>：教师倾向可经语义无关数据传递；给出梯度下降下的数学证明；<b>同族基座是必要条件</b>。</td>
+    <td>这是 ClawsGO 立 L3 的依据，也是 P3 被挑战的源头。<b>P3 现已撤销。</b></td>
+  </tr>
+  <tr>
+    <td><b>2026-05</b><br><span class="fn">arXiv 2606.00831</span></td>
+    <td><b>Holtzman et al.《Subliminal Learning is a LoRA Artifact》</b>：称传递与 LoRA rank 呈倒 U 形、<b>全参数微调时效应消失</b>、高度依赖微调与评测共现的上下文 token。</td>
+    <td>⚠️ <b>但 arXiv 页面自带声明：后续工作证明该文部分主要主张不正确，作者正在大幅修订（v2 修订于 2026-09-08）。</b>不能拿它否掉 P3。</td>
+  </tr>
+  <tr>
+    <td><b>2026-09</b><br><span class="fn">arXiv 2609.12586</span></td>
+    <td><b>van der Weijden 等（苏黎世大学）复现</b>：复现<b>支持</b>原论文主张；但扩展显示<b>传递强度随特质/任务/模型变化，并非普遍</b>，Ministral8B 几乎无效应。</td>
+    <td><b>当前最接近共识的一篇。</b>效应存在但不必然 —— 这恰恰是必须由我们自己的 E1 在本地构型上裁决的理由。</td>
+  </tr>
+</table>
+
+<div class="box grn">
+<b>本节的净收获（P3 撤销之后仍然成立的部分）</b><br><br>
+<b>① 跨族架构确实是比"分歧 token 门控"更省事的隔离手段 —— 但现在我们两种都不需要。</b>
+原始证据与复现都指向师生跨族时效应衰减。
+0.5B 若采用与 0.4B 差异足够大的架构（深窄 + 三值 + 新注意力配置），隔离是<b>顺带</b>得到的，不用额外成本。<br>
+<b>保留这条作为架构设计的<em>加分项</em>，不再作为约束项。</b>它现在是"顺便赚到的"，不是"必须满足的"。<br><br>
+<b>② E1 那个「全参教师 + 随机初始化学生」的构型是对的，基座留着。</b>
+它恰好镜像真实链路（0.4B 全参续训 → 生成语料 → 0.5B 从零训练），且实测<b>逐位可复现</b>
+（step 0/20/40 loss = 11.4998 / 2.4735 / 1.9687，两次运行完全一致）。
+<code>E1_REUSE=1</code> 后一小时即可重开 —— <b>将来若真需要测继承（换用外部闭源教师时），随时能拿到数。</b>
+</div>
+
+<div class="box org">
+<b>伪状态 2 ｜「压缩三层互相放大」已被推翻，文档仍按旧口径叙述</b><br><br>
+<code>compression-three-layers.md</code> §三写：<span class="small">"三层不是独立相加，而是<b>互相放大</b>……词表扩展让 C 直接 −44%……两者叠加可以做到比 fp32 + 英文词表低一个数量级"</span>。<br><br>
+但 ClawsGO 修正 1（<code>open_questions_answers.md</code> §0）明确：
+<b>词表改的是 (D, H) 而保持 D·H 近似不变</b> —— token 少了，每个 token 携带的比特就多了。
+<b>44% 不是独立乘数</b>；输出压缩（算术编码）是"把交叉熵兑现成码长的机制"，是<b>测量手段</b>不是第三层增益。
+真正只有<b>一项</b>杠杆：三值降 b_eff。<br><br>
+<span class="small">好消息：修正后的结论对我们更有利 ——「只有三值是真杠杆，且它只在语料小时显著，我们恰好语料小」。
+但文档现在是<b>用错误的理由支撑一个正确的结论</b>，这会误导后续所有按此口径做的记账。</span>
+</div>
+
+<div class="box org">
+<b>⏸ 认主：由「待裁决的分歧」转为「主动空缺」</b>　<span class="small">2026-10-16 用户定稿</span><br><br>
+原状态：<code>data-plan-0.4B.md</code> §5.2 定 <b>ArcFace</b>，ClawsGO 修正 5 <b>反对</b>
+（角边际为几万类百万样本设计，我们只有一两个身份，少样本下多数测试发散）。<br>
+<b>裁定：两者都不执行。</b>用户口径：<span class="small">"实在不行暂时就空缺下来，未来往进去镶嵌数据也行。数据不够，不作为短期深刻理解的东西。未来我和它聊天聊多了，可以作为一些东西。"</span><br><br>
+<b>延后的两条硬理由（不是"先放放"）</b>：<br>
+① <b>数据类型不对</b>：现有 5,146 条绝大多数是"关于主人的陈述"（转述、描述），不是真实交互的流式样本。
+认主语料必须来自<b>长期真实对话积累</b>——不人造、不提前凑。<br>
+② <b>宪法 §4 E-7</b>：个人数据绝不进任何被训练的参数（含 adapter），只进可寻址可删除的记忆层。
+记忆层未落地 ⇒ <b>没有可删除的容器，就不许往里写个人数据</b>。<br><br>
+<b>0.4B 只做一件事：留接口。</b>不训认主头、不改架构、不进任何参数；
+只把 embedding 抽取点与记忆层挂载位置定死 —— 将来镶数据是"<b>插上去</b>"，不是"拆开重造"。<br><br>
+<b>激活前置条件（三条不齐就不上）</b>：① 可寻址可删除的记忆层已落地
+② 线性探针 AUC 实测分不开 ③ 真实交互语料积累到现存量级。<br>
+<span class="small">激活时<b>先跑线性探针</b>：探针能分开，认主头整个省掉，ArcFace 也根本不用上。
+这条同时满足了 ClawsGO 修正 5 与用户"先空缺"的判断 —— <b>这条分歧不是被妥协掉，是被时间解决掉的。</b></span>
+</div>
+
+<h3>⚠️ 外部证据更新 2：三值的收益来自带宽，不是算力（Q2 的答案是现成的）</h3>
+<p class="lead">
+  Q2（带宽 vs 算力）本来排在一级空缺、需要实测。但 2026 年已经有三个独立来源实测过这件事，
+  <b>结论高度一致，且与 ClawsGO 的推断同向</b>。我们不用从零测，只要把结论落到自己的构型上。
+</p>
+<table>
+  <tr><th style="width:20%">来源</th><th style="width:44%">实测结论</th><th>落到我们身上</th></tr>
+  <tr>
+    <td><b>Litespark</b><br><span class="fn">arXiv 2605.06485, 2026-05</span></td>
+    <td>在 M4 / Ice Lake / Zen4 / Core Ultra 四平台测 BitNet b1.58 2B：<b>「memory bandwidth rather than SIMD width is the primary bottleneck」</b>；全平台均为 memory-bandwidth-bound。内存降 14×、TTFT 快 8.3–12.6×。<br><span class="small">注意其基线是 PyTorch 全 fp32 矩阵乘，作者自承是弱基线，加速比数字要打折看。</span></td>
+    <td>向量宽度不是瓶颈 ⇒ <b>为了更宽 SIMD 去改架构是白费</b>。</td>
+  </tr>
+  <tr>
+    <td><b>BitNet 延迟优化实测</b><br><span class="fn">perf stat 剖析</span></td>
+    <td><b>&gt;68% 的总延迟来自 L3 cache miss 与未对齐加载，不是算术。</b>权重若不对齐、不连续，要多付 3–5× 内存停顿。</td>
+    <td><b>权重打包与内存布局的收益 &gt; 换更快的算子。</b>这是 0.5B 端侧该优先做的工程。</td>
+  </tr>
+  <tr>
+    <td><b>Project Zero</b><br><span class="fn">纯 C 无依赖引擎</span></td>
+    <td>1.4 → 36.25 tok/s，<b>终点是"该硬件解析 DRAM 带宽上限的 95%"</b>。几大跳跃分别来自：关 earlyoom、单通道改双通道、线程数甜点、INT8/INT4 分类路径 —— <b>全部是访存侧改动，没有一项是算力侧</b>。</td>
+    <td>证实了天花板形态：<b>我们的 15ms/token 目标本质上是一个带宽目标，不是算力目标。</b></td>
+  </tr>
+</table>
+
+<div class="box blu">
+<b>由此得到一条对 0.5B 架构直接有用的账</b><br><br>
+三值主干每 token 解码要读全部权重，而<b>我们决定 embedding 保 fp16（不三值化）</b> ——
+这部分<b>不享 14× 压缩</b>，且每步都要读。<br><br>
+在 0.5B 档：三值主干 ≈ 79 MB（0.5B × 1.58 bit），fp16 embedding ≈ 56.6 MB（49,152 × 576 × 2B，tied 则共享），
+<b>embedding 占总访存约 42–43%</b> —— 与 ClawsGO 在 Q-09 里点出的「embedding 那 43%」独立吻合。<br><br>
+<b>含义</b>：混合精度会稀释三值加速比，稀释量主要就来自这 43%。
+所以"embedding 保 fp16"不是一个纯记账决策，<b>它是一个有实测代价的推理延迟决策</b>，
+且与 N*≈193M（b_eff 5.5 口径）绑在一起。<b>要拿回加速就得动 embedding，动 embedding 就得改 N* 口径 —— 这两件事必须在同一次决策里一起算。</b>
+</div>
+
+<!-- ============ §4 ============ -->
+<h2><span class="n">§4</span>本周就能解锁的（按投入产出排序）</h2>
+<table>
+  <tr><th style="width:5%">#</th><th style="width:26%">动作</th><th style="width:16%">解锁什么</th><th>为什么排这个位置</th><th style="width:9%">成本</th></tr>
+  <tr style="background:var(--panel2)">
+    <td><s>1</s></td>
+    <td><s>修 E1 + 重跑</s><br><span class="tag t-gry">已撤销</span></td>
+    <td><s>P3 裁决</s></td>
+    <td><b>2026-10-16 用户裁决：问题不成立。</b>整条链路本就是多云端教师蒸馏，在末端设检疫站不阻断任何东西；
+        且想要的倾向（宪法）经同一通道传递 ⇒ 自相矛盾。<b>控制点移到输出端（产物验收）。</b>
+        释放出的预算转投下方 #2 / #3。</td>
+    <td><s>≈2h</s><br><b>0</b></td>
+  </tr>
+  <tr>
+    <td><b>2</b></td>
+    <td>holdout 自检：同模型评估两次</td>
+    <td><b>σ 噪声宽度</b></td>
+    <td><b>现居第一（P3 撤销后升格）。</b>它是所有 2σ 判据的分母 —— σ 不出来，"学满 plateau""蒸馏有提升"全部只是推论。</td>
+    <td>几小时</td>
+  </tr>
+  <tr>
+    <td><b>3</b></td>
+    <td>造外部中文 holdout（异族）</td>
+    <td>能真正判断"有没有提升"</td>
+    <td>可用正式出版图书 / 学术摘要 / 政府公报，四重防重叠机制（内容哈希 + 13-gram 交集为空 + 只读挂载 + 使用计数）。<b>这是全防线最容易在"为了方便"中被破坏的东西。</b></td>
+    <td>1–2 天</td>
+  </tr>
+  <tr>
+    <td><b>4</b></td>
+    <td>A-1 + A-2 合并跑（135M→214M）</td>
+    <td>优化器状态迁移 + <b>漂移谱基线</b></td>
+    <td><b>同一个扩容实验同时回答两个问题。</b>0.3B 刚扩完，基线现在不建，往后每一级都无法判断"漂移是否超出带"。</td>
+    <td>半天</td>
+  </tr>
+  <tr>
+    <td><b>5</b></td>
+    <td>Q2 带宽 vs 算力实测</td>
+    <td>CPU→GPU 拐点方向</td>
+    <td>顺带检验"三值收益来自带宽而非算力"这个判断，它决定 MoD 类工具值不值得做。</td>
+    <td>半天</td>
+  </tr>
+  <tr>
+    <td><b>6</b></td>
+    <td>E2 做梦即自探针（零训练）</td>
+    <td>零标注的能力审计器</td>
+    <td>不需要训练，一次前向 + 聚类 + 50 条人工题。<b>它给出的簇可直接当扩容靶点</b>，与 §4.5「该扩哪层」打通。</td>
+    <td>半天</td>
+  </tr>
+</table>
+
+<div class="box grn">
+<b>一条纪律（取自 node1_minimal_experiments.md，最容易被赶进度时丢掉）</b><br>
+每个实验必须带 <b>NC-RERUN（不同种子重跑）</b> 与阴性对照，且<b>阴性对照要在跑之前就设计好</b>。
+没有噪声宽度，任何一个"显著"都是猜的。证伪条件必须写成数值 ——
+<b>实测落在判据之间就是"不确定"，不要顺势解读成"有趋势"。</b>
+</div>
+
+<!-- ============ §5 ============ -->
+<h2><span class="n">§5</span>未来整体还不懂什么：三个方向</h2>
+
+<div class="kanban">
+  <div class="kcol k1">
+    <div class="kh">A · 数学上还没定义的</div>
+    <div class="kb">
+      <div><b>三值权重空间里的模型算术</b> —— 欧氏空间的"平均"在离散格上没有定义。soups 理论整个失效，符号多数投票是候选但没数据。</div>
+      <div><b>模态扩展的保函数</b> —— 现有定义只对同类型空间的 append 成立。</div>
+      <div><b>时间一致性</b> —— 记忆会<b>变错</b>而非变淡，取代契约与删除契约是两回事。</div>
+    </div>
+  </div>
+  <div class="kcol k2">
+    <div class="kh">B · 有理论但算不出数的</div>
+    <div class="kb">
+      <div><b>语料信息天花板 H_raw</b> —— 不可点估计，只能给区间。绝对值缺 H_raw 无法判定，<b>但符号与零点可算</b>，靠 0.1B→0.4B 的纵向序列看趋势。</div>
+      <div><b>N*(D, b) 联合最优</b> —— 跨 1B/3B/8B 阈值后要重算，目前只有 0.4B 这一档的锚。</div>
+      <div><b>RSI 的安全累积率</b> —— 每代自改幅度 &lt; x% 才稳定，x 未定。</div>
+    </div>
+  </div>
+  <div class="kcol k3">
+    <div class="kh">C · 没人做过、我们独有的</div>
+    <div class="kb">
+      <div><b>血统完整性检验框架</b> —— 蒸馏隐写通道 × 身份连续性 × 留出集独立性，三位一体。<b>这是可发表的评测方法论</b>，不只是工程检查。</div>
+      <div><b>压缩准入规则</b> —— 把"插模块"和"放大参数"放进同一把尺子。学界算的是模型 vs 数据，模块化用的是能力指标，<b>没人把两者放在同一个率里比</b>。</div>
+      <div><b>决策门的失效模式</b> —— Grokking 的观测特征与"容量受限"完全重合，而十条 Gate 没有一条防它。</div>
+    </div>
+  </div>
+</div>
+
+<div class="box blu">
+<b>最容易被忽略、但可能是最根本的一条：B10 人机接口的带宽</b><br>
+整份知识体系都站在模型侧。但"以用户为绝对中心"这条宪法能否执行，
+瓶颈可能在用户侧 —— <b>用户要怎么表达"我想要这个模型变成什么样"？</b>
+如果表达带宽不足，模型所有的进化能力都无处施力。
+<span class="small">这是全部清单里唯一一个"不是模型问题"的类别，而它决定宪法①成不成立。</span>
+</div>
+
+<!-- ============ §6 ============ -->
+<h2><span class="n">§6</span>一句话结论</h2>
+<div class="box">
+这套知识的<b>理论部分已经相当厚</b> —— 三轮 ClawsGO 交叉核验、59 源台账自报 0 错，L1/L2/L3 三条统摄规则已经把散落的经验收成了体系。<br><br>
+真正缺的不是答案，是<b>测量</b>：σ 没量、holdout 没造、斜率 x 没测、外部中文 holdout 未建。
+<b>判据分母为空，导致 ClawsGO 给的每一个 2σ 判据当下都不可执行。</b><br><br>
+
+<b>2026-10-16 追加的一条自我修正：</b>原本排在队首的 E1/P3，今天走完了一整圈（修 bug → 复跑 → 被会话清扫杀 → 改 SYSTEM 常驻 → 被重启杀）
+之后，<b>由用户指出这个问法本身不成立</b> —— 我们本来就在用多个云端教师的数据，
+"在最后一环设检疫站"是自始不合理的。于是它<b>不是被解决，而是被废弃</b>，资源转向：<br><br>
+
+<div style="padding:10px 14px;background:var(--panel);border-left:3px solid var(--green);margin:12px 0">
+<b>在必须继承的系统里，控制点从输入端移到输出端 —— 继承多少不重要，能不能逐位目检才重要。</b><br>
+<span class="small">⇒ 预算给<b>保函数扩容链</b>（214M→346.86M 实测 diff = 0.000000，完全可审计）与<b>产物验收</b>，
+而不是给"切断通道"。这也解释了为何"0.3B 及以前链路不许改"是对的：那是唯一可审计的链。</span>
+</div>
+
+所以下一步不该再问强模型要答案了，应该<b>先把剩下的四个测量做掉</b>（σ → 外部 holdout → 斜率 x → bit/汉字）。
+</div>
+
+<footer>
+  本地 AI 训练线知识台账 · 2026-10-16 · 审计依据：逐份通读 <code>docs/**</code> 全部 md 与 <code>eval/</code>、<code>b4/</code> 落地状态<br>
+  方法学来源：<code>docs/audit_fix_plan.md</code>（48 项六席终裁流程 · 磁盘实证优先于任何模型陈述）<br>
+  权威来源：ClawsGO Science Agent 三轮产出（execution_manual / future_problems_report / open_questions_answers v5）
+</footer>
+
+</div>
+</body>
+</html>

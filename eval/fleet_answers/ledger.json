@@ -1,0 +1,1628 @@
+{
+ "Q-04|zen.mimo": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.80615,
+  "err": null
+ },
+ "Q-04|zen.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.920658,
+  "err": null
+ },
+ "Q-04|zen.catjam": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.6562939,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-04|zen.ling": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.5785701,
+  "err": null
+ },
+ "Q-04|kris.deepseek": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.3334825,
+  "err": null
+ },
+ "Q-04|kris.longcat": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791977482.4269538,
+  "served": "longcat-2.5-preview-free",
+  "sec": 47.3
+ },
+ "Q-04|kris.north": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791977482.4284785,
+  "served": "cohere/north-mini-code:free",
+  "sec": 26.8
+ },
+ "Q-04|kris.glm": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.4870067,
+  "err": null
+ },
+ "Q-04|kris.nemotron": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791977482.427441,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 91.3
+ },
+ "Q-04|kris.grok": {
+  "status": "done",
+  "tries": 3,
+  "last": 1791980820.5324814,
+  "served": "grok-4.7",
+  "sec": 31.3
+ },
+ "Q-04|kris.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.529661,
+  "err": "HTTP 429: {\"error\":{\"message\":\"you have exceeded the 5h quota for step plan, quota will reset at 2026-10-14T21:00:00+08:00\",\"type\":\"rate_limited\",\"par"
+ },
+ "Q-04|kris.gemini": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791980820.2230182,
+  "served": "gemini-3.8-flash",
+  "sec": 87.1
+ },
+ "Q-04|zen.muse": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.8872643,
+  "err": null
+ },
+ "Q-04|kris.minimax": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.5037131,
+  "err": null
+ },
+ "Q-04|kris.qwen": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791980820.446546,
+  "err": null
+ },
+ "Q-04|zen.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980820.9137611,
+  "err": null
+ },
+ "Q-09|zen.catjam": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.393301,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-09|zen.nemotron": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.4211586,
+  "err": null
+ },
+ "Q-09|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791977737.7595644,
+  "served": "cohere/north-mini-code:free",
+  "sec": 29.2
+ },
+ "Q-09|kris.deepseek": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.1991758,
+  "err": null
+ },
+ "Q-09|kris.step": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.3844225,
+  "err": null
+ },
+ "Q-09|kris.longcat": {
+  "status": "done",
+  "tries": 4,
+  "last": 1791982885.3873744,
+  "served": "longcat-2.5-preview-free",
+  "sec": 51.2
+ },
+ "Q-09|kris.glm": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.3436854,
+  "err": "HTTP 504: {\"error\":{\"message\":\"openai_error\",\"type\":\"bad_response_status_code\",\"param\":\"\",\"code\":\"bad_response_status_code\"}}"
+ },
+ "Q-09|zen.ling": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.390933,
+  "err": null
+ },
+ "Q-09|zen.mimo": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.397467,
+  "err": null
+ },
+ "Q-09|kris.grok": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.3892303,
+  "err": "HTTP 504: {\"error\":{\"message\":\"openai_error\",\"type\":\"bad_response_status_code\",\"param\":\"\",\"code\":\"bad_response_status_code\"}}"
+ },
+ "Q-09|zen.step": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.4491036,
+  "err": null
+ },
+ "Q-09|zen.muse": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.4146798,
+  "err": null
+ },
+ "Q-09|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791977737.758239,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 73.8
+ },
+ "Q-09|kris.qwen": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.2441096,
+  "err": null
+ },
+ "Q-09|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791977737.6900403,
+  "served": "gemini-3.8-flash",
+  "sec": 107.9
+ },
+ "Q-09|kris.minimax": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791982885.3680809,
+  "err": null
+ },
+ "Q-11|zen.catjam": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.1096125,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-11|zen.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.111905,
+  "err": null
+ },
+ "Q-11|zen.ling": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.1084118,
+  "err": null
+ },
+ "Q-11|kris.glm": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.0679407,
+  "err": null
+ },
+ "Q-11|kris.minimax": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.0993247,
+  "err": null
+ },
+ "Q-11|kris.deepseek": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980603.979412,
+  "err": null
+ },
+ "Q-11|kris.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.1009502,
+  "err": null
+ },
+ "Q-11|zen.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.1126592,
+  "err": null
+ },
+ "Q-11|kris.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.100223,
+  "err": "HTTP 429: {\"error\":{\"message\":\"you have exceeded the 5h quota for step plan, quota will reset at 2026-10-14T21:00:00+08:00\",\"type\":\"rate_limited\",\"par"
+ },
+ "Q-11|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978006.8264647,
+  "served": "cohere/north-mini-code:free",
+  "sec": 58.0
+ },
+ "Q-11|kris.grok": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791980604.1072216,
+  "served": "grok-4.7",
+  "sec": 58.6
+ },
+ "Q-11|zen.muse": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.1110911,
+  "err": null
+ },
+ "Q-11|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978006.7534213,
+  "served": "gemini-3.8-flash",
+  "sec": 84.9
+ },
+ "Q-11|zen.mimo": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.1102467,
+  "err": null
+ },
+ "Q-11|kris.qwen": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791980604.0371447,
+  "err": null
+ },
+ "Q-11|kris.nemotron": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791980604.105756,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 60.9
+ },
+ "Q-01|zen.catjam": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1641831,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-01|zen.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1782577,
+  "err": null
+ },
+ "Q-01|kris.minimax": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1546261,
+  "err": null
+ },
+ "Q-01|kris.deepseek": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.100711,
+  "err": null
+ },
+ "Q-01|kris.glm": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1522949,
+  "err": null
+ },
+ "Q-01|zen.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1786914,
+  "err": null
+ },
+ "Q-01|kris.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1595678,
+  "err": null
+ },
+ "Q-01|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978262.4215198,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 55.7
+ },
+ "Q-01|kris.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1570385,
+  "err": "HTTP 429: {\"error\":{\"message\":\"you have exceeded the 5h quota for step plan, quota will reset at 2026-10-14T21:00:00+08:00\",\"type\":\"rate_limited\",\"par"
+ },
+ "Q-01|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978262.3875558,
+  "served": "gemini-3.8-flash",
+  "sec": 62.6
+ },
+ "Q-01|kris.grok": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791981243.1609073,
+  "served": "grok-4.7",
+  "sec": 74.6
+ },
+ "Q-01|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978262.42694,
+  "served": "cohere/north-mini-code:free",
+  "sec": 66.1
+ },
+ "Q-01|zen.muse": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1769626,
+  "err": null
+ },
+ "Q-01|zen.ling": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1623242,
+  "err": null
+ },
+ "Q-01|zen.mimo": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1755826,
+  "err": null
+ },
+ "Q-01|kris.qwen": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981243.1161673,
+  "err": null
+ },
+ "Q-02|zen.catjam": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.0891593,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-02|zen.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.0901644,
+  "err": null
+ },
+ "Q-02|kris.deepseek": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983101.6205163,
+  "err": null
+ },
+ "Q-02|kris.minimax": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.086637,
+  "err": null
+ },
+ "Q-02|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978462.010903,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 43.8
+ },
+ "Q-02|kris.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.0873106,
+  "err": null
+ },
+ "Q-02|kris.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.0877876,
+  "err": null
+ },
+ "Q-02|zen.mimo": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978462.04048,
+  "served": "mimo-v2.6-flash-free",
+  "sec": 51.1
+ },
+ "Q-02|kris.glm": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983102.5835516,
+  "err": null
+ },
+ "Q-02|zen.muse": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.089631,
+  "err": null
+ },
+ "Q-02|kris.grok": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.0881212,
+  "err": "HTTP 504: {\"error\":{\"message\":\"openai_error\",\"type\":\"bad_response_status_code\",\"param\":\"\",\"code\":\"bad_response_status_code\"}}"
+ },
+ "Q-02|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978462.0127063,
+  "served": "cohere/north-mini-code:free",
+  "sec": 63.3
+ },
+ "Q-02|zen.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.0905766,
+  "err": null
+ },
+ "Q-02|zen.ling": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983103.0887082,
+  "err": null
+ },
+ "Q-02|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978462.000822,
+  "served": "gemini-3.8-flash",
+  "sec": 88.2
+ },
+ "Q-02|kris.qwen": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983101.8055565,
+  "err": null
+ },
+ "Q-08|zen.catjam": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7804668,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-08|zen.nemotron": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7858014,
+  "err": null
+ },
+ "Q-08|kris.minimax": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7502735,
+  "err": null
+ },
+ "Q-08|kris.deepseek": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7245665,
+  "err": null
+ },
+ "Q-08|kris.glm": {
+  "status": "done",
+  "tries": 3,
+  "last": 1791983343.7498124,
+  "served": "glm-5.2",
+  "sec": 33.3
+ },
+ "Q-08|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978691.822929,
+  "served": "cohere/north-mini-code:free",
+  "sec": 42.3
+ },
+ "Q-08|kris.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7715018,
+  "err": null
+ },
+ "Q-08|kris.longcat": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.774988,
+  "err": null
+ },
+ "Q-08|zen.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.787585,
+  "err": null
+ },
+ "Q-08|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978691.8219757,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 58.7
+ },
+ "Q-08|kris.grok": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7773685,
+  "err": "HTTP 504: {\"error\":{\"message\":\"openai_error\",\"type\":\"bad_response_status_code\",\"param\":\"\",\"code\":\"bad_response_status_code\"}}"
+ },
+ "Q-08|zen.ling": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7790656,
+  "err": null
+ },
+ "Q-08|zen.muse": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7839398,
+  "err": null
+ },
+ "Q-08|zen.mimo": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7824214,
+  "err": null
+ },
+ "Q-08|kris.qwen": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791983343.7483149,
+  "err": null
+ },
+ "Q-08|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978691.7931063,
+  "served": "gemini-3.8-flash",
+  "sec": 106.4
+ },
+ "Q-05|zen.catjam": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.1087132,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-05|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978888.307933,
+  "served": "cohere/north-mini-code:free",
+  "sec": 18.3
+ },
+ "Q-05|zen.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.2618513,
+  "err": null
+ },
+ "Q-05|kris.minimax": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.0375443,
+  "err": null
+ },
+ "Q-05|kris.glm": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.0222363,
+  "err": null
+ },
+ "Q-05|kris.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.0549347,
+  "err": null
+ },
+ "Q-05|kris.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.0730138,
+  "err": null
+ },
+ "Q-05|zen.muse": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.1462958,
+  "err": null
+ },
+ "Q-05|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978888.2857065,
+  "served": "gemini-3.8-flash",
+  "sec": 51.4
+ },
+ "Q-05|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978888.3010788,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 51.5
+ },
+ "Q-05|zen.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.2683384,
+  "err": null
+ },
+ "Q-05|zen.ling": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.101401,
+  "err": null
+ },
+ "Q-05|zen.mimo": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983528.1154733,
+  "err": null
+ },
+ "Q-05|kris.deepseek": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983527.8965528,
+  "err": null
+ },
+ "Q-05|kris.grok": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791978888.3092105,
+  "served": "grok-4.7",
+  "sec": 70.0
+ },
+ "Q-05|kris.qwen": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983527.9280682,
+  "err": null
+ },
+ "Q-14|zen.catjam": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6787684,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "Q-14|kris.nemotron": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791981736.6754038,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 56.2
+ },
+ "Q-14|kris.deepseek": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.5241575,
+  "err": null
+ },
+ "Q-14|zen.muse": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6879134,
+  "err": null
+ },
+ "Q-14|zen.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6917884,
+  "err": null
+ },
+ "Q-14|kris.minimax": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6710765,
+  "err": null
+ },
+ "Q-14|zen.ling": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6769526,
+  "err": null
+ },
+ "Q-14|kris.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6738093,
+  "err": null
+ },
+ "Q-14|zen.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6930506,
+  "err": null
+ },
+ "Q-14|kris.glm": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.637745,
+  "err": "HTTP 504: {\"error\":{\"message\":\"openai_error\",\"type\":\"bad_response_status_code\",\"param\":\"\",\"code\":\"bad_response_status_code\"}}"
+ },
+ "Q-14|zen.mimo": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6866343,
+  "err": null
+ },
+ "Q-14|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979210.5145793,
+  "served": "cohere/north-mini-code:free",
+  "sec": 47.7
+ },
+ "Q-14|kris.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.6721354,
+  "err": "HTTP 429: {\"error\":{\"message\":\"you have exceeded the 5h quota for step plan, quota will reset at 2026-10-14T21:00:00+08:00\",\"type\":\"rate_limited\",\"par"
+ },
+ "Q-14|kris.grok": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979210.517559,
+  "served": "grok-4.7",
+  "sec": 68.6
+ },
+ "Q-14|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979210.4923272,
+  "served": "gemini-3.8-flash",
+  "sec": 81.9
+ },
+ "Q-14|kris.qwen": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981736.5711198,
+  "err": null
+ },
+ "V1-01|zen.catjam": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.733749,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "V1-01|kris.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.721912,
+  "err": null
+ },
+ "V1-01|kris.deepseek": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.6753297,
+  "err": null
+ },
+ "V1-01|zen.muse": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.7473402,
+  "err": null
+ },
+ "V1-01|zen.ling": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.7262876,
+  "err": null
+ },
+ "V1-01|zen.nemotron": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.7491553,
+  "err": null
+ },
+ "V1-01|kris.minimax": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.704027,
+  "err": null
+ },
+ "V1-01|kris.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.7143,
+  "err": null
+ },
+ "V1-01|zen.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.7545207,
+  "err": null
+ },
+ "V1-01|kris.step": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.708306,
+  "err": "HTTP 429: {\"error\":{\"message\":\"you have exceeded the 5h quota for step plan, quota will reset at 2026-10-14T21:00:00+08:00\",\"type\":\"rate_limited\",\"par"
+ },
+ "V1-01|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979414.31042,
+  "served": "cohere/north-mini-code:free",
+  "sec": 58.5
+ },
+ "V1-01|kris.grok": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979414.311854,
+  "served": "grok-4.7",
+  "sec": 68.7
+ },
+ "V1-01|zen.mimo": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.742059,
+  "err": null
+ },
+ "V1-01|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979414.2880597,
+  "served": "gemini-3.8-flash",
+  "sec": 89.3
+ },
+ "V1-01|kris.qwen": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791981930.6912239,
+  "err": null
+ },
+ "V1-01|kris.glm": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791981930.6989305,
+  "served": "glm-5.2",
+  "sec": 28.5
+ },
+ "V1-02|zen.catjam": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0531251,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "V1-02|zen.nemotron": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0558999,
+  "err": null
+ },
+ "V1-02|kris.minimax": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.030182,
+  "err": null
+ },
+ "V1-02|zen.muse": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0553758,
+  "err": null
+ },
+ "V1-02|zen.ling": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0497677,
+  "err": null
+ },
+ "V1-02|kris.deepseek": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984177.6264043,
+  "err": "HTTP 429: {\"error\":{\"message\":\"insufficient balance\",\"type\":\"upstream_error\",\"param\":\"\",\"code\":null}}"
+ },
+ "V1-02|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979692.3117726,
+  "served": "cohere/north-mini-code:free",
+  "sec": 42.5
+ },
+ "V1-02|kris.longcat": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0466623,
+  "err": null
+ },
+ "V1-02|kris.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0458868,
+  "err": null
+ },
+ "V1-02|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979692.3106163,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 48.2
+ },
+ "V1-02|zen.mimo": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.053956,
+  "err": null
+ },
+ "V1-02|kris.grok": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0492058,
+  "err": "HTTP 429: {\"error\":{\"message\":\"上游账号正在冷却\",\"type\":\"rate_limit_error\",\"param\":\"\",\"code\":\"upstream_cooling\"}}"
+ },
+ "V1-02|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979692.2326963,
+  "served": "gemini-3.8-flash",
+  "sec": 62.3
+ },
+ "V1-02|kris.glm": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984177.8982925,
+  "err": null
+ },
+ "V1-02|zen.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984178.0563893,
+  "err": null
+ },
+ "V1-02|kris.qwen": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984177.759632,
+  "err": null
+ },
+ "V1-03|zen.catjam": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4592745,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "V1-03|zen.nemotron": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4735687,
+  "err": null
+ },
+ "V1-03|zen.ling": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4498491,
+  "err": null
+ },
+ "V1-03|kris.minimax": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4146092,
+  "err": null
+ },
+ "V1-03|zen.muse": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4709773,
+  "err": null
+ },
+ "V1-03|kris.glm": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.404641,
+  "err": null
+ },
+ "V1-03|kris.deepseek": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.369874,
+  "err": "HTTP 429: {\"error\":{\"message\":\"insufficient balance\",\"type\":\"upstream_error\",\"param\":\"\",\"code\":null}}"
+ },
+ "V1-03|zen.step": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4769378,
+  "err": null
+ },
+ "V1-03|kris.step": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4273233,
+  "err": "TimeoutError: The read operation timed out"
+ },
+ "V1-03|kris.longcat": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4349704,
+  "err": null
+ },
+ "V1-03|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979892.123738,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 54.0
+ },
+ "V1-03|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979892.1254692,
+  "served": "cohere/north-mini-code:free",
+  "sec": 63.7
+ },
+ "V1-03|zen.mimo": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4670568,
+  "err": null
+ },
+ "V1-03|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791979892.084655,
+  "served": "gemini-3.8-flash",
+  "sec": 85.8
+ },
+ "V1-03|kris.qwen": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.395677,
+  "err": null
+ },
+ "V1-03|kris.grok": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791984662.4449222,
+  "err": "HTTP 504: {\"error\":{\"message\":\"openai_error\",\"type\":\"bad_response_status_code\",\"param\":\"\",\"code\":\"bad_response_status_code\"}}"
+ },
+ "V1-04|zen.catjam": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.613521,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "V1-04|zen.nemotron": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6188214,
+  "err": null
+ },
+ "V1-04|zen.muse": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6166735,
+  "err": null
+ },
+ "V1-04|kris.minimax": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6112943,
+  "err": null
+ },
+ "V1-04|zen.ling": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6130652,
+  "err": null
+ },
+ "V1-04|kris.deepseek": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.422518,
+  "err": null
+ },
+ "V1-04|kris.glm": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6101818,
+  "err": null
+ },
+ "V1-04|zen.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6197777,
+  "err": null
+ },
+ "V1-04|kris.step": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6120896,
+  "err": null
+ },
+ "V1-04|kris.longcat": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6126044,
+  "err": null
+ },
+ "V1-04|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980199.013908,
+  "served": "cohere/north-mini-code:free",
+  "sec": 52.3
+ },
+ "V1-04|kris.grok": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980199.0227582,
+  "served": "grok-4.7",
+  "sec": 57.5
+ },
+ "V1-04|zen.mimo": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.6141143,
+  "err": null
+ },
+ "V1-04|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980198.9740112,
+  "served": "gemini-3.8-flash",
+  "sec": 67.3
+ },
+ "V1-04|kris.nemotron": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980199.0128863,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 74.3
+ },
+ "V1-04|kris.qwen": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791984944.4599795,
+  "err": null
+ },
+ "V1-05|kris.nemotron": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791982551.2503362,
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "sec": 49.7
+ },
+ "V1-05|zen.catjam": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.3758194,
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"error\\\":{\\\"type\\\":\\\"server_error\\\",\\\"message\\\":\\\"Upstream request failed: Endpoint is unavailable.\\\"}}\","
+ },
+ "V1-05|kris.step": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.3723598,
+  "err": null
+ },
+ "V1-05|kris.minimax": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.1240556,
+  "err": null
+ },
+ "V1-05|zen.nemotron": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.378178,
+  "err": null
+ },
+ "V1-05|zen.ling": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.3753428,
+  "err": null
+ },
+ "V1-05|zen.step": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.3785398,
+  "err": null
+ },
+ "V1-05|zen.muse": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.377725,
+  "err": null
+ },
+ "V1-05|kris.glm": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.0990994,
+  "err": null
+ },
+ "V1-05|kris.deepseek": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985294.9413602,
+  "err": null
+ },
+ "V1-05|kris.north": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980383.157104,
+  "served": "cohere/north-mini-code:free",
+  "sec": 46.9
+ },
+ "V1-05|kris.longcat": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.3731432,
+  "err": null
+ },
+ "V1-05|kris.grok": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980383.1612108,
+  "served": "grok-4.7",
+  "sec": 58.1
+ },
+ "V1-05|zen.mimo": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.3762143,
+  "err": null
+ },
+ "V1-05|kris.gemini": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980383.121281,
+  "served": "gemini-3.8-flash",
+  "sec": 116.5
+ },
+ "V1-05|kris.qwen": {
+  "status": "fail",
+  "tries": 4,
+  "last": 1791985295.0451794,
+  "err": null
+ },
+ "Q-11|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980604.1152906,
+  "served": "openrouter/free",
+  "sec": 3.1
+ },
+ "Q-11|zen.longcat": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980604.113593,
+  "served": "longcat-2.5-preview-free",
+  "sec": 41.5
+ },
+ "Q-04|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791980821.02869,
+  "served": "openrouter/free",
+  "sec": 4.4
+ },
+ "Q-04|zen.longcat": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791980820.9785593,
+  "err": null
+ },
+ "Q-04|ext.pollinations": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791980821.038415,
+  "err": "TimeoutError: The read operation timed out"
+ },
+ "Q-09|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981065.374689,
+  "served": "gpt-oss-20b",
+  "sec": 2.0
+ },
+ "Q-09|zen.openrouter": {
+  "status": "done",
+  "tries": 3,
+  "last": 1791982885.6142414,
+  "served": "openrouter/free",
+  "sec": 41.4
+ },
+ "Q-09|zen.longcat": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791982885.6079352,
+  "err": null
+ },
+ "Q-01|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981243.1829085,
+  "served": "gpt-oss-20b",
+  "sec": 6.7
+ },
+ "Q-01|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981243.1820362,
+  "served": "openrouter/free",
+  "sec": 41.3
+ },
+ "Q-01|zen.longcat": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791981243.181081,
+  "err": null
+ },
+ "Q-08|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981544.7200608,
+  "served": "gpt-oss-20b",
+  "sec": 4.3
+ },
+ "Q-08|zen.openrouter": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791983343.7917974,
+  "served": "openrouter/free",
+  "sec": 3.3
+ },
+ "Q-08|zen.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791983343.7901947,
+  "err": null
+ },
+ "Q-14|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981736.697032,
+  "served": "gpt-oss-20b",
+  "sec": 9.7
+ },
+ "Q-14|zen.longcat": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791981736.6939952,
+  "err": null
+ },
+ "Q-14|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981736.695654,
+  "served": "openrouter/free",
+  "sec": 85.5
+ },
+ "V1-01|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981930.782772,
+  "served": "gpt-oss-20b",
+  "sec": 28.2
+ },
+ "V1-01|zen.longcat": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791981930.758478,
+  "err": null
+ },
+ "V1-01|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791981930.773396,
+  "served": "openrouter/free",
+  "sec": 67.6
+ },
+ "V1-02|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791982152.9642944,
+  "served": "gpt-oss-20b",
+  "sec": 29.1
+ },
+ "V1-02|zen.longcat": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791984178.056854,
+  "served": "longcat-2.5-preview-free",
+  "sec": 77.8
+ },
+ "V1-02|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791982152.9410095,
+  "served": "openrouter/free",
+  "sec": 58.7
+ },
+ "V1-03|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791982365.9173198,
+  "served": "openrouter/free",
+  "sec": 18.3
+ },
+ "V1-03|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791982365.9194372,
+  "served": "gpt-oss-20b",
+  "sec": 25.1
+ },
+ "V1-03|zen.longcat": {
+  "status": "done",
+  "tries": 3,
+  "last": 1791984662.479816,
+  "served": "longcat-2.5-preview-free",
+  "sec": 79.7
+ },
+ "V1-05|zen.openrouter": {
+  "status": "done",
+  "tries": 3,
+  "last": 1791985295.3794904,
+  "served": "openrouter/free",
+  "sec": 52.3
+ },
+ "V1-05|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791982551.2595828,
+  "served": "gpt-oss-20b",
+  "sec": 31.8
+ },
+ "V1-05|zen.longcat": {
+  "status": "fail",
+  "tries": 3,
+  "last": 1791985295.3790572,
+  "err": null
+ },
+ "Q-09|ext.unclose": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791982885.633169,
+  "err": null
+ },
+ "Q-02|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791983103.0918877,
+  "served": "gpt-oss-20b",
+  "sec": 4.1
+ },
+ "Q-02|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791983103.0914261,
+  "served": "openrouter/free",
+  "sec": 28.8
+ },
+ "Q-02|ext.unclose": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791983103.0922952,
+  "err": null
+ },
+ "Q-02|zen.longcat": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791983103.091031,
+  "err": null
+ },
+ "Q-08|ext.unclose": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791983343.7939448,
+  "err": null
+ },
+ "Q-05|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791983528.2831733,
+  "served": "gpt-oss-20b",
+  "sec": 2.7
+ },
+ "Q-05|ext.unclose": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791983528.2849212,
+  "err": null
+ },
+ "Q-05|zen.longcat": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791983528.2761743,
+  "err": null
+ },
+ "Q-05|zen.openrouter": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791983528.2803483,
+  "served": "openrouter/free",
+  "sec": 91.4
+ },
+ "V1-04|zen.openrouter": {
+  "status": "done",
+  "tries": 2,
+  "last": 1791984944.6223083,
+  "served": "openrouter/free",
+  "sec": 34.7
+ },
+ "V1-04|ext.pollinations": {
+  "status": "done",
+  "tries": 1,
+  "last": 1791983710.1470342,
+  "served": "gpt-oss-20b",
+  "sec": 25.8
+ },
+ "V1-04|zen.longcat": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791984944.6215515,
+  "err": null
+ },
+ "V1-04|ext.unclose": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791984944.6232576,
+  "err": "HTTP 429: {\"error\":{\"message\":\"This is a free, shared, keyless LLM relay. You've used 667 of 600 generation-seconds in this 60m window -- a fair-share"
+ },
+ "V1-02|ext.llm7": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791984178.057842,
+  "err": "URLError: <urlopen error _ssl.c:1015: The handshake operation timed out>"
+ },
+ "V1-02|ext.unclose": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791984178.0574882,
+  "err": null
+ },
+ "V1-03|ext.llm7": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791984662.4864984,
+  "err": "HTTP 429: {\"error\":{\"message\":\"Upstream provider rate limit exceeded.\",\"type\":\"upstream_rate_limited\",\"param\":null,\"code\":\"upstream_rate_limited\"}}"
+ },
+ "V1-03|ext.unclose": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791984662.482436,
+  "err": "HTTP 429: {\"error\":{\"message\":\"This is a free, shared, keyless LLM relay. You've used 667 of 600 generation-seconds in this 60m window -- a fair-share"
+ },
+ "V1-04|ext.llm7": {
+  "status": "fail",
+  "tries": 1,
+  "last": 1791984944.6248033,
+  "err": "HTTP 429: {\"error\":{\"message\":\"Upstream provider rate limit exceeded.\",\"type\":\"upstream_rate_limited\",\"param\":null,\"code\":\"upstream_rate_limited\"}}"
+ },
+ "V1-05|ext.unclose": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791985295.3809674,
+  "err": "HTTP 429: {\"error\":{\"message\":\"This is a free, shared, keyless LLM relay. You've used 667 of 600 generation-seconds in this 60m window -- a fair-share"
+ },
+ "V1-05|ext.llm7": {
+  "status": "fail",
+  "tries": 2,
+  "last": 1791985295.3819766,
+  "err": "HTTP 429: {\"error\":{\"message\":\"Upstream provider rate limit exceeded.\",\"type\":\"upstream_rate_limited\",\"param\":null,\"code\":\"upstream_rate_limited\"}}"
+ }
+}

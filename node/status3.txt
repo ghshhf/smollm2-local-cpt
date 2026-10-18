@@ -1,0 +1,38 @@
+=== now ===
+10-13 22:00:22
+=== done_steps ===
+400
+=== chain.log tail ===
+ 190/400 loss=2.1682 lr=3.27e-04 t=3651s
+[train] step 200/400 loss=2.1429 lr=3.06e-04 t=3831s
+[ckpt] saved @ step 200
+[train] step 210/400 loss=2.1249 lr=2.84e-04 t=4058s
+[train] step 220/400 loss=2.1192 lr=2.61e-04 t=4239s
+[train] step 230/400 loss=2.0353 lr=2.39e-04 t=4421s
+[train] step 240/400 loss=2.1379 lr=2.16e-04 t=4605s
+[train] step 250/400 loss=2.1490 lr=1.94e-04 t=4786s
+[10-13 21:42:09] chunk R4 start: done=400 chunk=400 lr=5e-4
+[threads] torch.set_num_threads(8)
+[load] model + tokenizer from /root/r4work/base_next
+[tok] 归一化 tokenizer_config.json: extra_special_tokens list->{}
+[load] params=214.1M device=cpu (fp32)
+[cache] 复用已有 token cache: 93906856 tokens
+[train] steps=400 lr=0.0005 accum=8 max_len=512 (fp32)
+[train] step 10/400 loss=2.0959 lr=1.40e-04 t=189s
+[train] step 20/400 loss=2.1201 lr=2.30e-04 t=379s
+[train] step 30/400 loss=2.1085 lr=3.20e-04 t=599s
+[train] step 40/400 loss=2.0943 lr=4.10e-04 t=782s
+[train] step 50/400 loss=2.1172 lr=5.00e-04 t=1010s
+=== procs ===
+root        1921  0.0  0.0   2900  1892 ?        Ss   21:42   0:00 sh /mnt/workspace/node1/chain/chain_v1.sh
+root        2032  731 21.2 9229708 6884716 ?     Rl   21:42 132:21 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+root        2124  0.0  1.2 3010668 406576 ?      Sl   21:42   0:00 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+root        2132  0.0  1.2 3010680 406708 ?      Sl   21:42   0:00 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+=== ckpt ===
+总计 836533
+drwxr-xr-x  2 root root      4096 10月 13 01:23 .
+drwxr-xr-x 10 root root      4096 10月 13 21:45 ..
+-rw-r--r--  1 root root       790 10月 13 02:59 config.json
+-rw-r--r--  1 root root       111 10月 13 02:59 generation_config.json
+-rw-r--r--  1 root root 856595368 10月 13 02:59 model.safetensors
+-rw-r--r--  1 root root         3 10月 13 02:59 step.txt

@@ -1,0 +1,9 @@
+[tok] normalized extra_special_tokens list->{}
+[load] params=214.1M vocab=49152
+[data] lines=300 chars=214428
+Token indices sequence length is longer than the specified maximum sequence length for this model (406093 > 8192). Running this sequence through the model will result in indexing errors
+[data] tokens=406093
+=== HOLDOUT CE = 16.1599 (tokens=50176) ===
+GEN[中国的历史]: 中国的历史，虽然不知道他是谁，但是他的身份，却是一个人，他的
+GEN[人工智能]: 人工智能，真的不能看清楚，只是看看，看看，看看
+BASE_CHECK_DONE

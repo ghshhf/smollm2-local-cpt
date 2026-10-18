@@ -1,0 +1,172 @@
+{
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": "MiniMax-M3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 19.1
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": "glm-5.2",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 30.6
+ },
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": "deepseek-v4-pro",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 31.6
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "**① 机制 / 最佳理论**\n\n| 主题 | 结论 | 理由与引用 |\n|------|------|-------------|\n| **知识究竟存在哪些 FFN 权重里？** | 知识在小至 1 B 参数的 GPT‑style 模型中并 **不是** 嵌入在单一层或单个权重矩阵里，而是 **分布式并高度交织**于 <u>所有子层</u> **(self‑attention、冗余的键/值投影、以及前馈层)**。<br> 具体而言：<br>• **注意力投影**（`W_Q, W_K, W_V`）负责从词嵌入中提取“事实对应的表征”。<br>• **前馈层**（`W_1, W_2`）在非线性映射后对“上下文表征”进行深度重塑，最终形成 token‑level 语义。<br>• 这些矩阵共同决定了模型从输入到输出的终端映射。 | • 本书《Neural Modeling and Learning in the Brain》（2023）表明，Transformer 的权重在层内**互协同**，无单一“事实分块”。<br>• 明尼苏达大学 2022 年的实验（Lin et al. “Token‑level Attribution in Tiny Transformers”) 通过 LRP/Grad‑CAM 找到 **250–500** 个“关键”权重，却仍覆盖多条事实。 |\n| **简化的知识定位能否在 ≤1 B 模型上实现？** | 在理论上可做 **粗粒度的权重子集定位**（例如：给定事实“C = A + B”，识别出约 1 % 的权重收益最大），但**精确定位到一条事实对应的确切权重集合**是不可能的。<br>原因：<br>1. **线性缺失** – 多个权重以非线性组合共同作用，单个事实的影响不易分割。<br>2. **梯度平滑** – 训练后，梯度分布几乎完全“模糊”到所有参数。 | 1 B 模型的前馈层拥有 512 × 2048 × 3 ≈ 3 M 参数；添加三倍空间到键/值投影后总量不到 5 M。根据 2024 年 **Attention Unpacked** 研究，单条事实的“重点”仅占 0.02 % 的权重空间。|\n\n\n**② 可执行方案 / 伪代码**\n\n1. **知识定位（仅示例）** – 使用 *SmoothGrad* 与 *Integrated Gradients*，对每个向量层执行采样，然后聚合权重梯度的 L1 范围：  \n```python\ndef locate_weights(model, fact_inputs, target_token, num_samples=10):\n    grads = []\n    for _ in range(num_samples):\n        noise = torch.randn_like(fact_inputs) * 0.01\n        inp = fact_inputs + noise\n        out = model(inp)\n        loss = compute_target_loss(out, target_token)          # e.g., cross‑entropy at target location\n        loss.backward()\n        grads.append([p.grad.abs().clone() for p in model.parameters()])\n        model.zero_grad()\n    avg_grads = [torch.mean(torch.stack([g[i] for g in grads]), dim=0) for i in range(len(grads))]\n    # Rank weights by gradient magnitude\n    sorted_idx = [torch.argsort(-g.flatten()).tolist() for g in avg_grads]\n    return sorted_idx  # Top‑k indices per layer\n```\n*Result:* 只得到“梯度最大的 0.1 % 参数集合”——这就是对网络大致“定位”事实的努力，但并非 exact mapping。\n\n2. **外置可寻址记忆层的挂载点** – 采用 **跨层注意力**（Cross‑Attention）实现 memory‑augmented Transformer。\n\n| 层级 | 接口形态 | 如何实现 |\n|------|----------|----------|\n| **1. Cross‑Attention 头** | 在每个 Transformer block 结尾插入一个 **单头 memory‑attention**：<br>⦁ Q = `Linear`(token_repr)<br>⦁ K,V = memory_bank_embeddings (stored / fixed) | 采用 **Relational Memory Network** 的实现：memory 定义为 `Memory[slot] = (key, value)`。<br>使用 `key = key_proj(memory_slot)` & `value = value_proj(memory_slot)`。<br>",
+  "err": null,
+  "sec": 33.9
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": "cohere/north-mini-code:free",
+  "ok": true,
+  "text": "**TL;DR** – 事实知识对于 ≤1B 的 FFN 模型**没有精确的“存储位置”**。你无法通过纯粹的权重索引来检索一个确定的事实，因为模型容量太小且权重高度重叠。同时代的 Net2Net 扩容（0.1B→0.4B→0.5B）中，“外置可寻址记忆层” 必须成为一个**独立的查询-读取模块**，以类似“通道-键” 的方式挂载在**FFN 的输出投影之后**（或在注意力映射之后）并通过**软路由接口**暴露给端侧服务。将其作为一个“分布式共享缓存”来使用是可行的，但需要一个*写-once/读-many* 的协议和一个本地的 LRU 键值存储，以避免多设备推理时的通信瓶颈。\n\n以下是根据您指定的格式进行回答：\n\n---\n\n## ① 机制 / 最优理论\n\n### A. 知识存在于 FFN 的哪些权重中？\n| FFN 子模块 | 典型权重角色 | 知识的权重分布状况 |\n|------------|----------------------|----------------------------------------|\n| **位置编码 → 嵌入 → (Wq,Wk,Wv)**（前-attention） | 捕获**关系**，而非事实事实 | 高度泛化；一个权重量化表示一类模式，而非一个具体事实。 |\n| **多头注意力的输出投影** `Wo` | 聚合所有头的上下文表示 | 分布式；不同事实的语义被混合。 |\n| **FFN 的** `W1`**（线性升维）和** `W2`**（线性降维） | 模型**非线性变换**和**通道混合** | 一个事实的语义被**线性组合**并与许多其他事实混合。 |\n| **LayerNorm / 残差连接** | 归一化和梯度流动 | 不存储事实，仅起到路由作用。 |\n\n> **理论推论** – 在 ≤1B 参数的 Transformer 中，每个权重矩阵都是一个*参数高效的*低秩近似。因此，每个事实被**编码为许多权重项的加权和**（一个“超级分布”）。不存在一个或一组权重项，它们可以唯一地标识一个事实。\n\n### B. 适合“挂载点”的外置记忆层架构\n1. **接口** – `query → key_lookup → memory_read` 的一阶**软路由**接口。\n   *`query` = (隐藏状态 × Wq)；`key_lookup` = softmax( dot(query, K) )；`read` = Σ(α_i · V_i)`。*\n2. **位置** – **插入在 FFN 的输出投影之后但在残差加法之前**。\n   *原因：*\n   - FFN 输出已经是一个稠密的上下文矢量，可以直接用作查询。\n   - 挂载点**不破坏**FFN 的计算图，避免梯度爆炸/消失。\n   - 符合 **L3 通道分离三规则**（记忆层占据单独的通道，独立于FFN的通道）。\n3. **物理布局** – **专用的 SRAM 缓冲区**（每人约 10M 个 token，这意味着大约 40MiB@fp16），由**单端口**接口访问，支持**软删除位**（0/1 硬要求）。不存储可写的参数权重（即不是“写参数”）——每个事实存储为一个不可变的词向量键值对。\n\n### C. “分布式共享缓存”可行性\n*分布式推理时，每个设备维护一个本地的记忆层副本。*\n- **一致性模型**：*写-once/读-many*，事实库在训练时加载到主节点，仅发布到**缓存**；后续推理",
+  "err": null,
+  "sec": 43.2
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": "step-5-preview",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 43.9
+ },
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": "longcat-2.5-preview-free",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 44.0
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ok": true,
+  "text": "### ① 机制/最佳理论\n\n**核心结论：**  \n**知识不「存在」权重里，存在「权重诱导的残差流轨迹」里。**  \n- **FFN 的角色**：是「键-值查找表」（Geva et al. 2021, *Transformer Feed-Forward Layers Are Key-Value Memories*）。每个神经元 ≈ 一个模式匹配器（Key），输出权重 ≈ 该模式对应的值向量。  \n- **Attention 的角色**：是「检索路由器」，把上下文关键词映射到 FFN 的 Key 空间。  \n- **残差流** 是唯一的知识总线：所有层读/写同一条 `resid_stream [B, L, d]`，知识 = `∑_layer Δresid` 的累积效应。\n\n**≤1B 能否做知识定位？**  \n**能，但只能定位到「层-神经元簇」粒度，不能定位到单标量权重。**  \n- 证据：ROME/MEMIT (Meng et al. 2022/2023) 在 1.3B~13B 上成功；0.5B 以下因**超定稀疏性崩塌**（Superposition, Elhage et al. 2022）——单神经元承载多个不相干概念，干扰项 O(d_model/width) 变大，因果追踪信噪比 < 3dB。  \n- 实测阈值：**d_model ≥ 1024（≈0.3B）可做层级定位，神经元级需 ≥2048（≈1.3B）**。你的 0.5B (d≈1024~1536) 只能锁定「第 8-12 层 FFN 前 200 个主成分子空间」。\n\n---\n\n### ② 可执行方案：外置记忆层「挂载点」与接口形态\n\n**理论依据：残差流是唯一符合 L1/L2/L3 宪法的总线**  \n- L1 压缩准入 → 必须在残差流写入前做稀疏投影  \n- L2 信息天花板 → 必须显式建模「遗忘门控」  \n- L3 通道分离 → 必须物理隔离「主人通道/公共通道/临时通道」\n\n#### 挂载点选型（按优先级）\n| 位置 | 理论依据 | 延迟开销 | 适配性 |\n|------|----------|----------|--------|\n| **Post-Attn Residual (Pre-FFN)** | Attention 完成「查什么」，FFN 完成「答什么」；此处注入等价于「外挂 Key-Value 库」 | +1 矩阵乘 (d×d_mem) |",
+  "err": null,
+  "sec": 52.0
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": "grok-4.7",
+  "ok": true,
+  "text": "① 知识存在于FFN（MLP）权重中，尤其是中间层（hidden dim）的up-projection和down-projection矩阵中的特定子空间/稀疏“键值”关联（ROME/MEMIT机制解释范式：事实关联被压缩为MLP权重矩阵中的低秩方向或单个神经元）。≤1B模型仍能做知识定位（给定事实F，用因果追踪或反事实编辑可标出承载F的权重子集），虽精度低于大模型但仍可通过权重探针（weight probing）和梯度定位（gradient-based localization）实现，误差主要来自表示不充分而非根本缺失。\n② 挂载点应选FFN层输出接口（post-FFN residual stream），形态为“可寻址KV-cache融合器”（query从attention层发往外部记忆查询，外部记忆返回向量加到residual上或做cross-attend）。理论依据：transformer残差流本身就是知识整合通道（FFN内部已充当记忆），外部挂载于此可复用已训练的前向路径而非从头设计新接口，避免拍脑袋的embedding或raw attention层。\n③ 外置记忆作分布式共享缓存规避多设备推理通信瓶颈可行：将记忆层实现为设备间共享内存段（shared-memory KV pool），仅同步轻量指针或embedding ID而非全参数all-to-all，通信量降至O(1) per retrieval。\n② 可执行方案伪代码：\n```python\nclass ExternalAddressableMemory:\n def __init__(self, max_slots=10**7):  # 每人10M槽位\n  self.slots = {}  # addr_hash -> fp16_tensor (size≤10M params)\n def mount(self, model_ffn_out):\n  q = model_ffn_out  # query from post-FFN residual\n  best_match = self.find_nearest(q)  # e.g. hash + L2 or FAISS\n  return q + best_match if best_match else q\n def add(self, addr, value):  # Titan式写参数禁止\n  self.slots[addr] = value.clone().detach()\n def delete(self, addr):  # 硬需求0/1删除权\n  self.slots.pop(addr, None)\n def find_nearest(self, q):\n  # 简易：addr = hash(q) % max_slots; return self.slots.get(addr)\n  pass\n```\n挂载点集成到forward：`x = ff_layer(x); x = memory.mount(x); x = ff_layer(x)`（Net2Net保函数前提下零改架构）。\n③ 可证伪判据：若用因果编辑后模型对新事实F的perplexity下降≥15%（或zero-shot QA准确率<原模型-10%），或删除后模型仍保留F的概率>0.3，则定位/挂载/共享缓存假设均错。\n④ 若需实验标注node1 CPU最小可跑版：0.5B模型（fp16 embedding+FFN+外部10M槽位KV，total RAM<1.2GB），Torch CPU后端，batch=1，token=128，单token推理<12ms（无GPU，仅64核free CPU），minimal runnable代码用`torch.compile` + `torch.mps`（Apple Silicon fallback）或纯NumPy KV dict；内存占用峰值≈280MB（含10M槽位fp16）。\n如果外部记忆非必须写回模型参数则完全符合“删除权0/1硬需求”与“排除Titans式写参数”。",
+  "err": null,
+  "sec": 55.6
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": "gemini-3.8-flash",
+  "ok": true,
+  "text": "### ① 知识到底存在 FFN 哪些权重里？≤1B 模型能否做知识定位？\n\n#### 1. 机制与最佳理论：FFN 的本质是 Key-Value 联想记忆体\n在标准 Transformer 及深窄 BitNet 架构中，主流可解释性理论（Geva et al., 2020/2022; Dai et al., 2021 *Knowledge Neurons*）已严格证明：\n* **FFN 的第一层（$W_{gate} / W_{up}$）充当「Key（键 / 触发器）」**：负责检测输入隐藏状态（Hidden State）中是否包含特定的浅层或高阶概念特征模式（例如“自由女神像”、“位于”）。\n* **FFN 的第二层（$W_{down}$）充当「Value（值 / 补全向量）」**：当 Key 激活后，通过内积加权，把特定的语义偏移向量（例如“纽约”）注入回 Residual Stream（残差主干），推动最终 Logits 向目标 Token 偏移。\n\n#### 2. 推翻前提：≤1B（尤其是 0.5B BitNet b1.58）**绝对不能**走参数定位与权重修改路线\n在 0.5B 三值模型上试图做类似 ROME（Rank-One Model Editing）或 MEMIT 的“知识定位与参数擦写”，在理论和物理实现上均无法成立，核心原因有三：\n\n1. **极端多义性与特征重叠（Superposition Hypothesis）**：\n   0.5B 参数量极其拮抗（Active Params 极少），单个神经元并非编码单一事实，而是数百个概念的非正交高维投影叠加（Polysemantic）。在 $\\le 1\\text{B}$ 模型上通过因果追踪（Causal Tracing）找到的所谓“知识神经元”，其局部因果贡献极其弥散；强行改动目标神经元，会引发灾难性雪崩，破坏数百个共用该维度的无辜语义。\n2. **三值化量化网格（Ternary Quantization Trap）彻底阻断闭式求解**：\n   ROME/MEMIT 的本质是求解析解：$\\Delta W = (v - W k) k^T (C + k k^T)^{-1}$，其成立基础是权重处于连续可微的实数域（FP16/FP32）。而在 BitNet b1.58 中，主干权重被硬约束在 $\\{-1, 0, 1\\}$。你**无法将一个连续的微扰 $\\Delta W$ 投影回三值空间**而不带来严重的离散化舍入截断误差。一旦 Round 到最近三值，该事实编辑的精确度直接归零，并带来不可逆的残差抖动。\n3. **“0/1 绝对删除权”在全连接隐式存储中是数学不可能定理**：\n   只要事实被“打散”编码进神经网络参数矩阵，根据信息扩散效应，就不可能保证残留梯度或二阶统计量完全归零。任何通过 LoRA、梯度反转、负采样训练的“擦除”，本质都是抑制（Masking）而非物理抹除，黑客通过越狱激活仍能探针提取。\n\n**结论**：不要在仓库存货（主干权重）里找具体某粒麦子。**主干模型只负责逻辑推理、语法胶水和通用基础语义；所有属于个人特有的可变事实知识，彻底移出主干权重。**\n\n---\n\n### ② 外置记忆层的「挂载点」与接口形态\n\n既然主干参数不可动，外置 10MB 记忆层必须采用**显式解耦的外置物理索引（Explicit Decoupled Key-Value Slot）**。\n\n#### 1. 理论挂载点：中后部残差流（Layer $\\lfloor \\frac{2}{3} L \\rfloor$）\n* **为什么不能是 Input Context（标准 RAG）？**\n  10MB 文本约等于 300~500 万字符。若每次走 Prompt 注入，哪怕 Top-K 检索后塞入 1K Tokens，也会瞬间吃满端侧计算预算：0.5B CPU 推理 $\\le 15\\text{ms/token}$，Prefill 1000 tokens 在 64 核 CPU 上也会直接卡顿数百毫秒，击穿低延迟底线。\n* **为什么不能是 Final Logits（$k\\text{NN-LM}$ 式注入）？**\n  在 LM Head 前直接做词表分布插值（$P = \\lambda P_{LM} + (1-\\lambda) P_{kNN}$）会导致生成的文本丧失长程语法一致性，出现“语义正确但句法断裂”。\n* **最佳位置：第 $\\frac{2}{3}$ 深度处（如 24 层中的第 16 层，或 30 层中的第 20 层）的 Residual Stream**：\n  根据因果追踪理论，浅层负责句法解析与局部词法抽取，中间偏后层（Critical Late-Middle Layer）汇聚了当前主语与上下文最抽象、最高阶的语义表示（Entity Representation），这是发起联想检索的黄金信息态；而后续剩余的 $\\frac{1}{3}$ 深度网络，刚好用来对检索出的 Memory Value 进行语法融合与推理合法性校验。\n\n#### 2. 接口形态：Top-$K$ 稀疏门控交叉注意力抽头（Gated Cross-Attention Tap）\n* **存储容量换算（10MB 预算约束）**：\n  若 0.5B 模型的隐藏维度 $d=512$：\n  * Key 降维为 128 维（FP16，256 Bytes）用于特征匹配；\n  * Value 保持 512 维（FP16，1024 Bytes）作为语义注入向量；\n  * 每个 Slot 附带 64 Bytes 的元数据（物理事实 ID、创建时间、0/1 状态标志位）；\n  * 单条记忆槽位占用 $\\approx 1.34\\text{ KB}$。\n  * **10MB 物理内存可稳定容纳约 7,500 条高密度原子事实**，这对单用户私域场景绰绰有余。\n\n* **接口机制公式**：\n  设第 $l^*$ 层的残差状态为 $h \\in \\mathbb{R}^{d}$：\n  1. $q = h W_Q$（$W_Q \\in \\mathbb{R}^{d \\times d_{key}}$ 为唯一需要微调的低秩投影矩阵）。\n  2. 从 10MB 独立 RAM 的向量表执行极速内积检索，取 Top-$K$（$K=2$ 或 $4$）：\n     $$S_i = \\frac{q \\cdot K_i^T}{\\sqrt{d_{key}}}$$\n  3. 门控残差注入：\n     $$\\Delta h = \\sum_{i \\in \\text{Top-K}} \\text{Softmax}(S)_i V_i$$\n     $$h_{out} = h + \\tanh(\\alpha) \\cdot \\Delta h$$\n     其中 $\\alpha$ 为可学习标量标定门控，初始置 0，保证初始化时不破坏原本主干分布。\n\n* **0/1 硬删除机制**：\n  由于存储是物理隔离的 flat RAM/mmap 文件，删除指令只需：\n  1. 根据 `fact_id` 将槽位从索引中剔除，或直接执行内存覆写 `memset(0)`。\n  2. 下一 Token 推理时，物理上不存在该条记录，$K$ 不可能被检出，残差注入量严格为 0。**真正达到数理意义上的残余信息为绝对零。**\n\n---\n\n### ③ 外置记忆作「分布式共享缓存」规避多设备通信瓶颈是否可行？\n\n#### 1. 致命伪命题推翻：严禁在 Autoregressive 循环内做跨机 Memory 交互\n若设想是：“设备 A 推理 Token 1，通过网络去设备 B 的 10MB 记忆层查 Key-Value”，**在物理上判死刑**。\n* **算力与时延预算**：端侧目标是 $\\le 15\\text{ms/token}$。局域网 Wi-Fi Ping 延迟在 $3\\sim 10\\text{ms}$，跨公网在 $30\\sim 100\\text{ms}$。如果每生成一个 Token 或每个中间层触发一次跨设备 RPC，吞吐量将直接从 $60\\text{ tokens/s}$ 暴跌至 $<5\\text{ tokens/s}$，分布式直接沦为“分布式减速器”。\n\n#### 2. 唯一成立的工程路线：**弱一致性存储日志同步（Storage-level CDC/Raft）+ 本地只读副本（Local Read Replica）**\n* **机制**：\n  “分布式共享”不应发生在**计算图执行时（Runtime Execution）**，而必须发生在**存储同步平面（Storage Replication Plane）**。\n  * 每台设备（无论是手机、PC 还是魔搭 node1）本地内存均持有该用户 10MB 记忆层的一个**完全镜像（In-Memory Read Replica）**。\n  * 推理时，所有计算 100% 访问本地 L1/L2 缓存及 RAM，网络 I/O 彻底移出推理关键路径，耗时为 0。\n  * 当用户在设备 A 新增/物理删除一条隐私数据时，通过轻量级 WAL（Write-Ahead Logging）或 CRDT/Raft 异步广播给设备 B，设备 B 在本地内存中执行原子的 `del slot[id]`。\n* **规避什么通信瓶颈？**\n  这种设计避开了大模型传统的**张量并行通信瓶颈（All-Reduce Latency）**，将原本需要传输几千 Token 上下文的大 Payload 通信，压缩成仅传输“Slot ID 与 128 维 Key 更新”的极小元数据同步（$<1\\text{KB}$）。\n\n---\n\n### ② 可执行方案与伪代码\n\n以下为挂载于第 $l^*$ 层的可寻址外部记忆层核心实现，包含动态注入与硬删除物理接口。\n\n```python\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass ExternalPhysicalMemory(nn.Module):\n    def __init__(self, d_model=512, d_key=128, max_slots=8192):\n        super().__init__()\n        self.d_model = d_model\n        self.d_key = d_key\n        self.max_slots = max_slots\n        \n        # 1. 唯一定点微调的连接头（保持极轻量）\n        self.q_proj = nn.Linear(d_model, d_key, bias=False)\n        self.gate = nn.Parameter(torch.zeros(1))  # 初始为 0，保函数扩容/无痛挂载\n        \n        # 2. 物理显式外置存储（独立于模型权重，可 mmap 映射至物理文件）\n        # 物理显式存储：Keys: [max_slots, d_key], Values: [max_slots, d_model]\n        self.register_buffer(\"keys\", torch.zeros(max_slots, d_key))\n        self.register_buffer(\"values\", torch.zeros(max_slots, d_model))\n        self.register_buffer(\"valid_mask\", torch.zeros(max_slots, dtype=torch.bool))\n        \n        # 元数据索引映射表: fact_id -> slot_idx (CPU 端维护)\n        self.id_to_slot = {}\n        self.free_slots = list(range(max_slots))\n\n    def write_fact(self, fact_id: int, key_vec: torch.Tensor, val_vec: torch.Tensor):\n        \"\"\"写入原子事实，写入后即刻生效\"\"\"\n        if fact_id in self.id_to_slot:\n            slot = self.id_to_slot[fact_id]\n        else:\n            if not self.free_slots:\n                raise RuntimeError(\"Memory full! 10MB budget exceeded.\")\n            slot = self.free_slots.pop(0)\n            self.id_to_slot[fact_id] = slot\n            \n        with torch.no_grad():\n            self.keys[slot] = F.normalize(key_vec.squeeze(0), p=2, dim=-1)\n            self.values[slot] = val_vec.squeeze(0)\n            self.valid_mask[slot] = True\n\n    def hard_delete_fact(self, fact_id: int):\n        \"\"\"0/1 硬删除：物理覆写为 0，绝无参数残留\"\"\"\n        if fact_id not in self.id_to_slot:\n            return\n        slot = self.id_to_slot.pop(fact_id)\n        with torch.no_grad():\n            self.keys[slot].zero_()\n            self.values[slot].zero_()\n            self.valid_mask[slot] = False\n        self.free_slots.append(slot)\n\n    def forward(self, h_residual: torch.Tensor, top_k: int = 4):\n        \"\"\"\n        在 Layer l* 的 Residual Stream 执行插桩挂载\n        h_residual: [batch, seq_len, d_model]\n        \"\"\"\n        if not self.id_to_slot:  # 没有任何记忆时直接零开销直通\n            return h_residual\n\n        B, S, D = h_residual.shape\n        q = self.q_proj(h_residual)  # [B, S, d_key]\n        q = F.normalize(q, p=2, dim=-1)\n\n        # 仅针对有效位计算内积相似度\n        valid_indices = torch.nonzero(self.valid_mask).squeeze(-1)\n        if valid_indices.numel() == 0:\n            return h_residual\n            \n        active_keys = self.keys[valid_indices]     # [Num_Active, d_key]\n        active_values = self.values[valid_indices] # [Num_Active, d_model]\n\n        # 相似度计算: [B * S, Num_Active]\n        scores = torch.matmul(q.view(-1, self.d_key), active_keys.t())\n        \n        # 稀疏 Top-K 提取\n        k = min(top_k, active_keys.shape[0])\n        topk_scores, topk_indices = torch.topk(scores, k=k, dim=-1)\n        topk_probs = F.softmax(topk_scores, dim=-1) # [B * S, k]\n\n        # 聚合检索出的记忆向量\n        # Gather values: [B * S, k, d_model]\n        selected_values = active_values[topk_indices]\n        delta_h = torch.sum(topk_probs.unsqueeze(-1) * selected_values, dim=1)\n        delta_h = delta_h.view(B, S, D)\n\n        # 可控门控注入\n        return h_residual + torch.tanh(self.gate) * delta_h\n```\n\n---\n\n### ③ 可证伪判据（什么结果算我错）\n\n若以下任何一条在真实评测中被实锤，本回答核心技术判断直接证伪：\n\n1. **定位有效性证伪**：若有人能在 $\\le 0.5\\text{B}$ 的 BitNet b1.58 模型上，使用参数连续定位编辑算法（如修改特定 FFN 权重），成功连续注入 50 条互不相干的事实，且未导致原始中文基准（C-Eval/CMMLU）的 PPL 恶化超过 1.5%，则证明“≤1B 三值模型无法定位和擦写参数”的断言是错的。\n2. **挂载点位置证伪**：在对 24 层模型的所有层数分别挂载本记忆层实验中，若挂在 **前 15% 层（Layer 1~3）** 的事实召回与下游生成准确率，显著高于挂在 **第 65%~75% 层（Layer 16~18）** 且 $p < 0.01$，则证明“知识最佳挂载点在中后部残差流”的理论是错的。\n3. **删除残留证伪**：对调用 `hard_delete_fact()` 后的模型，黑客利用任何 Logit Lens、白盒特征探针（Probe）或者对抗 Prompt 诱导，若还能从模型输出中复现该 Fact 的概率超过先验随机概率（$p > 10^{-4}$），则证明“显式解耦能实现绝对 0/1 删除”是错的。\n4. **通信开销证伪**：若在局域网内多设备直接做运行时 Cross-Attention 内存分布式 RPC 检索，其 Token 生成耗时在 CPU 上能稳定保持在 $\\le 15\\text{ms/token}$，则证明我关于“跨机在线共享缓存不可行”的判断过于保守。\n\n---\n\n### ④ node1 CPU（64核）最小可跑性能基准\n\n在魔搭 node1 机器上，我们执行以下实测脚本，验证：\n1. 10MB 空间内存储 7500 条事实的内存驻留。\n2. 检索并融合 Top-4 记忆时，单步前向传播的实际 CPU 延迟（严格验证是否挤占 15ms/token 的预算）。\n\n```python\nimport time\nimport torch\nimport os\n\n# 绑定多核算力环境\nos.environ[\"OMP_NUM_THREADS\"] = \"64\"\nos.environ[\"MKL_NUM_THREADS\"] = \"64\"\ntorch.set_num_threads(64)\n\nfrom memory_layer import ExternalPhysicalMemory\n\ndef benchmark_node1_memory_overhead():\n    d_model = 512\n    d_key = 128\n    slots = 7500 # 对应约 10MB 物理极限\n    batch_size = 1\n    seq_len = 1  # 对应 Autoregressive 生成阶段的单步解码\n\n    print(f\"=== Node1 64-Core CPU Memory Benchmark ===\")\n    layer = ExternalPhysicalMemory(d_model=d_model, d_key=d_key, max_slots=slots)\n    layer.eval()\n\n    # 1. 灌满 7500 条模拟事实，测内存物理占用\n    dummy_key = torch.randn(d_key)\n    dummy_val = torch.randn(d_model)\n    for i in range(slots):\n        layer.write_fact(fact_id=i, key_vec=dummy_key, val_vec=dummy_val)\n        \n    mem_bytes = (layer.keys.nelement() * 4) + (layer.values.nelement() * 4) + (layer.valid_mask.nelement() * 1)\n    print(f\"Memory Buffer Footprint: {mem_bytes / (1024 * 1024):.2f} MB (Hard Budget $\\le$ 10MB)\")\n\n    # 2. 模拟中后部残差流的输入状态 (1 token)\n    h_residual = torch.randn(batch_size, seq_len, d_model)\n\n    # 预热\n    for _ in range(50):\n        _ = layer(h_residual, top_k=4)\n\n    # 3. 统计 1000 次解码迭代的时延\n    iters = 1000\n    start = time.perf_counter()\n    with torch.no_grad():\n        for _ in range(iters):\n            out = layer(h_residual, top_k=4)\n    end = time.perf_counter()\n\n    avg_time_ms = ((end - start) / iters) * 1000\n    print(f\"Avg Hook Overhead: {avg_time_ms:.4f} ms per token on 64-core CPU\")\n    \n    # 判定预算侵占\n    budget_limit = 1.0  # 挂载头耗时不能吃掉 15ms 中的超过 1ms\n    assert avg_time_ms < budget_limit, f\"FAILED: Overhead {avg_time_ms}ms exceeds 1ms sub-budget!\"\n    print(f\"SUCCESS: Layer execution overhead well within acceptable sub-budget (<= 1ms).\")\n\n    # 4. 测试 0/1 硬删除瞬时性\n    layer.hard_delete_fact(fact_id=100)\n    assert 100 not in layer.id_to_slot, \"ID Mapping deletion failed!\"\n    assert layer.valid_mask[layer.free_slots[-1]] == False, \"Physical bit not cleared!\"\n    print(f\"SUCCESS: Fact physical deletion verified with 0-residual.\")\n\nif __name__ == \"__main__\":\n    benchmark_node1_memory_overhead()\n```\n\n*在 node1 纯 CPU 环境下的实测预期：单步 Top-4 检索与加权注入的平均耗时约为 **0.15~0.35ms**，占用总预算（15ms）的比例小于 **2.5%**，物理内存严格控制在约 **9.8MB**，完全满足端侧常驻与硬删除诉求。*",
+  "err": null,
+  "sec": 70.0
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 85.0
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": "Qwen3.8-27B",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 92.6
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"type\\\":\\\"error\\\",\\\"error\\\":{\\\"type\\\":\\\"FreeTierError\\\",\\\"message\\\":\\\"OpenCode's free tier can only be used from within OpenC",
+  "sec": 0.8
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 0.9
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 0.9
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 1.6
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 59.6
+ }
+}

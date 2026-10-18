@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>视觉能力 &amp; 代码化视频剪辑 — 前沿调研（2026-10）</title>
+<style>
+  :root{--bg:#fff;--fg:#1a1d21;--muted:#5c6570;--line:#e3e7ec;--accent:#1f6feb;
+        --ok:#137a3f;--warn:#a8680a;--bad:#b3261e;--card:#f7f9fb;--chip:#eef2f7}
+  *{box-sizing:border-box}
+  body{margin:0 auto;padding:36px 28px;max-width:1000px;background:var(--bg);color:var(--fg);
+       font:15px/1.75 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+  h1{font-size:26px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:26px}
+  h2{font-size:19px;margin:34px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  h3{font-size:15px;margin:20px 0 8px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:var(--card);font-weight:600;color:var(--muted);font-size:13px}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .good{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+  .kpi{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}
+  .kpi div{flex:1;min-width:160px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  .kpi b{display:block;font-size:21px;line-height:1.3}.kpi span{font-size:12px;color:var(--muted)}
+  code{background:var(--chip);padding:1px 5px;border-radius:4px;font-size:13px}
+  .quote{border-left:3px solid var(--accent);background:var(--card);padding:10px 14px;margin:10px 0;font-size:14px}
+  ul{margin:8px 0;padding-left:22px}li{margin:4px 0}
+  .tag{display:inline-block;background:var(--chip);border-radius:4px;padding:1px 7px;font-size:12px;color:var(--muted);margin-right:4px}
+  footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<h1>视觉能力 &amp; 代码化视频剪辑：前沿调研</h1>
+<div class="sub">2026-10-17 · 面向 0.5B 融合版 · 三个问题：能不能看图 / 要不要加视觉 / 怎么学剪辑</div>
+
+<div class="kpi">
+  <div><b class="good">460M</b><span>VisionPsy-Nano：SigLIP2 + SmolLM2-360M，sub-0.5B 榜首</span></div>
+  <div><b class="bad">26.8%</b><span>Timeline-Bench 最佳 agent（56 个真实剪辑任务）</span></div>
+  <div><b>72.9%</b><span>失败案例中「只败在质量测试」的比例</span></div>
+  <div><b class="good">−16.4pp</b><span>GUI/computer-use 相对代码路线的劣化（p&lt;0.001）</span></div>
+</div>
+
+<h2>一、当前状态：模型没有视觉</h2>
+<p>主线 SmolLM2 续预训练链（0.1B → 0.5B）是<b>纯语言模型</b>，无视觉编码器，不能识图。
+注意 <code>docs/vision-0.5B-fusion.md</code> 里的 "vision" 是<b>愿景</b>不是<b>视觉</b>。</p>
+
+<h2>二、加视觉：可行，且有跟我们同源的现成蓝本</h2>
+
+<h3>最关键的发现</h3>
+<div class="quote">
+<b>VisionPsy-Nano</b>（Tether/QVAC，2026-07-29 开源，Apache 2.0）：<b>460M 参数 VLM = SigLIP2 视觉编码器 + 360M 参数的 SmolLM2 语言主干</b>（nanoVLM 框架）。<br>
+在 17 个基准上取得 sub-0.5B 类最高归一化分 <b>62.3</b>，超过 Liquid AI LFM2.5-VL-450M（59.6）与 HF SmolVLM2-500M（52.5）；视觉感知 +4.6%、视觉推理 +7.4%。
+<br><b>它用的语言主干就是 SmolLM2 —— 和我们的基座是同一个。</b>
+</div>
+
+<h3>端侧小 VLM 全景</h3>
+<table>
+<tr><th>模型</th><th>规模</th><th>许可</th><th>要点</th></tr>
+<tr><td><b>VisionPsy-Nano</b></td><td>460M（+Flash 变体）</td><td>Apache 2.0</td><td class="good">sub-0.5B 榜首；Flash 版仅 <b>64 视觉 token</b>，保留 ~99% 质量，iPhone 15 首 token 快 <b>36×</b></td></tr>
+<tr><td>SmolVLM2</td><td>256M / 500M / 2.2B</td><td>Apache 2.0</td><td>小尺寸带视频理解</td></tr>
+<tr><td>Smol-VL-BLV</td><td>0.5B</td><td>—</td><td>空间感知后训练（SFT+GRPO）：OCR <b>32.5→65.5</b>、VQA 37.8→54.5</td></tr>
+<tr><td>LFM2.5-VL</td><td>450M / 3B</td><td>LFM Open</td><td>边缘侧 grounding / 屏幕 / 文档 / tool calling</td></tr>
+<tr><td>FastVLM</td><td>0.5B / 1.5B / 7B</td><td>Apple AMLR</td><td>高分辨率图低 TTFT</td></tr>
+<tr><td>Qwen3-VL</td><td>2B / 4B / 8B</td><td>Apache 2.0</td><td>小尺寸强 OCR / 文档 / 视频</td></tr>
+</table>
+
+<h3>工程范式（2026 主流，也是我们要走的路）</h3>
+<div class="card">
+<b>ViT/SigLIP 编码器 + 2 层 MLP 投影层（仅约 21M 参数）+ LLM 解码器</b>，early fusion：视觉 token 拼进文本 token 流。<br><br>
+<b>三阶段训练</b>：① 冻 ViT 与 LLM，只训 projector（对齐）→ ② 训 ViT + projector → ③ 全参数指令微调。<br>
+<b>差速学习率</b>：视觉编码器低 LR、LLM 中、projector 高 —— 防灾难性遗忘。<span class="tag">这与我们的保函数扩容思路同构：语言主干能力不损失</span>
+</div>
+
+<table>
+<tr><th>关键约束</th><th>数据</th></tr>
+<tr><td>视觉 token 爆炸</td><td>336px 图 = 576 token；AnyRes 平铺按 tile 数倍增。Flash 版压到 <b>64 token</b> 是最省的做法</td></tr>
+<tr><td>数据质量 &gt; 数量</td><td>LLaVA-1.5 用 <b>665K 高质量指令样本</b>胜过数百万噪声样本</td></tr>
+<tr><td>端侧实测</td><td>251MB 量化模型：T4 1.70s / Mac Metal 2.41s / A55 CPU 27.1s 每帧；IQ4_NL 量化比 Q4_K_M 再快 106%</td></tr>
+</table>
+
+<h2>三、Opus 5.5「代码编辑视频」的真实机制</h2>
+<div class="quote">
+<b>Opus 5.5 不生成像素，它生成代码。</b>Anthropic 官方能力里根本没有"视频"这一项——视频是<b>代码能力 + 长程规划</b>的副产品。
+</div>
+
+<table>
+<tr><th>流水线</th><th>机制</th><th>适用</th></tr>
+<tr><td>① 单文件 HTML</td><td>一个 HTML：舞台 + 场景时间轴 + CSS keyframes / Web Animations API / canvas 渲染循环，浏览器直接播</td><td>动效、字体排版、15 秒 showreel</td></tr>
+<tr><td>② 渲染框架</td><td><b>Remotion</b>（React 组件当时间轴 → 确定性 MP4）、HyperFrames、p5.js、Three.js、Manim；headless Chrome 逐帧捕获 → FFmpeg 编码</td><td>可复现、可版本管理</td></tr>
+<tr><td>③ 多模型编排</td><td>Claude 当导演写分镜与 prompt，调 Seedance / 可灵等视频模型，再用 FFmpeg 缝合</td><td>需要写实人物时</td></tr>
+</table>
+
+<p><b>为什么这套强：</b>「因为输出是代码，修改就是编辑」——<i>把第三场缩短两秒</i> 是一行改动 + 重新渲染，不是回到时间轴手动拖。整个项目可进 Git 做版本管理。</p>
+<p><b>质量来自 harness，不是魔法 prompt</b>：风格指南（字体/配色/转场）、组件规格、分镜计划、以及<b>让模型逐帧分析参考片</b>提取调色板/字体/镜头时长/运镜，再用这套视觉语法构建新片。</p>
+<p><b>局限：</b>画不好活物（人脸近看是粗糙几何）、易过曝、成本高（API $4/M 输入、$20/M 输出；一支 3 分钟旁白短片用掉周额度约 7%）、需要 Node + Chrome + FFmpeg 执行环境。</p>
+
+<h2>四、学术前沿：视频编辑 agent 到底有多难</h2>
+
+<table>
+<tr><th>基准</th><th>规模</th><th>最佳成绩</th><th>关键发现</th></tr>
+<tr><td><b>Timeline-Bench</b><br><span class="tag">arXiv 2609.35143</span></td><td>56 个真实剪辑任务<br>16 个 agent</td><td class="bad">26.8%（15/56）<br>平均 14.0%</td><td>人类编辑在 <b>83.5%</b> 盲评中胜出；562/771 次失败<b>只败在质量测试</b></td></tr>
+<tr><td><b>AgenticVBench</b><br><span class="tag">arXiv 2605.27705</span></td><td>100 个后期任务<br>4 类：组装/修复/排序/再利用</td><td class="bad">勉强过 30%</td><td>20 位资深专家构建；harness 选择显著影响行为与失败模式</td></tr>
+<tr><td><b>Video-Cut-Bench</b></td><td>4 类剪辑</td><td>—</td><td>区分 <b>Request Adherence</b>（照做）与 <b>Cut Craft</b>（接缝自然）</td></tr>
+</table>
+
+<div class="card">
+<b>三条最有价值的结论：</b>
+<ul>
+<li><b>瓶颈不是"会不会用工具"，是审美与手艺。</b>72.9% 的失败只败在质量测试——agent 靠静态帧和转录稿"感知"素材，只检查渲染的技术缺陷（黑场/静音/格式），不懂叙事匠心。</li>
+<li><b>代码路线 &gt;&gt; GUI 路线。</b>Timeline-Bench 里 computer-use（用鼠标操作 DaVinci）相对代码路线<b>劣化 16.4 个百分点，p&lt;0.001</b>（2/53 vs 12）。<span class="tag">这和我们"脚本断言 &gt; 人肉目检"的验收哲学同构</span></li>
+<li><b>harness 的边际收益有限。</b>给通用剪辑指导把 21.4% 提到 26.8%，但人类盲评只 +0.6pp（不显著）；换 harness 也无统计显著差异。</li>
+</ul>
+</div>
+
+<h2>五、落到我们的两条线</h2>
+
+<h3>A 线 — 模型本体（加视觉）</h3>
+<table>
+<tr><th>项</th><th>建议</th></tr>
+<tr><td>架构</td><td>SigLIP2 编码器 + 2 层 MLP 投影（~21M）+ 现有 SmolLM2 主干，<b>语言主干冻结或低 LR</b> → 语言能力不损失（保函数）</td></tr>
+<tr><td>训练</td><td>三阶段：对齐（只训 projector）→ 训 ViT+projector → 全参数指令微调；差速 LR</td></tr>
+<tr><td>Token 预算</td><td>走 Flash 思路压到 <b>64 视觉 token</b>，否则端侧 KV-cache 吃不消</td></tr>
+<tr><td>数据</td><td>重质量不重量（参照 LLaVA-1.5 的 665K 高质量样本思路）</td></tr>
+<tr><td class="warn">参数抉择（待拍板）</td><td>① 语言 500M + 视觉 ~100M = 总量 ~600M（语言能力优先）<br>② 语言 360M + 视觉 100M = 460M（对齐 VisionPsy-Nano，端侧友好）</td></tr>
+<tr><td class="warn">宪法约束</td><td>E-7：个人照片/视频<b>绝不进被训练参数</b>，只进可寻址可删除的记忆层</td></tr>
+</table>
+
+<h3>B 线 — 能力外置（学剪辑，重点）</h3>
+<div class="card">
+<b>剪辑能力不进权重。</b>按我们的哲学（智能 = 借用工具 + 极简验证），模型只需四件事：<br>
+① 理解意图 → ② 生成 Remotion / FFmpeg / Manim 代码 → ③ 调工具执行 → ④ <b>脚本验收</b>（时长、分辨率、黑场、静音、字幕对齐、接缝帧）。
+</div>
+<ul>
+<li><b>训练数据</b>：代码-视频对（Remotion 组件、FFmpeg 命令、Manim 脚本）+ 分镜规划 + 参考片逐帧分析文本。</li>
+<li><b>Verifier 是关键</b>：Timeline-Bench 证明瓶颈在质量而非合规 → 用看门狗 + 视觉验收 + 共享黑板多模型评委（zen-gate 模型池）来补"审美"这一环，<b>人只做最终目检</b>。这正是我们 B 线已有的基础设施。</li>
+<li><b>识图是剪辑的前提</b>：加视觉后 agent 才不用"只靠静态帧 + 转录稿"——Timeline-Bench 的失败根因恰在这里。</li>
+</ul>
+
+<h2>六、待拍板</h2>
+<ol>
+<li><b>加不加视觉</b>：0.5B 之后加，还是 0.5B 就带？</li>
+<li><b>参数分配</b>：600M（语言优先）还是 460M（对齐 VisionPsy-Nano，端侧友好）？</li>
+<li><b>剪辑走哪层</b>：纯 B 线（工具 + harness，零训练成本）还是给模型补代码-视频对的微调？</li>
+</ol>
+
+<footer>调研日期 2026-10-17 · 来源：VisionPsy-Nano 发布稿、arXiv 2609.35143 (Timeline-Bench)、2605.27705 (AgenticVBench)、2609.28757 (Smol-VL-BLV)、claudevideo.org / riffkit.ai (Opus 5.5 视频工作流)、LLM Stack (VLM 架构范式)</footer>
+</body>
+</html>

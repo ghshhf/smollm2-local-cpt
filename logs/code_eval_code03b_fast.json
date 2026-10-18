@@ -1,0 +1,61 @@
+{
+  "tag": "code03b_fast",
+  "model": "backups/0.3B/polaris-03b_20261018",
+  "adapter": "out_lora_code_03b/checkpoint-150",
+  "n": 3,
+  "seconds": 469.8,
+  "agg": {
+    "pass": 0,
+    "loose_pass": 0,
+    "fmt_pass": 0,
+    "strict_fail": 1,
+    "fail": 2
+  },
+  "format_rate": {
+    "code_block": 0.3333,
+    "lang_tagged": 0.3333,
+    "has_prose": 1.0,
+    "has_eos": 0.0
+  },
+  "results": [
+    {
+      "id": "py_sq",
+      "verdict": "strict_fail",
+      "detail": "stdout='' 期望='1\\n4\\n9\\n16\\n25\\n36\\n49\\n64\\n81\\n100'",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": false
+      },
+      "text": "```python\ndef _():\n    \"\"\"写一段 Python 代码，打印 1 到 10 每个数的平方\"\"\"\n    for i in range(1, 10):\n        for j in range(1, i + 1):\n            print(f\"  {i}~={j}~\", file=sys.stderr)\n```python\ndef _():\n    \"\"\"写一段 Python 代码，打印 1 到 10 每个数的平方\"\"\"\n    for i in range(1, 10):\n        for j in range(1, i + 1):\n            print(f\"  {i}~={j}~\", file=sys.stderr)\n```python\ndef _():\n    \"\"\"写一段 Python 代码，打印 1 到 10 每个数的平方\"\"\"\n    for i in range(1, 10):\n        for j in range(1, i + 1):\n            print(f\"  {i}~={j}~\", file=sys.stderr)\n```python\ndef _():\n    \"\"\"写一段 Python 代码，打印 1 到 10 每个数的平方\"\"\"\n    for i in range(1, 10):\n        for j in range(1, i + 1):\n            print(f\"  {i}~={j}~\", file=sys.stderr)\n```python\ndef _():\n    \"\"\"写一段 Python 代码，打印 1 到 10 每个数的平方\"\"\"\n    for i in range(1"
+    },
+    {
+      "id": "py_sum",
+      "verdict": "fail",
+      "detail": "无代码块",
+      "format": {
+        "has_code_block": false,
+        "lang_tagged": false,
+        "lang": "",
+        "has_prose": true,
+        "has_eos": false
+      },
+      "text": "```python\ndef _():\n    \"\"\"写一段 Python 代码，计算 1 加到 100 的和并打印出来。\"\"\"\n    Python = []\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append(i * i)\n    for i in range(1, 100):\n        Python.append("
+    },
+    {
+      "id": "py_rev",
+      "verdict": "fail",
+      "detail": "无代码块",
+      "format": {
+        "has_code_block": false,
+        "lang_tagged": false,
+        "lang": "",
+        "has_prose": true,
+        "has_eos": false
+      },
+      "text": "```python\ndef print_f (f, *h, **p):\n    for v in f:\n        print(v, *h, **p)\n\nprint_f(\"a\", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))   # 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

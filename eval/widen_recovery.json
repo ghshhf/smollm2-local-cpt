@@ -1,0 +1,22 @@
+{
+  "fp32": {
+    "ce_before": 6.855670213699341,
+    "ce_after_widen": 6.855670213699341,
+    "jump": 0.0,
+    "ce_after_heal": 5.48708713054657,
+    "recovery": Infinity,
+    "delta_vs_before": -1.368583083152771,
+    "warm_steps": 5,
+    "heal_steps": 5
+  },
+  "ternary": {
+    "ce_before": 6.4841238260269165,
+    "ce_after_widen": 6.482931554317474,
+    "jump": -0.0011922717094421387,
+    "ce_after_heal": 5.494928419589996,
+    "recovery": -828.672799080138,
+    "delta_vs_before": -0.9891954064369202,
+    "warm_steps": 5,
+    "heal_steps": 4
+  }
+}

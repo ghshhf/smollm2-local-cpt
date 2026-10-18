@@ -1,0 +1,172 @@
+{
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": "MiniMax-M3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 19.2
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": "glm-5.2",
+  "ok": true,
+  "text": "①",
+  "err": null,
+  "sec": 29.1
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 29.2
+ },
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": "deepseek-v4-pro",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 29.7
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "### ① 机制 / 最佳理论  \n| 现象 | 说明 | 与小模型的关联 | 备注 |\n|------|------|----------------|------|\n| **Induction heads** | 关注点高度集中在输入序列的“先前”位置，形成一种跨‑token “跨层传播”机制；在 GPT‑3/4 大模型中会出现明显的“Induction head”簇。 | 论文表明，虽然 induction heads 需要足够的层和 head 数量，但**理论上仍可在 1 B 左右的模型**中出现，只是出现频率和权重较弱。 | 适用的最小层+head 数组大约是：**6 层 × 12 head**，在 0.5 B（≈6 B 参数）模型中可触发；在 0.2 B（≈400 M 参数）时往往缺失。 |\n| **可变换层数/头数** |   | 10‑20 % 的分布会显著降低 induction head 活跃度；内部层/head 整体分布也影响到 ICL（更深/更多 head → 更多的 inductive pattern）。 | 需要在“层数+head”维度上做敏感度分析。 |\n| **训练数据格式** | 通过“提示式”上下文结构（Algorithmic Prompting、Few‑Shot Prompting 等）让模型在训练时学习“如何在上下文中推断后续”。 | 小模型侧重于**数据驱动**的 ICL 训练；若训练集不包含足够的多示例 “in‑context” 结构，ICL 效果差。 | 目前我们在 0.1 B→0.4 B 方案中 “默认单遍”，这意味着训练集几乎不包含 prompt‑ready 结构。 |\n\n> **结论**：  \n> – induction heads 在 ≤1 B 模型 **理论上是可能存在**，但需要足够的层+head 组合，而且它们的 **权重与功能**会比大模型弱。  \n> – 小模型 ICL 弱主要是 **（1）容量不足（层数/head）** 与 **（2）训练数据格式缺失**两方面叠加导致。  \n\n---\n\n### ② 可执行方案 / 伪代码  \n（以 PyTorch ≈ 0.5 B 模型为例，CPU 64‑核，FP16）\n\n```python\n# 1. 训练 baseline (M0)  – 0.1B\nmodel = GPTSmall(layers=6, d_model=256, heads=4)   #  ≈ 0.1B params\noptimizer = AdamW(model.parameters(), lr=1e-4)\ntrain(dataset=M0_data, epochs=1, batch_size=8)\n\n# 2. 训练 enlarged (M1) – 0.4B\nmodel = GPTSmall(layers=12, d_model=512, heads=8)  #  ≈ 0.4B params\nwarmup_from={'state_dict': M0.state_dict() }  # Net2Net expansion\noptimizer = AdamW(...)\ntrain(dataset=M1_data, epochs=1, batch_size=8)\n\n# 3. 训练 SFT‑ICL model (M2) – 0.5B\nmodel = GPTLarge(layers=16, d_model=640, heads=10)  #  ≈ 0.5B params\ninherit_from={'state_dict': M1.state_dict() }   # Distill + Net2Net\noptimizer = AdamW(...)\n\n#   3a. 构造 “in‑context demonstration” 训练样本\ndef build_icl_examples(base_data, num_demo=5):\n    for prompt, target in base_data:\n        demos = random.sample(base_data, num_demo)\n        ctx",
+  "err": null,
+  "sec": 32.9
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": "cohere/north-mini-code:free",
+  "ok": true,
+  "text": "**① 机制/最佳理论**\n\n| 现象 | 小尺寸模型（≤1 B）中的预期行为 | 为什么理论可能“弱化” |\n|----------|---------------------------------------------------|--------------------------------|\n| **归纳头**（将模式从演示中*学习*并应用于查询的专用注意力头） | 仍然存在，但**出现频率**和**纯粹度**都会大幅下降，因为每个头可以学习的模式数量有限，短路径深度不足以支持多步归纳。 | 深度优先设计使最早期的层只学到浅层正则表达式；大多数“元学习”头可能被拆分为多个低秩子头或与无标签的模式混杂。 |\n| **层数不足** | 0.4 B 模型通常只有 **12‑16** 层（BitNet‑b1.58 的深窄设计）。一个完整的归纳过程（捕获*演示→规则→应用*）可能需要 ≥3 个互连层。 | 层数限制了信息的 sequential processing，导致某些演示头与输出 head 的关联性较弱。 |\n| **头数不足** | 每个自注意力子空间中的专用归纳头通常占 **5‑10 %**。在 0.4 B 模型中，这意味着**~2‑4** 个真正用于 ICL 的头，而大多数头用于嵌入/表示转换。 | 头数少 → 并发编程能力弱 → 更容易被训练数据格式噪声覆盖。 |\n| **训练数据格式** | SFT 数据通常为单例（`提示 → 回答`）或无结构批次。许多微调工作证明，**统一的“演示占位符”**（` Demonstration … Demonstration`）可以显著提高 ICL 能力。 | 如果训练数据缺乏展示 *模式匹配* 能力的样例，模型甚至无法**学习**到一个有效的工作机制（如归纳头）。 |\n\n**综合观点：**\n- 归纳头机制仍然适用，但其信号在 ≤1 B 模型中**更微弱、更分散**。\n- 微弱的原因是**三重约束**：(1) 深度不足以完全扩展 multi‑step 计算；(2) 头数不足以容纳纯粹的归纳子空间；(3) 训练数据的*格式*未强化*模式匹配*范式。\n\n---\n\n**② 可执行解决方案 / 伪代码**\n\n目标：使用*结构化的、在上下文中的演示* SFT 数据集来训练一个 0.4 B 模型（或从 0.4 B 蒸馏到 0.5 B），以增强 ICL 表现。\n\n```python\n# --------------------------------------------------------------\n# 1️⃣  数据构建器：生成“演示占位符”格式的示例\n# --------------------------------------------------------------\ndef build_icd_sft_record(task_name: str, demos: List[Dict], query: Dict) -> str:\n    \"\"\"\n    返回适合微调的字符串模板。\n    模板固定化，便于模型学习模式：\n        Task: <task_name>\n        Demonstrations:\n            Demo 1:\n                Input:  <输入>\n                Output: <输出>\n            Demo 2:\n                Input:  <输入>\n                Output: <输出>\n        Query:\n            Input:  <输入>\n            Output: <占位符>\n    \"\"\"\n    lines = [f\"Task: {task_name}\", \"Demonstrations:\"]\n    for i, d in enumerate(demos, 1):\n        lines.append(f\"    Demo {i}:\")\n        lines.append(f\"        Input:  {d['input']}\")\n        lines.append(f\"        Output: {d['output']}\")\n    lines.append(\"Query:\")\n    lines.append(f\"        Input:  {query['input']}\")\n    lines.append(\"        Output: \")\n    return \"\\n\".join(lines)\n\n# --------------------------------------------------------------\n# 2️⃣  核心任务集合（人写纯净、0.5 B 以下禁模型生成）\n# --------------------------------------------------------------\nTASKS = {\n    \"parity\": {\n        # 每个任务的 5 个人工书签（示例）\n        \"demos\": [\n            {\"input\": \"1010\", \"output\": \"0\"},\n            {\"input\": \"1111\", \"output\": \"0\"},\n            {\"input\": \"1001\", \"output\": \"1\"},\n            {\"input\": \"0011",
+  "err": null,
+  "sec": 40.6
+ },
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": "longcat-2.5-preview-free",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 40.7
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": "step-5-preview",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 42.1
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ok": true,
+  "text": "### ① 机制/最佳理论判断\n\n**结论：≤1B 模型依然存在 Induction Heads，但机制从“电路级完美复制”退化为“统计级近似匹配”。ICL 弱的核心瓶颈按权重排序：**\n1. **训练数据格式缺失（占 60%+）**：预训练语料极度缺乏“重复模式→即时泛化”的显性结构（如 `A B ... A → B`），模型未被迫形成算法级电路，只能靠统计共现碰运气。\n2. **层数不足导致电路深度不够（占 30%）**：双层注意力电路（Previous Token Head + Induction Head）需要 ≥4 层才能闭环；0.1B/0.4B 典型 12-16 层，中间层被 MLP 挤占，电路易被噪声淹没。\n3. **头数稀疏性（占 10%）**：头数少（如 12-16 头）导致“专用 Induction Head”竞争不过“通用语法头”，但非决定性——OLMo-1B 16 头已能跑出强 ICL。\n\n**SFT 补齐可行性：可行，但必须构造“算法级演示格式”，而非普通 Chat 格式。** 普通 SFT 只教“回答风格”，不教“在上下文中定位规则并应用”。\n\n---\n\n### ② 可执行方案：最小证伪实验设计（Node1 CPU 可跑）\n\n#### 实验矩阵（4 组，单卡 64 核并行跑，每组 2h 内出结果）\n| 组别 | 模型 | 数据构造 | 核心变量 | 预期判据 |\n|------|------|----------|----------|----------|\n| **A (Baseline)** | 0.4B Net2Net 扩容后 | 原有预训练语料续训 1B tok | 无显性 ICL 结构 | ICL 准确率 <15%（复现弱基线） |\n| **B (Format Only)** | 同 A | **合成 50k 条** `Task: {rule} Demo: {x1→y1, x2→y2...} Query: {x_test} → {y_test}` 纯规则数据（无自然语言） | 仅格式注入，规则随机生成（加法/字符串替换/颜色映射） | **若 ICL ↑ >25pp → 格式为主因** |\n| **C (Depth Ablation)** | 同架构**裁剪至 8 层/20 层** | 同 B 数据 | 层数 | **若 8 层 ICL 崩塌（<10%）、20 层逼近 16 层 → 层数为硬约束** |\n| **D (Head Ablation)** | 同架构**Head 8/16/32**（隐藏维不变） | 同 B 数据 | 头数 | **若 8 头 与 16 头差 <5pp → 头数非主因** |\n\n#### 关键数据构造伪代码（纯 Python，零依赖，保证“纯净人写”）\n```python\nimport random, json, hashlib\n\nOPS = [\n    (\"add\", lambda a,b: str(int(a)+int(b)), lambda: (str(random.randint(0,99)), str(random.randint(0,99)))),\n    (\"rev\", lambda s: s[::-1], lambda: (\"\".join(random.choices(\"abc\", k=4)),)),\n    (\"map\", lambda m,k: m[k], lambda: ({\"a\":\"红\",\"b\":\"蓝\",\"c\":\"绿\"}, random.choice([\"a\",\"b\",\"c\"]))),\n]\n\ndef gen_task(op_name, op_fn, arg_fn, n_demo=4):\n    rule = f\"Rule: {op_name}\"\n    demos = []\n    for _ in range(n_demo):\n        args = arg_fn()\n        demos.append(f\"Input: {' '.join(args)} Output: {op_fn(*args)}\")\n    test_args = arg_fn()\n    query = f\"Input: {' '.join(test_args)} Output:\"\n    ans   = op_fn(*test_args)\n    return {\"text\": f\"{rule}\\n\" + \"\\n\".join(demos) + f\"\\n{query} {ans}\"}\n\n# 生成 50k 条，写入 jsonl，直接喂 Trainer\nwith open(\"icl_synthetic_50k.jsonl\",\"w\") as f:\n    for _ in range(50000):\n        op = random.choice(OPS)\n        f.write(json.dumps(gen_task(*op), ensure_ascii=False)+\"\\n\")\n```\n\n#### 训练超参（Node1 CPU 极简版）\n```bash\n# 单节点 64 核，bs=16, grad_acc=4 -> 有效 bs=64\ntorchrun --nproc_per_node=1 train.py \\\n  --model_path ./0.4B_net2net \\\n  --data_path ./icl_synthetic_50k.jsonl \\\n  --max_steps 2000 --lr 2e-5 --bf16 \\\n  --output_dir ./0.4B_icl_sft\n```\n\n---\n\n### ③ 可证伪判据（什么结果算我错）\n\n| 假设 | **证伪条件（任一成立即推翻）** |\n|------|--------------------------------|\n| **H1: 格式缺失是主因** | B 组 ICL 准确率 **",
+  "err": null,
+  "sec": 51.2
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": "grok-4.7",
+  "ok": true,
+  "text": "① 机制/最佳理论：Induction heads理论（Olsson et al. 2022，Transformer Circuits）本质上是Transformer架构的统计模式匹配机制——特定头在多头注意力中实现“前向复制”（copying previous token to current position），这是ICL的核心计算原语。该理论在≤1B模型上仍完全适用（GPT-2 124M即为≤1B示例），只要模型为纯Transformer + 训练数据中存在足够高的induction统计模式即可。对于0.1B-0.4B量级小模型，仍可通过Net2Net保函数扩容保留这些头（深度优先扩容优先保证至少6-12层+12头以上以支撑多层传播）。小模型ICL弱的根本瓶颈是**训练数据格式问题**（而非单纯层数/头数不够）：自然语言数据中induction头需高频“Previous→Next”模式才能稳定 emergence，层数不足会削弱多层叠加传播，头数不够可能缺失专用头，但数据格式是主导——因为ICL是emergent statistical property而非架构硬限制。\n② 可执行方案或伪代码：\n在0.1B→0.4B Net2Net扩容后，使用SFT数据设计强化induction示范格式。生成中文专用induction corpus：对owner_corpus进行模板化切分，构造“Previous token copying”示范（e.g. 列表、故事、对话延续）。伪代码如下：\n```\ndef build_induction_sft_data(owner_corpus, template=\"Context: {context}\\nPrevious: {prev}\\nNext: {next}\"):\n data = []\n for text in owner_corpus: # 纯净语料，无模型生成\n for i in range(len(text)-1):\n context = ' '.join(text[:i])\n prev = text[i]\n next_ = text[i+1]\n example = template.format(context=context, prev=prev, next=next_)\n data.append(example)\n return data # 输出: 100k+样本，中文词表仅加不换\n```\n训练时：0.1B→0.4B Net2Net后接SFT（fp16 embedding），batch包含50%纯induction示范 + 50%混合owner_corpus，loss = cross_entropy + induction_copy_aux_loss（可选：probe前token注意力分数>0.6即加权）。\n③ 可证伪判据：\n若SFT后模型ICL准确率（e.g. 5-shot Chinese next-token continuation或few-shot classification）未提升（<55%），或通过attention probe无法检测induction heads（前向注意力分数平均<0.4，或头数/位置不变），则数据格式非ICL弱主因或理论不适用；反之，若ICL提升且probe分数显著上升，则数据格式是可修复的根本问题。\n④ 实验标注node1 CPU最小可跑版：\nnode1（64核CPU）跑PyTorch CPU版0.1B基座（layers=6, d_model=256, n_heads=12, vocab=30k中文+英文，embedding fp16 ~5.5GB），从0.1B Net2Net到0.4B，SFT仅1 epoch on 100k tokens（自制induction data），测试ICL：next-word prediction准确率（Chinese lists/stories）。最小配置：node1 4核/16GB RAM即可（单卡CPU训练~2-4小时/epoch）；若需更小，先跑0.05B skeleton验证。\n直接推翻前提：若未来实验显示≤1B仍需>12层或特定头数不可Net2Net保函数，则induction heads理论需微调（但当前证据不支持此推翻）。",
+  "err": null,
+  "sec": 54.0
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": "gemini-3.8-flash",
+  "ok": true,
+  "text": "### ① 机制 / 最佳理论\n\n#### 1. Induction Heads (IH) 在 $\\le$ 1B 模型上的适用性判定\n**结论：完全适用，且是 $\\le$ 1B 模型具备基础 ICL 的唯一底层物理机制。**\nAnthropic 原始论文（Olsson et al., 2022）最初正是在 2 层至 40 层的玩具/小型模型上定位出 Induction Heads 的。其成立的最小理论拓扑是 **2 层 Attention**：\n*   **Layer $L$（前序 Token 头，Previous-Token Head）**：将位置 $i$ 的信息 $[A]$ 写入位置 $i+1$ 的残差流中（使其具备 $[B]$ 的特征）。\n*   **Layer $L+k$（归纳头，Induction Head）**：通过 $W_Q$ 检索当前 Token $[A]$，通过 $W_K$ 匹配历史中 Layer $L$ 写入的上下文 $[A]$，再通过 $W_V, W_O$ 直接复制其后续 Token $[B]$。\n\n在 0.1B–0.5B 模型中，IH 机制在数学上必然存在，但与 $\\ge$ 7B 模型相比，表现出极强的**脆弱性与低阶性**。\n\n---\n\n#### 2. 小模型 ICL 弱的本质归因：推翻“注意力头不够”论\n\n小模型 ICL 弱，**核心矛盾不是注意力头数不够，而是“容量挤占（Capacity Stranglehold）”与“组合深度（Compositional Depth）不足”的双重绞杀，数据格式则是诱发坍缩的外部条件**。\n\n1.  **致命根源：参数记忆（MLP）对算法路由（Attention）的容量挤占**\n    *   在 $\\ge 7$B 模型中，参数量充裕，世界知识（事实记忆）沉淀在深层 MLP 中，Attention 头得以解耦，特化为纯粹的上下文寻址器（Induction Heads、IOI Heads）。\n    *   在 0.1B–0.5B 中，极度匮乏的参数迫使 Attention 矩阵承担部分静态知识记忆（Token 共现偏置）。**Attention 头的 $W_Q, W_K$ 被先验语义相似度锁定，丧失了在推理时根据 Context 强行改写概率分布的动态寻址能力。**\n2.  **层数限制了从“字面复制”到“抽象归纳”的跃迁**\n    *   **2 层**：只能做无损字面搬移（Literal Copying: `A B ... A -> B`）。\n    *   **4–8 层**：开始出现模糊语义归纳（Semantic Induction: `France Paris ... Germany -> Berlin`，需要经过：词法提取 $\\to$ 语义空间映射 $\\to$ 关系查找 $\\to$ 词表还原）。\n    *   **深窄架构优于宽浅**：注意力头数只要满足基础子空间投影（如每个 Layer 8–12 个头，每头 $d_k=64$ 即可满足正交分解），增加头数对 ICL 收益呈对数递减；但**层数是函数组合阶数的指数项**。0.1B–0.4B 若采用宽浅架构（如 8 层），抽象 ICL 必定瘫痪；必须走深窄（16–24 层）。\n3.  **BitNet b1.58（三值化）特有的三值量化阻尼**\n    *   当 $W_Q, W_K \\in \\{-1, 0, 1\\}$，注意力点积 $Q K^T$ 沦为离散加减计数器，动态范围大幅缩窄，导致 Softmax 分布易趋向平缓或极端饱和。若没有足够的深度进行逐层残差修正，IH 的精确定位能力会被量化噪声淹没。\n\n---\n\n#### 3. 能否通过 SFT 数据设计补齐 ICL？\n\n**核心判定：不能靠传统对话 SFT “无中生有”，但可以通过“纯算法/规则构造的上下文重构数据（Context-Forced Packing）”强制激活并巩固 IH。**\n\n*   **错误假说**：直接灌几千条 `Q: 示范1 A: 示范1 \\n Q: 问题 A:` 的常规指令微调数据能让小模型学会 ICL。\n    *   *反驳*：小模型在常规 Few-shot SFT 下，只会过拟合换行符、分隔符（Delimiter Overfitting），或者直接退化为死记模板后的内容。参数没有学会“动态复写”，只学会了“识别前缀格式后调取 MLP 内置记忆”。\n*   **正确路径（符合主干禁模型生成规则）**：\n    利用**程序化/规则生成的数据引擎（Algorithmic Data Packing）**，构造**抗先验知识干扰（Counter-Factual & Nonce-Word）**的密集归纳训练集。在预训练后段与 SFT 阶段，强迫损失函数完全依赖上下文寻址，惩罚 MLP 参数幻觉，逼迫注意力矩阵形成 IH 闭环。\n\n---\n\n### ② 可执行方案\n\n本方案由两部分组成：\n1. **程序化对抗诱导数据引擎（Rule-based Context-Forced Engine）**：不使用大模型生成，完全由规则脚本生成。\n2. **Induction-Loss 正则化微调流程**。\n\n```\n[原始语料/随机变量池] \n        │\n        ├── 规则 1: 随机替换映射 (X_A -> Y_B, Nonce Token)\n        ├── 规则 2: 上下文置换 (强制打乱事实，如 \"法国的首都是东京\")\n        └── 规则 3: 严格距离控制 (Token 间距从 16 拉伸至 512)\n        │\n        ▼\n[Context-Forced 训练样本] ──> [计算标准 CE 损失 + Context-Induction 正则]\n```\n\n#### 数据构造规则与伪代码\n\n```python\n# context_forced_packer.py\n# 运行环境：任意 Python 3.8+ 环境，严禁调用 LLM API\nimport random\nimport string\n\ndef generate_random_symbol(length=4):\n    \"\"\"生成对抗性无意义符号，防止触发预训练 MLP 静态记忆\"\"\"\n    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))\n\ndef build_induction_pair_stream(vocab_words, num_samples=10000, max_seq_len=512):\n    \"\"\"\n    构造强制注意力必须回溯前文的流式训练样本\n    包含两类任务：\n    1. 符号级归纳 (Symbolic Induction): [VarA] -> [VarB]\n    2. 反事实语义归纳 (Counter-Factual ICL): 强迫改写实体关系\n    \"\"\"\n    dataset = []\n    for _ in range(num_samples):\n        # 随机决定归纳阶数 (1-shot 到 5-shot)\n        k_shots = random.randint(2, 5)\n        # 建立局部 Mapping Table\n        mapping = {}\n        for _ in range(k_shots):\n            src = generate_random_symbol(random.randint(3, 5))\n            tgt = generate_random_symbol(random.randint(3, 5))\n            mapping[src] = tgt\n        \n        # 构造 In-Context 示范序列\n        context_tokens = []\n        for src, tgt in mapping.items():\n            context_tokens.append(f\"键: {src} => 值: {tgt}\")\n        \n        # 留出一个作为 Target Query\n        query_src = random.choice(list(mapping.keys()))\n        expected_tgt = mapping[query_src]\n        \n        # 插入干扰 Token (Distractors) 模拟长距离上下文\n        distractor_len = random.randint(10, 60)\n        distractors = \" \".join([random.choice(vocab_words) for _ in range(distractor_len)])\n        \n        # 最终输入：示范 -> 干扰噪声 -> 查询前缀 -> 目标\n        prompt = \" ; \".join(context_tokens) + f\" [分界] 填充: {distractors} [分界] 键: {query_src} => 值: \"\n        target = expected_tgt\n        \n        dataset.append({\"prompt\": prompt, \"target\": target})\n    return dataset\n```\n\n#### 模型端 IH 激活监控与训练（PyTorch 核心逻辑）\n\n在 SFT 损失中，对 Query 处的 Token，计算其 Attention Map 是否正确回溯到 Context 中的对应 Source Token。\n\n```python\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass ContextInductionLoss(nn.Module):\n    def __init__(self, induction_weight=0.3):\n        super().__init__()\n        self.ce = nn.CrossEntropyLoss()\n        self.alpha = induction_weight\n\n    def forward(self, logits, targets, attention_maps=None, target_pos=None, source_pos=None):\n        \"\"\"\n        logits: [B, Seq_Len, Vocab]\n        targets: [B, Seq_Len]\n        attention_maps: List of [B, Num_Heads, Seq_Len, Seq_Len] (深层 Attention)\n        target_pos: 待预测位置 index\n        source_pos: 上下文中出现正确答案的位置 index\n        \"\"\"\n        ce_loss = self.ce(logits.view(-1, logits.size(-1)), targets.view(-1))\n        \n        if attention_maps is None or source_pos is None:\n            return ce_loss\n\n        # 约束：在最后几层深层，强制分配至少一个 Head 的 Attention 权重流向 source_pos\n        # attention_maps[-2]: 倒数第二层 [B, H, Q_len, K_len]\n        deep_attn = attention_maps[-2] \n        # 提取 target_pos 对 source_pos 的关注度\n        attn_to_source = deep_attn[:, :, target_pos, source_pos] # [B, H]\n        # 鼓励最大头的注意力集中度（只需存在一个头被特化为 Induction Head 即可）\n        max_head_attn, _ = torch.max(attn_to_source, dim=1) # [B]\n        induction_loss = -torch.log(max_head_attn + 1e-6).mean()\n\n        return ce_loss + self.alpha * induction_loss\n```\n\n---\n\n### ③ 可证伪判据 (Falsifiable Criterion)\n\n以下实验结果出现任意一条，**直接推翻我的论断（即我判定错误）**：\n\n1.  **关于 Induction Heads 存在性与层数底线的可证伪判据**：\n    *   在 Node1 64-core 上训练一个 **1 层 (Layer=1) 0.1B Transformer**，仅包含单层 Attention + MLP。\n    *   *判定标准*：若该 1 层模型在 100 组全新生成的合成随机字符复制任务（Random Token Copy Task，序列长度 $\\ge 64$）上，前缀匹配准确率能突破 **$10\\%$**（基线随机猜测为 $\\frac{1}{V} \\approx 0\\%$），**即证明 1 层即可完成单步诱导，推翻“IH 理论在小模型上最低必须 2 层”的前提。**\n2.  **关于“SFT 无法凭空创造 ICL”的可证伪判据**：\n    *   取一个自然预训练后、未经过任何诱导强化的 0.1B 基座模型，其在“反事实关系复制”（如指定“苹果是蓝色，香蕉是绿色，苹果的颜色是：”）的 0-shot 准确率 $< 2\\%$。\n    *   **仅使用 500 条**包含该格式的人写真实语料做传统 SFT（无算法数据注入、无对抗变量）。\n    *   *判定标准*：若微调后的 0.1B 模型在完全未见过的**新实体-新关系组合（OOD）**上，ICL 准确率能够突破 **$35\\%$** 且不牺牲原有困惑度（PPL 恶化 $< 5\\%$），**即证明传统格式 SFT 能够直接重构路由矩阵，推翻我对数据工程必要性的论断。**\n3.  **关于深窄 vs 宽浅的可证伪判据**：\n    *   同为 0.4B 参数：\n        *   模型 A（深窄）：$L=24, D=640, H=10, d_k=64$\n        *   模型 B（宽浅）：$L=6, D=1280, H=20, d_k=64$\n    *   使用完全相同的纯净人写语料（单遍训练，3.5B Tokens）。\n    *   *判定标准*：在 3-shot 的抽象符号推理任务（Symbol-to-Symbol Translation）测试中，若模型 B（宽浅）的准确率高于或等于模型 A（深窄）且方差一致，**即证明深度不是 ICL 组合抽象的瓶颈，推翻“优先做深以保障 ICL”的架构拍板。**\n\n---\n\n### ④ Node1 CPU 最小可跑版 (64 核极速验证脚本)\n\n该脚本直接在 Node1 64-Core CPU 上单机运行，**无外部依赖（仅需 PyTorch），采用多线程绑定**。\n脚本在内存中即时实例化一个 **深度=4，宽=256 的微型 0.1B 原型机制模型**，快速注入构造数据，并直接探针扫描全模型注意力矩阵，**可视化打印是否存在 Induction Head 激活**。\n\n#### 运行指南\n```bash\npython run_ih_probe_node1.py\n```\n\n#### 完整脚本 (`run_ih_probe_node1.py`)\n\n```python\nimport os\nimport time\nimport math\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\n# 严格配置 64 核 CPU 算力\nos.environ[\"OMP_NUM_THREADS\"] = \"64\"\nos.environ[\"MKL_NUM_THREADS\"] = \"64\"\ntorch.set_num_threads(64)\n\n# ============================\n# 1. 架构构建 (深窄 Mini Transformer)\n# ============================\nclass SelfAttention(nn.Module):\n    def __init__(self, d_model, n_heads):\n        super().__init__()\n        self.d_model = d_model\n        self.n_heads = n_heads\n        self.d_k = d_model // n_heads\n        self.W_q = nn.Linear(d_model, d_model, bias=False)\n        self.W_k = nn.Linear(d_model, d_model, bias=False)\n        self.W_v = nn.Linear(d_model, d_model, bias=False)\n        self.W_o = nn.Linear(d_model, d_model, bias=False)\n\n    def forward(self, x, return_attn=False):\n        B, S, D = x.shape\n        q = self.W_q(x).view(B, S, self.n_heads, self.d_k).transpose(1, 2)\n        k = self.W_k(x).view(B, S, self.n_heads, self.d_k).transpose(1, 2)\n        v = self.W_v(x).view(B, S, self.n_heads, self.d_k).transpose(1, 2)\n\n        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.d_k)\n        # Causal Mask\n        mask = torch.triu(torch.full((S, S), float('-inf'), device=x.device), diagonal=1)\n        scores = scores + mask\n        attn_weights = F.softmax(scores, dim=-1) # [B, H, S, S]\n        \n        out = torch.matmul(attn_weights, v)\n        out = out.transpose(1, 2).contiguous().view(B, S, D)\n        out = self.W_o(out)\n        if return_attn:\n            return out, attn_weights\n        return out, None\n\nclass TransformerBlock(nn.Module):\n    def __init__(self, d_model, n_heads):\n        super().__init__()\n        self.attn = SelfAttention(d_model, n_heads)\n        self.mlp = nn.Sequential(\n            nn.Linear(d_model, 4 * d_model),\n            nn.GELU(),\n            nn.Linear(4 * d_model, d_model)\n        )\n        self.ln1 = nn.LayerNorm(d_model)\n        self.ln2 = nn.LayerNorm(d_model)\n\n    def forward(self, x, return_attn=False):\n        a_out, attn_map = self.attn(self.ln1(x), return_attn=return_attn)\n        x = x + a_out\n        x = x + self.mlp(self.ln2(x))\n        return x, attn_map\n\nclass MiniModel(nn.Module):\n    def __init__(self, vocab_size=2000, d_model=256, n_heads=4, n_layers=4):\n        super().__init__()\n        self.token_emb = nn.Embedding(vocab_size, d_model)\n        self.pos_emb = nn.Embedding(512, d_model)\n        self.layers = nn.ModuleList([TransformerBlock(d_model, n_heads) for _ in range(n_layers)])\n        self.ln_f = nn.LayerNorm(d_model)\n        self.head = nn.Linear(d_model, vocab_size, bias=False)\n\n    def forward(self, idx, return_attn=False):\n        B, S = idx.shape\n        pos = torch.arange(0, S, device=idx.device).unsqueeze(0)\n        x = self.token_emb(idx) + self.pos_emb(pos)\n        \n        attns = []\n        for layer in self.layers:\n            x, attn_map = layer(x, return_attn=return_attn)\n            if return_attn:\n                attns.append(attn_map)\n        x = self.ln_f(x)\n        logits = self.head(x)\n        return logits, attns\n\n# ============================\n# 2. 诱导头探针分析引擎\n# ============================\ndef measure_induction_score(model, vocab_size=2000, seq_len=32):\n    \"\"\"\n    通过前缀重复序列：[A, B, C, ..., A, B, C, ...] 检测是否存在 Induction Head\n    如果某 Head 在第 2 次出现 A 时，强力关注第 1 次出现 A 的后置位 (即 B 的位置)，则 Induction 得分接近 1.0\n    \"\"\"\n    model.eval()\n    with torch.no_grad():\n        # 生成不重复的随机前缀 [B, seq_len]\n        half_len = seq_len // 2\n        prefix = torch.randint(10, vocab_size, (1, half_len))\n        # 严格复制序列: [X_1, X_2, ..., X_{half}, X_1, X_2, ..., X_{half}]\n        tokens = torch.cat([prefix, prefix], dim=1)\n        \n        _, attns = model(tokens, return_attn=True)\n        # attns: [n_layers, B, n_heads, S, S]\n        \n        print(\"\\n\" + \"=\"*50)\n        print(\"Induction Head 激活得分矩阵 (Layer x Head):\")\n        print(\"=\"*50)\n        for l_idx, layer_attn in enumerate(attns):\n            layer_attn = layer_attn[0] # [H, S, S]\n            head_scores = []\n            for h_idx in range(layer_attn.shape[0]):\n                # 关注点测量：\n                # 当前位置：i (位于后半段 half_len 到 seq_len - 1)\n                # 目标关注位置：对应的前序样本的下一个位置 (i - half_len + 1)\n                shifts = []\n                for i in range(half_len, seq_len - 1):\n                    target_pos = i - half_len + 1\n                    attn_val = layer_attn[h_idx, i, target_pos].item()\n                    shifts.append(attn_val)\n                score = sum(shifts) / len(shifts)\n                head_scores.append(score)\n            \n            score_str = \" | \".join([f\"H{h}: {s:.4f}\" for h, s in enumerate(head_scores)])\n            print(f\"Layer {l_idx:02d} -> {score_str}\")\n        print(\"=\"*50)\n\n# ============================\n# 3. 主执行链路 (极速跑通测试)\n# ============================\nif __name__ == \"__main__\":\n    device = torch.device(\"cpu\")\n    print(\">> Node1 64-Core CPU 环境就绪，初始化 4 层深窄探针模型...\")\n    model = MiniModel(vocab_size=1000, d_model=128, n_heads=4, n_layers=4).to(device)\n    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)\n    criterion = nn.CrossEntropyLoss()\n\n    print(\">> [阶段 1] 测试未训练的冷启动模型 Induction 得分...\")\n    measure_induction_score(model, vocab_size=1000, seq_len=32)\n\n    print(\"\\n>> [阶段 2] 进行 60 步针对性 Induction 强制算法数据注入...\")\n    t0 = time.time()\n    model.train()\n    for step in range(60):\n        # 动态构造随机重复对，强迫建立归纳回路\n        half_len = 16\n        seq = torch.randint(10, 1000, (16, half_len))\n        batch = torch.cat([seq, seq], dim=1) # [16, 32]\n        \n        inputs = batch[:, :-1]\n        targets = batch[:, 1:]\n        \n        optimizer.zero_grad()\n        logits, _ = model(inputs)\n        loss = criterion(logits.view(-1, 1000), targets.view(-1))\n        loss.backward()\n        optimizer.step()\n\n        if (step + 1) % 20 == 0:\n            print(f\"   Step [{step+1:02d}/60] | Loss: {loss.item():.4f}\")\n            \n    print(f\">> 训练完成，耗时: {time.time() - t0:.2f} 秒 (Node1 CPU)\")\n\n    print(\"\\n>> [阶段 3] 探针二次扫描：观测深层 Attention 是否自发形成 IH (得分应暴涨)...\")\n    measure_induction_score(model, vocab_size=1000, seq_len=32)\n```\n\n#### 预期输出判定指标\n1. **冷启动阶段**：所有 `Layer x Head` 的得分应当近似于均匀分布的随机噪声（约为 $\\frac{1}{32} \\approx 0.031$）。\n2. **训练 60 步后**：\n   * `Layer 00` 得分保持极低（或主要分化为 Previous-Token Head，即仅关注 $i-1$ 位置）。\n   * **`Layer 02` 或 `Layer 03` 中的某些 Head 得分将直接跃升至 $0.6000 \\sim 0.9500$**。\n   * 这直接证明：即使在百万元件极小尺度下，**只要层数 $\\ge 2$，深层 Attention 依然通过物理回路自发涌现了 Induction Heads，而非玄学概率**。",
+  "err": null,
+  "sec": 84.8
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": "Qwen3.8-27B",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 112.0
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 0.4
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 0.6
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"type\\\":\\\"error\\\",\\\"error\\\":{\\\"type\\\":\\\"FreeTierError\\\",\\\"message\\\":\\\"OpenCode's free tier can only be used from within OpenC",
+  "sec": 0.8
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 1.4
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.3
+ }
+}

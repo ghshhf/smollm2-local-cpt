@@ -1,0 +1,26 @@
+{
+ "id": "Q-01",
+ "title": "知识在 FFN 中的物理定位 + 外置记忆层挂载点",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.north",
+  "kris.nemotron",
+  "kris.grok",
+  "kris.gemini"
+ ],
+ "dead": [
+  "kris.minimax",
+  "kris.glm",
+  "kris.deepseek",
+  "kris.step",
+  "kris.longcat",
+  "unclose",
+  "kris.qwen",
+  "zen.deepseek",
+  "kilo",
+  "dgai",
+  "ovh",
+  "llm7"
+ ]
+}

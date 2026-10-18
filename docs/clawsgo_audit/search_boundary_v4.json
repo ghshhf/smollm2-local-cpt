@@ -1,0 +1,53 @@
+{
+ "schema_version": "2.0",
+ "search_boundary_id": "SEARCH-2026-10-15-D",
+ "searched_on": "2026-10-15",
+ "searched_by": "ClawsGO Science Agent（授权研究助手）",
+ "purpose": "为《开放问题清单 · 咱们还不知道的一切》的 §1（Q-01…Q-08 理论真空带）、§2（Q-09…Q-15 工程未决题）、§3（五条遗留旧账）与 §4（盲区补充）提供来源；凡能核到原文段落的一律核到句级。",
+ "databases_or_indexes": [
+  "arXiv 全文 HTML（arxiv.org/html 与 ar5iv.labs.arxiv.org，curl 抓取后用句级正则检索）",
+  "arXiv 检索接口与检索页（用于定位论文标识符；凡未核到全文者一律标注二手）",
+  "NeurIPS / ICML / ICLR 会议资料页",
+  "Nature / Nature Communications 期刊页（付费墙，仅读到摘要与新闻稿）"
+ ],
+ "queries": [
+  "causal tracing factual associations GPT middle layer MLP subject token ROME",
+  "in-context learning induction heads phase change two head circuit small models",
+  "data distributional properties drive in-context learning transformers burstiness Zipf",
+  "language modeling is compression optimal entropy encoder negative log likelihood two-part code",
+  "straight-through estimator coarse gradient descent convergence binary neural networks surrogate derivative monotone",
+  "understanding straight-through estimator activation quantized networks identity STE fails multilayer",
+  "does reinforcement learning really incentivize reasoning capacity beyond base model pass@k distillation",
+  "reasoning transfer taxonomy meta analysis RLVR semantic confusion directed transfer matrix",
+  "data mixing laws predicting language modeling performance mixture regression",
+  "RegMix data mixture as regression 10% compute DoReMi",
+  "BiMix bivariate data mixing law entropy lightweight proxy",
+  "repeated training data nearly free epochs memorization onset capacity entropy ratio Muon",
+  "memorization without overfitting influence functions checkpoint latent recall weight perturbation",
+  "calibration verbalized confidence instruction tuned models validity failure 95%",
+  "sample consistency uncertainty estimation beats token probability verbalized confidence",
+  "ArcFace additive angular margin 512 dimensional embedding face recognition",
+  "arcface small dataset divergence margin sensitivity few-shot overfitting long-tail",
+  "Gemma 3 technical report sliding window attention 5:1 window 1024 KV cache",
+  "layer-wise pipeline parallelism overhead small GEMM utilization occupancy split",
+  "on-policy distillation of language models GKD",
+  "extending context window position interpolation without retraining",
+  "Chinchilla 70B bits per byte enwik9 compression rate",
+  "PAD pleasure arousal dominance activation steering small language model span width",
+  "tokenizer vocabulary size compression rate comparison BPE ASCII raw compression"
+ ],
+ "date_limits": "无日期下限；优先 2022 年以后的工作；对 2025–2026 年的条目一律标注核验状态。",
+ "language_limits": "英文来源为主；中文来源仅用于路线自述与检索入口。",
+ "inclusion_scope": "与 Q-01…Q-15、五条旧账及 §4 盲区类别直接对应的原始论文、方法论文与理论工作；优先选择能回答「在 CPU-first / 三值 / 可删除记忆的约束下怎么做」的来源。",
+ "exclusion_scope": "行业博客、厂商文档、纯新闻稿与无法定位原文的转述不作为证据来源；此类内容仅在明确标注为二手时用于定位原始文献。凡未下载全文者，一律标注二手且不用于定量结论。",
+ "known_limitations": [
+  "本轮新增下载并逐句核验全文的 4 篇：ROME/因果追踪 2202.05262、induction heads 2209.11895、Chan 等 2205.05055、Delétang 2309.10668。其余 19 条新增来源仅有检索摘要，一律标注为二手。",
+  "若干条目的 arXiv 编号本轮未逐一核实，台账的 identifier 字段已显式写明「编号未核实」。这些条目在报告与台账中均未用于任何定量或结构性结论。",
+  "「免费重复带 4–10 epoch」与「记忆化潜伏性」两条（Q-08 的核心依据）只读到标题与摘要，未核到全文，是本轮证据链最薄的一环，报告中已显式标注。",
+  "口头置信度有效性失败（3–9B 上 6/7 模型）与 ArcFace 少样本发散两条，均只读到检索摘要；前者研究的模型规模大于你们的目标规模，向 214M–0.5B 的迁移属推断。",
+  "本轮未做任何实现层面的性能测量：Q-09 的 237 MB / 16 GB/s、Q-13 的跨进程延迟、旧账 3 的斜率 x 全部是纸面推算，报告中标为〔推断〕并给出 node1 上可直接测量的最小方案。",
+  "Nature 系付费墙来源（subliminal learning、emergent misalignment、model collapse、sleep replay）沿用上一轮的二手标注，本轮未新增核验。"
+ ],
+ "last_result_screened_or_stop_rule": "同一查询连续两页结果不再出现未纳入的原始论文即停止；每篇来源必须落到原文段落，或明确标注为二手/未读。",
+ "novelty_status": "not_assessed"
+}

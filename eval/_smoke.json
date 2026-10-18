@@ -1,0 +1,84 @@
+{
+  "config": {
+    "arm": "A",
+    "steps": 5,
+    "lr": 1e-05,
+    "out": "eval/_smoke.json"
+  },
+  "results": [
+    {
+      "arm": "A",
+      "steps": 5,
+      "n_conv": 211,
+      "n_params": 162826560,
+      "first_loss": 0.3634,
+      "final_loss": 15.3973,
+      "last10_loss": 7.9597,
+      "R0": 0.3351,
+      "flip": 0.0,
+      "alpha_final": 0.0,
+      "avg_tok_per_s": 38.8,
+      "total_time": 66.0,
+      "verdict": {
+        "R0健康(20~70%)": true,
+        "非锁死(flip>0.01%)": false,
+        "非震荡(flip<15%)": true,
+        "吞吐>=300tok/s": false,
+        "loss下降>20%": false
+      },
+      "concl": "训不动",
+      "records": [
+        {
+          "step": 1,
+          "loss": 0.3634,
+          "R0": 0.3351,
+          "flip": 0.0,
+          "alpha": 0.8,
+          "tok_per_s": 45.0,
+          "grad_norm": 14.722,
+          "elapsed": 12.5
+        },
+        {
+          "step": 2,
+          "loss": 1.4734,
+          "R0": 0.3351,
+          "flip": 0.0,
+          "alpha": 0.6,
+          "tok_per_s": 40.6,
+          "grad_norm": 9.807,
+          "elapsed": 26.8
+        },
+        {
+          "step": 3,
+          "loss": 11.1422,
+          "R0": 0.3351,
+          "flip": 0.0,
+          "alpha": 0.4,
+          "tok_per_s": 40.9,
+          "grad_norm": 12.734,
+          "elapsed": 41.1
+        },
+        {
+          "step": 4,
+          "loss": 11.422,
+          "R0": 0.3351,
+          "flip": 0.0,
+          "alpha": 0.2,
+          "tok_per_s": 44.6,
+          "grad_norm": 9.534,
+          "elapsed": 54.1
+        },
+        {
+          "step": 5,
+          "loss": 15.3973,
+          "R0": 0.3351,
+          "flip": 0.0,
+          "alpha": 0.0,
+          "tok_per_s": 49.7,
+          "grad_norm": 11.862,
+          "elapsed": 66.0
+        }
+      ]
+    }
+  ]
+}

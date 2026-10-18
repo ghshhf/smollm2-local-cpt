@@ -1,0 +1,26 @@
+{
+ "id": "U1_Q1_flip_measurement",
+ "title": "U1: V1-01三值探针 flip=0 的真实含义（核心分歧）",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.north",
+  "kris.longcat",
+  "kris.nemotron",
+  "kris.gemini",
+  "zen.deepseek"
+ ],
+ "dead": [
+  "kris.minimax",
+  "kris.step",
+  "kris.deepseek",
+  "kris.glm",
+  "kris.grok",
+  "unclose",
+  "kris.qwen",
+  "dgai",
+  "kilo",
+  "ovh",
+  "llm7"
+ ]
+}

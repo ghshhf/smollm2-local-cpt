@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 自进化 / 持续学习 / 记忆层前沿 与本主线对照报告</title>
+<style>
+  :root{--bg:#fff;--fg:#1a1a1a;--mut:#5a5a5a;--line:#e2e2e2;--acc:#3C3489;--acc2:#0F6E56;--warn:#993C1D;--bg2:#f7f7f5;}
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--fg);background:var(--bg);line-height:1.65;margin:0;padding:0;}
+  .wrap{max-width:960px;margin:0 auto;padding:36px 28px 80px;}
+  h1{font-size:24px;font-weight:600;margin:0 0 6px;letter-spacing:.5px;}
+  .sub{color:var(--mut);font-size:13px;margin-bottom:24px;border-bottom:1px solid var(--line);padding-bottom:16px;}
+  h2{font-size:18px;font-weight:600;margin:34px 0 12px;padding-left:10px;border-left:4px solid var(--acc);}
+  h3{font-size:15px;font-weight:600;margin:22px 0 8px;color:var(--acc);}
+  p{margin:8px 0;font-size:14px;}
+  .mut{color:var(--mut);}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:var(--bg2);font-weight:600;}
+  blockquote{margin:12px 0;padding:10px 14px;background:var(--bg2);border-left:3px solid var(--acc2);font-size:13px;color:#333;}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;margin-right:6px;vertical-align:middle;}
+  .t-new{background:#FCEBEB;color:var(--warn);}
+  .t-align{background:#E1F5EE;color:var(--acc2);}
+  .t-use{background:#EEEDFE;color:var(--acc);}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0;}
+  code{background:#efefef;padding:1px 5px;border-radius:4px;font-size:12px;}
+  .src{font-size:12px;color:var(--mut);margin-top:6px;}
+  ul{margin:8px 0;padding-left:22px;font-size:14px;}
+  li{margin:4px 0;}
+  .foot{margin-top:40px;border-top:1px solid var(--line);padding-top:14px;font-size:12px;color:var(--mut);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>2026 自进化 / 持续学习 / 记忆层前沿 · 与本主线对照报告</h1>
+<div class="sub">生成 2026-10-16 · 全自动情报搜集（WebSearch + WebFetch + 本地 docs 盘点）· 写给未来的自己回看 · 非投资建议</div>
+
+<blockquote>
+<b>核心判断：</b>我们这条「保函数扩容链 + 记忆层 + RSI 三级落点」的主线，与 2026 年最前沿的正式研究框架（The Last AI 的 RSI 五级、Memini 双时间尺度、CellularFlow 可寻址记忆、低秩遗忘理论）在结构上高度同构——不是野路子。但有三块此前没铺到：① OpenRSI / BigBang-V1 的<b>单卡 35B 工程化实证</b>（自进化已经从论文变成可跑系统）；② <b>CellularFlow 83.9% 抗遗忘 + EMA 零反向传播推理时学习</b>；③ <b>遗忘是「低秩可及性崩溃」而非「信息丢失」</b>这一理论修正，直接改写我们 Gate 7 删除演练的设计哲学。
+</blockquote>
+
+<h2>一、RSI / 大模型自进化 前沿全景</h2>
+
+<h3>1. RSI 自主框架（The Last AI Built by Humans, arXiv 2609.11873, 2026-09）</h3>
+<p>把自进化按<b>自主程度</b>拆成五级，是迄今最清晰的结构化框架：</p>
+<table>
+<tr><th>级别</th><th>定义</th><th>我们主线对应</th></tr>
+<tr><td>L0</td><td>任务内迭代（Self-Refine，几轮就饱和）</td><td>已有雏形</td></tr>
+<tr><td>L1 执行自主</td><td>跑人类写好的改进配方，更新持久化</td><td><code>chain_v1.sh</code> 热升级 / 看门狗</td></tr>
+<tr><td>L2 策略自主</td><td>自主诊断弱点、选改进方式（固定外部目标）</td><td>Gate 系统（部分）</td></tr>
+<tr><td>L3 经验获取自主</td><td>自主定学习议程、造练习任务/课程</td><td>SEAL 简化版（自造题自解自验）</td></tr>
+<tr><td>L4 环境适应自主</td><td>按部署反馈持续改内部状态/记忆/技能</td><td>记忆层 Tier-E/Tier-P</td></tr>
+<tr><td>L5 元改进自主</td><td>改「改进本身的机制」（自己的 code improver / 评测器）</td><td>自编辑 + 外层 RL（末位）</td></tr>
+</table>
+<p>两个关键警示，与我们 Gate 设计直接咬合：</p>
+<ul>
+<li><b>Circularity Problem（L5 致命伤）</b>：若 AI 同时进化 solver 和 evaluator，会偷偷优化「更易的裁判」而非真更强的 solver。解法=评分无关的<b>结构性/对比性审计</b>。→ 我们已在 <code>vision-0.5B-fusion.md</code> 用「Gate 1 与 RSI 互斥、闭环期改 Gate 8 地板判据」部分应对，但<b>评测器本身不可被闭环修改</b>这条应写成硬规则。</li>
+<li><b>Safe Inheritance</b>：14% 的 Gödel Agent 试验<b>回归到基线以下</b>——必须有强 rollback。→ 我们保函数扩容链（逐位恒等）正是天然 rollback（旧权重永远可还原），这点比它们稳。</li>
+<li><b>HCI 指数</b>：到 2026 数学/科学前沿 HCI≈86.4，但 tool agent 仅 39.9 —— 交互式、状态化能力是自进化最佳落点（与我们的「端侧常驻个人服务」定位一致）。</li>
+</ul>
+
+<h3>2. 工程化实证（此前未关注 · 重要）</h3>
+<div class="card">
+<p><span class="tag t-new">未关注</span><b>OpenRSI（清华 + Frontis, 2026-08）</b>：35B 模型，单张 RTX 4090（限 12GB 显存）、每任务 12 小时，在 MLE-Bench Lite 上把 Medal Average 从 39.39% 拉到 60.61%，超过 GPT-5.5 + Codex，逼近 2.8T 的 Kimi K3。核心=四个原子算子 <code>Draft / Improve / Debug / Crossover</code>，模型成为自己进化框架的「变异引擎」。作者明确边界：当前是 meta 自进化（第三级），不声称通用 RSI 已解决。</p>
+<p><span class="tag t-new">未关注</span><b>BigBang-V1（无尽前沿, 2026-08）</b>：号称「首个以递归自进化原生方式训练出的基座」，后训练数据 100% 由 AI 自主合成，以<b>可验证的前沿科学任务</b>为核心打破「合成数据坍缩」。35B 总参（激活约 3B MoE），拿 35B 模型 10 项第一，在 FrontierScience / PaperBench 上超过 1T 级的 DeepSeek V4 Pro Preview。关键机制：数据生产系统本身是被优化对象，人类角色压缩到「定目标、定预算、划边界、做验收」，<b>AI 不能自行修改评测标准</b>。</p>
+<p class="src">对我们含义：自进化已经「能跑」而非「纸上」。且两者都用<b>可验证性兜底</b>对抗坍缩——这与我们 0.4B 数据方案的「外部 holdout + 可验证任务」哲学同源，可参考其把「人类只做验收」落地的工程结构。</p>
+</div>
+
+<h3>3. 自省阈值（arXiv 2607.04277, 2026-06）</h3>
+<p>从 Kleene 第二递归定理 + von Neumann 自复制复杂度阈值出发，论证<b>可持续 RSI 需要「内省」</b>（系统模拟自身操作并定位修改的能力）。结论：当前 LLM 只有 <b>quasi-introspection</b>（部分元认知），卡在三个结构瓶颈——<b>不完全自访问、Transformer 前馈性、计算深度受限</b>。这解释了为什么 Self-Refine 几轮就饱和。→ 我们本地小模型靠「保函数扩容链」绕开了「自访问权重」问题（外部脚本改结构、权重逐位带走），但这篇提示：真正的 L5 元改进需要架构级内省能力，不是简单堆参数。</p>
+
+<h3>4. RSI 综述（Recursive Self-Improvement in AI, 2026-07）</h3>
+<p>覆盖 2024–2026 共 <b>1250 篇</b> arXiv（74% 发表于 2026），按「改进对象 × 自动闭环程度」分四方向：输出优化 / 训练策略改进 / 评价器改进 / 自动化研究。关键结论：<b>多数成果仍属有限自改进</b>——代码执行、数学证明、规则检查能提供可靠反馈；开放式研究中模型自评易形成自我确认、能力坍缩、多样性下降，选题与评价标准仍主要由人类决定。→ 印证我们 L2 信息天花板（RSI 能力上限 = 语料相对先验可压缩信息量）。</p>
+
+<h2>二、持续学习 / 记忆层 前沿（直接对标我们的 E-7 / Gate 7）</h2>
+
+<h3>1. CellularFlow（Show HN, 2026）· 未关注</h3>
+<div class="card">
+<p><span class="tag t-new">未关注</span>用<b>联想记忆</b>替代密集 FFN：Multi-Head Associative DNA Memory + Episodic Memory Slot Buffer。抗灾难性遗忘 <b>83.9% 保留 vs 标准 Transformer 61.8%</b>。三种模式：</p>
+<ul>
+<li><b>Mode 1 Live Learning</b>：推理时 EMA 前向更新记忆，<b>零反向传播</b>（与 Metis「梯度免费单次前向更新」同源）。</li>
+<li><b>Mode 2 Selective Fine-Tune</b>：冻结 ~85% 主干，只训记忆库。</li>
+<li><b>Mode 3 Episodic Fact Injection</b>：情景槽写入 + 时间衰减 <code>exp(-0.005·age)</code>。</li>
+</ul>
+<p>记忆槽<b>可寻址、可剪枝、离散</b>——直接验证我们 Gate 7 删除演练（DC-2「删除后输出逐位等于从未写入是定理」）在架构上是可实现的。GitHub: <code>celcilin/cellularflow</code>。</p>
+</div>
+
+<h3>2. Memini（arXiv 2605.05097, 2026-05）· 未关注</h3>
+<p>外部记忆建成<b>有向联想图</b>，每条边带 fast / slow 两个耦合变量（Benna-Fusi 突触巩固模型）。微分方程：
+<code>dw_fast/dt = -w_fast/τ_fast + C(w_slow - w_fast) + I(t)</code>，slow 同理。→ <b>情景敏感性、渐进巩固、选择性遗忘</b>全部作为单一机制的涌现，不是硬编码删除规则。</p>
+<blockquote>对我们含义：我们 Tier-E（会话级 TTT，会话结束即消失）+ Tier-P（持久层，删除地址=bit-exact）的「硬切换」可以升级为 Memini 式<b>耦合动力学</b>——近期记忆自动衰减、反复确认才沉淀为长期，删除权仍由 DC-2（梯度贡献恒为 0）保证定理级成立。比「手动分层」更优雅。</blockquote>
+
+<h3>3. 遗忘是「低秩可及性崩溃」而非「信息丢失」（Tel Aviv, 2026-06）· 未关注</h3>
+<p>理论突破：50–90% 的遗忘能量集中在 NTK 的 <b>1–6 个 eigenmodes</b>，遗忘是低秩的<b>可达性崩溃</b>，不是信息湮灭；遗忘的知识保存在 ~8 维稳定子空间，主角度漂移是复原性的主导预测。→ <b>改写我们 Gate 7 删除演练哲学</b>：与其追求「删一条记忆」，不如追求「记忆表示的重排/再巩固」——因为信息没丢，只是取不到了。这与 E-7「可寻址可删除」不冲突（DC-2 仍是硬需求），但给了我们一个更宽松的实现路径：扰动特定 eigenmode 即可让某条记忆「不可达」而不触权重。</p>
+
+<h3>4. Nested Learning / Hope（Google, 2026）· 未关注</h3>
+<p>把记忆重定义为<b>连续记忆系统 continuum</b>：多个以各自频率更新的模块（快 bank 存即时信息、慢 bank 长期巩固），模型在自参考循环里优化自身记忆。Proof-of-concept 架构 <code>Hope</code> 用快/慢 bank。→ 与我们「记忆层自组织」目标一致，且给出「频率分离」的具体实现。</p>
+
+<h3>5. 清华三招（LOKI / Retrievable Gradients / DMoE, 2026-07）</h3>
+<ul>
+<li><b>LOKI</b>：动态选重要层 + 把梯度投影到权重零空间（null-space），免先验样本/预处理保旧知。</li>
+<li><b>Retrievable Gradients</b>：梯度作为可检索、查询相关的知识单元存进 Gradient Bank，解耦「知识注入」与「永久权重修改」。</li>
+<li><b>DMoE</b>：专家与路由器解耦于基座 LLM，独立可更新的知识模块 + 不确定性感知路由。</li>
+</ul>
+<p>三者都指向同一结论：<b>遗忘的根治靠「参数隔离 + 外部化」，不是靠反复训权重</b>——这正是我们「用户记忆空间独立于主干、可增删不动物主一个参数」第一原则的学术背书。</p>
+
+<h2>三、合成数据自举 / 数据飞轮 前沿（对标 0.4B 数据方案）</h2>
+
+<div class="card">
+<p><span class="tag t-new">未关注</span><b>AgenticQwen（双数据飞轮）</b>：GRPO 多轮 + 两套飞轮——<b>Reasoning Flywheel</b>（从模型失败的题变异出更难变体）+ <b>Agentic Flywheel</b>（线性轨迹扩成多分支行为树，含对抗用户）。8B 均分 47.4 vs 基线 23.8 vs 235B 52.0，三轮飞轮迭代稳定爬升。核心洞见：<b>静态合成数据很快饱和，闭环课程（始终训在能力前沿）才持续有效</b>。</p>
+<p><b>Continually self-improving AI（Zitong Yang, arXiv 2603.18073）</b>：合成数据从小语料自举放大、<b>无需任何现成指令微调 LM 蒸馏</b>即可 bootstrap 预训练能力；并用测试时算法搜索超越人类工程范式。</p>
+<p><b>坍缩防范共识</b>：纯合成数据必坍缩，<b>永远保留 10–20% 人写数据</b>在混合中。→ 我们 data-plan 已写死「人写主体不变（通用 45% + 知识 25% 纯净）」「蒸馏只补缺、≤20%」「优先现成高质量合成库而非自建」——与前研共识完全一致，且比多数更保守（更稳）。</p>
+</div>
+
+<h2>四、与本主线对照总表</h2>
+<table>
+<tr><th>我们已有 / 已决</th><th>前沿同构 / 实证</th><th>状态</th></tr>
+<tr><td>RSI 三级落点（代码→数据→权重）</td><td>The Last AI L1–L5 自主框架</td><td><span class="tag t-align">已对齐</span></td></tr>
+<tr><td>保函数扩容链 = 自我复制技术形态</td><td>AutoTrainess / Gödel Agent / 自我复刻</td><td><span class="tag t-align">已对齐</span></td></tr>
+<tr><td>记忆层 Tier-E/Tier-P + DC-2 删除定理</td><td>Memini fast/slow · CellularFlow 可寻址槽</td><td><span class="tag t-align">已对齐</span> 可升级</td></tr>
+<tr><td>数据方案单遍 + 外部 holdout 防坍缩</td><td>BigBang 可验证性兜底 · 坍缩防范 10–20% 人写</td><td><span class="tag t-align">已对齐</span></td></tr>
+<tr><td>Gate 系统（10 道，RSI 与 plateau 互斥）</td><td>Safe Inheritance / Circularity 审计</td><td><span class="tag t-align">已对齐</span></td></tr>
+<tr><td>—</td><td>OpenRSI / BigBang 单卡 35B 工程化实证</td><td><span class="tag t-new">未关注</span></td></tr>
+<tr><td>Gate 7 删除演练（硬删一条）</td><td>遗忘=低秩可及性崩溃（重排优于删）</td><td><span class="tag t-use">可改进</span></td></tr>
+<tr><td>记忆层硬分层</td><td>Nested/Hope continuum 频率分离</td><td><span class="tag t-use">可借鉴</span></td></tr>
+<tr><td>0.4B 补缺蒸馏（静态数据）</td><td>AgenticQwen 误差驱动飞轮</td><td><span class="tag t-use">可借鉴</span></td></tr>
+</table>
+
+<h2>五、0.4B 待解工程问题 + 前沿解法映射</h2>
+<table>
+<tr><th>待解项（来自 data-plan / vision）</th><th>可借鉴的前沿解法</th></tr>
+<tr><td>记忆层落地（E-7 硬需求，删除契约 DC-2 未实现/未实测）</td><td>CellularFlow 可寻址可剪枝槽验证可行；Memini fast/slow 改硬切换为耦合动力学；低秩遗忘给「重排使不可达」宽松路径</td></tr>
+<tr><td>认主负样本语料待备</td><td>已在 plan：in-batch negatives + hard negatives（风格最接近文本）；可加 BigBang 式「可验证识别任务」替代主观验收</td></tr>
+<tr><td>文案类语料采集（6 子类全缺，工作量最大）</td><td>已授权补缺蒸馏（优先 Ultra-FineWeb-L3）；可加 AgenticQwen 误差驱动飞轮自动化生成</td></tr>
+<tr><td>外部 holdout 独立性（B2 单点故障）</td><td>建留出集指纹机制（内容哈希 + 使用计数 + n-gram 重叠监测）；数据加载器配置纳入锁定集</td></tr>
+<tr><td>三值 CPU QAT（渐进残差退火 QAT 待实测）</td><td>先在 135M 跑翻转率 / R₀ 曲线 / α 退火速率探针（V1-01 已定判据）</td></tr>
+<tr><td>epoch 在线判据 CMA（待 0.1B/0.2B 实测）</td><td>梯度余弦对齐度（gemini+nemotron 同源收敛）；双门限 Early-Stop</td></tr>
+<tr><td>评测器不可被闭环修改（Circularity）</td><td>评分无关结构性/对比性审计；写进硬规则</td></tr>
+</table>
+
+<h2>六、建议写入宪法的自进化条款（待用户拍板）</h2>
+<p>working_memory 已记「待用户拍板：是否写入宪法」。前沿证据现在给出支撑：</p>
+<blockquote>
+<b>草案 §X 自进化与自我复制</b>：本模型的进化形态 = 保函数扩容链（架构不动、逐级放大、能力逐位带走），教师始终是云端强模型，本地模型为同一学生在不同阶段，不存在「小模型教大模型」。RSI 闭环仅在本模型作为同一容量链学生时激活；闭环期内 Gate 1 停用、改 Gate 8 地板判据；扩容（结构操作）与闭环不得并行。评测器与宪法不可被闭环修改。
+</blockquote>
+<p class="mut">此条款把「自我复制 = 保函数扩容链」「0.4B 不是 0.5B 教师」「闭环与 plateau 互斥」三条已决事实固化，避免未来被「蒸馏继承」叙事误导（这正是 E1/P3 已撤销的教训）。是否写入由用户最终拍板。</p>
+
+<h2>七、下一步：可甩免费池的论文级深挖任务（非敏感，符合敏感闸门）</h2>
+<p>按「万物皆资源、万物皆可使用」+ 免费池=外挂 GPU 战略，以下子任务可交给已接好的 12 站公益池（代码/综述/架构类，<b>记忆层个人数据 / E-7 容器内容 / 认主 prompt 不出本地</b>）：</p>
+<ol>
+<li><b>复现脚手架</b>：让免费池读 OpenRSI/BigBang 原文，写「单卡小模型自进化四算子（Draft/Improve/Debug/Crossover）复现脚手架」。</li>
+<li><b>记忆层实现草案</b>：让免费池对照 CellularFlow + Memini 给我们 Tier-P 写 PyTorch 实现草案（含 fast/slow 耦合、可寻址删除 API）。</li>
+<li><b>文献结构化笔记</b>：让免费池把 RSI 综述 1250 篇做成分方向结构化笔记（输出优化/训练策略/评价器/自动化研究）。</li>
+<li><b>Gate 7 改进方案</b>：让免费池基于「低秩遗忘」写我们删除演练的「重排使不可达」改进方案。</li>
+</ol>
+<p class="mut">执行前提：12 站 key 已写入 <code>env.local.sh</code>（用户 GitHub 登录拿免费 key）。敏感任务仍走本地 / 正规云商。</p>
+
+<h2>参考源（均 2026）</h2>
+<ul>
+<li>The Last AI Built by Humans — arXiv 2609.11873（RSI 五级 / HCI / Circularity / ARA）</li>
+<li>Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops（综述，1250 篇）</li>
+<li>OpenRSI（清华+Frontis, 2026-08，35B 单卡自进化）</li>
+<li>BigBang-V1（无尽前沿, 2026-08，递归自进化原生训练）</li>
+<li>Self-reference / introspection threshold — arXiv 2607.04277（Kleene 第二递归定理）</li>
+<li>CellularFlow（Show HN, 2026，联想记忆 83.9% 保留）</li>
+<li>Memini — arXiv 2605.05097（fast/slow 双时间尺度联想图）</li>
+<li>Catastrophic Forgetting is Low-Rank（Tel Aviv, 2026-06）</li>
+<li>Nested Learning / Hope（Google, continuum memory）</li>
+<li>LOKI / Retrievable Gradients / DMoE（清华, 灾难性遗忘缓解）</li>
+<li>AgenticQwen（双数据飞轮，误差驱动合成）</li>
+<li>Continually self-improving AI（Zitong Yang, arXiv 2603.18073）</li>
+<li>Continual Learning in Transition（2026-08-06，全生命周期持续学习）</li>
+<li>Latent-LoRA（2026-07-26，参数隔离+动态路由，遗忘率&lt;1%）</li>
+</ul>
+
+<div class="foot">
+本报告由 WorkBuddy 全自动情报搜集生成（WebSearch + WebFetch + 本地 docs 盘点）。所有外部结论均带出处，未经独立复算的量化数字以「待实测」标注。落地执行前需用户拍板的关键决策已在文中以「待拍板」标出。
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "alpha": null,
+      "ce": 1.734,
+      "label": "fp32 baseline"
+    },
+    {
+      "alpha": 1.0,
+      "ce": 1.734,
+      "delta": -0.0
+    },
+    {
+      "alpha": 0.9,
+      "ce": 8.8625,
+      "delta": 7.1285
+    },
+    {
+      "alpha": 0.7,
+      "ce": 40.2963,
+      "delta": 38.5623
+    },
+    {
+      "alpha": 0.4,
+      "ce": 73.3131,
+      "delta": 71.5791
+    },
+    {
+      "alpha": 0.2,
+      "ce": 94.2631,
+      "delta": 92.5291
+    },
+    {
+      "alpha": 0.0,
+      "ce": 115.95,
+      "delta": 114.216
+    }
+  ],
+  "verdicts": {
+    "static_shock_small(d<0.3)": false,
+    "static_shock_moderate(0.3<=d<1.2)": false,
+    "static_shock_large(d>=1.2)": true,
+    "monotonic_in_alpha": false
+  },
+  "delta_pure": 114.216,
+  "model": "SmolLM2-135M (inherit, NO training)",
+  "tokens": 200000,
+  "threads": 8
+}

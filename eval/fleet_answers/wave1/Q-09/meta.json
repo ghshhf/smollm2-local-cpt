@@ -1,0 +1,26 @@
+{
+ "id": "Q-09",
+ "title": "0.5B 架构最优配方（架构任务书）",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.grok",
+  "kris.nemotron",
+  "kris.gemini"
+ ],
+ "dead": [
+  "kris.step",
+  "kris.minimax",
+  "kris.deepseek",
+  "kris.north",
+  "kris.longcat",
+  "unclose",
+  "kris.glm",
+  "kris.qwen",
+  "llm7",
+  "zen.deepseek",
+  "kilo",
+  "ovh",
+  "dgai"
+ ]
+}

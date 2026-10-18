@@ -37,3 +37,72 @@ round*.done
 thumbs.db
 *.parquet
 next_corpus_raw/
+
+# === 2026-10-18 归档规范补充：代码入库、运行产物不入库 ===
+
+# 训练/做梦 运行时状态（每机不同，无归档价值）
+.train_lock
+.train_queue.json
+*.pid
+
+# 做梦运行目录（每次一个 run_*/，内含 code.py + 视频），只留种子脚本
+data/dreams/run_*/
+data/dreams/*.mp4
+*.mp4
+
+# 音频原始数据（2.1G）
+data/audio/wav/
+data/audio/raw/
+data/audio/*.tar.gz
+
+# 本地知识库索引（31M，可重建）
+.kb/
+
+# 演示/调试日志（92M）
+_demo/
+
+# 根目录垃圾（历史误落文件，3.9MB 无扩展名）
+/0
+/nul
+/_inbox_server.log
+
+# b4 实验训练产物（代码入库，权重不入库）
+b4/out_*/
+
+# 视觉数据集（COCO-cn 图片 + 标注文本，可重新下载）
+data/vlm/images/
+data/vlm/coco-cn-version1805v1.1/
+data/vlm/*.tar.gz
+data/vlm/._*
+
+# 冒烟运行目录（同 run_*，仅测试产物）
+data/dreams/smoke_*/
+
+# 本文件的备份副本
+.gitignore.bak.*
+
+# GPU 实验 checkpoint（npz/part 权重分片）
+gpu_ckpt/
+*.npz
+*.part0*
+
+# 临时目录
+tmp/
+
+# netarch 清洗后语料（只入代码）
+netarch_v1/clean/
+
+# 词典二进制/大文件（保留 SOURCES.md 说明）
+lexicon/jieba/
+lexicon/rime_frost/
+
+# node 节点运行时状态
+node/.status_poll_cnt
+node/_chk*.txt
+
+# 模型权重产物（GGUF / 训练输出目录 / 打包）
+*.gguf
+models/
+node/parts/
+node/_expand_test/
+node/node_pkg.tgz

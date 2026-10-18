@@ -1,0 +1,5 @@
+NODE1_DEAD at 2026-10-16T09:11:02 (fail_streak=27)
+请到 ModelScope 控制台粘贴 bootstrap 三行重启:
+import urllib.request
+urllib.request.urlretrieve('http://47.99.131.12:8081/file/bootstrap_all.py?key=k0u4mail','/mnt/workspace/node1/bootstrap_all.py')
+exec(open('/mnt/workspace/node1/bootstrap_all.py').read())

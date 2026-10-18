@@ -1,0 +1,107 @@
+# AI 前沿文章索引
+
+## 2026-10-18（0 篇）
+
+## 2026-10-17（99 篇）
+- [cs.AI] LIBERO-PeRM: Benchmarking Personalized Robotic Manipulation（http://arxiv.org/abs/2610.22372v1）
+- [cs.AI] Discovering state-of-the-art quantum circuits with large language models（http://arxiv.org/abs/2610.22367v1）
+- [cs.AI] T2-z: Test-Time Optimization of Environment Latents for Robotic World Models（http://arxiv.org/abs/2610.22364v1）
+- [cs.AI] CoDA: Co-Evolution of Data Engines and Action Policies（http://arxiv.org/abs/2610.22362v1）
+- [cs.AI] Rethinking Routing Exploration in Modern Mixture-of-Experts（http://arxiv.org/abs/2610.22353v1）
+- [cs.AI] FDE-Gym: The Last Mile of AI Delivery（http://arxiv.org/abs/2610.22350v1）
+- [cs.AI] MLExpert: Towards a Generalist Agentic Model for Autonomous Machine Learning Engineering（http://arxiv.org/abs/2610.22344v1）
+- [cs.AI] GeoState: Learning View-Decoupled Geometry States for 3D World Modeling（http://arxiv.org/abs/2610.22343v1）
+- [cs.AI] 3DCodeVerse: Exploring 3D Worlds as Code（http://arxiv.org/abs/2610.22341v1）
+- [cs.AI] Dexterity from Supervised Play（http://arxiv.org/abs/2610.22340v1）
+- [cs.AI] Evaluation Awareness Beyond English: Do LLMs Act Differently When Tested in Indic Languages?（http://arxiv.org/abs/2610.22333v1）
+- [cs.AI] KnowGPO: Knowledge-Grouped Policy Optimization for Search Agents（http://arxiv.org/abs/2610.22331v1）
+- [cs.AI] Designing Transformers for Continuous Diffusion Language Models（http://arxiv.org/abs/2610.22330v1）
+- [cs.AI] ACEdit: Stable Multi-Turn Image Editing via Asymmetric Conditioning（http://arxiv.org/abs/2610.22328v1）
+- [cs.AI] Twice Upon a Time: Complementary Representations for Time-Series Reasoning（http://arxiv.org/abs/2610.22327v1）
+- [cs.AI] Learning Self-Orchestration in Decentralized Agent Swarms（http://arxiv.org/abs/2610.22322v1）
+- [cs.AI] AVC-Reward: Event-Centric Audio-Video Consistency Evaluation（http://arxiv.org/abs/2610.22321v1）
+- [cs.AI] A team of Gemini 4 Argon agents beats Minecraft（http://arxiv.org/abs/2610.22319v1）
+- [cs.AI] Learning to Steer LLM Agents and Multi-Agent Systems（http://arxiv.org/abs/2610.22316v1）
+- [cs.AI] Knowledge That Is Linear Before Fine-Tuning Generalizes After It（http://arxiv.org/abs/2610.22300v1）
+- [cs.AI] AI Consilium: a Benchmark of LLM Clinical Multidisciplinary Second Opinions（http://arxiv.org/abs/2610.22298v1）
+- [cs.AI] Private Retrieval Augmented Generation via Random Projection（http://arxiv.org/abs/2610.22297v1）
+- [cs.AI] Towards Continual Learning: Mitigating Forgetting With Subspace Tuning（http://arxiv.org/abs/2610.22293v1）
+- [cs.AI] EliteReplay: Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search（http://arxiv.org/abs/2610.22290v1）
+- [cs.AI] Improving Environment-Agnostic Coding Agents: The Role of Scaffolding（http://arxiv.org/abs/2610.22289v1）
+- [cs.AI] Asking Smarter Questions: Targeted Active Preference Learning for Underspecified Rewards（http://arxiv.org/abs/2610.22285v1）
+- [cs.AI] LEASH: Uncertainty-Aware Weak-to-Strong Escalation and Oversight for Computer-Use Agents（http://arxiv.org/abs/2610.22280v1）
+- [cs.AI] Librarian Agents: Training LLMs to Curate Long-Context Workspaces that Anticipate Future Queries（http://arxiv.org/abs/2610.22273v1）
+- [cs.AI] X-RIC: An Agentic RAN-Intelligent Controller Benchmark for Enhancing Reinforcement Learning（http://arxiv.org/abs/2610.22269v1）
+- [cs.AI] Disagreement-Guided Weak-to-Strong Routing（http://arxiv.org/abs/2610.22245v1）
+- [cs.LG] PathFM: Fast Generative Forecasting of Multivariate Trajectories（http://arxiv.org/abs/2610.22358v1）
+- [cs.LG] Lean Graph Search for Formal Theorem Proving（http://arxiv.org/abs/2610.22339v1）
+- [cs.LG] Robust Reinforcement Learning for Dynamic Treatment Regimes under Model and Measurement Uncertainty（http://arxiv.org/abs/2610.22336v1）
+- [cs.LG] Backward Compatibility in Zero-Bit Neural Audio Watermarking（http://arxiv.org/abs/2610.22296v1）
+- [cs.LG] CAT-alyzing Honesty: Continuous Adversarial Training for Transferable LLM Honesty（http://arxiv.org/abs/2610.22292v1）
+- [cs.LG] Learning Rational Strategies for Temporal Objectives in Multi-Agent Systems（http://arxiv.org/abs/2610.22287v1）
+- [cs.LG] Baselines and Score Centering in Policy Gradient Estimation（http://arxiv.org/abs/2610.22263v1）
+- [cs.LG] Topology-Inspired Fine-Tuning for Wind-Field Super-Resolution（http://arxiv.org/abs/2610.22262v1）
+- [cs.LG] BitSparse: Compact Activation Storage for ReLU Feed-Forward Networks（http://arxiv.org/abs/2610.22256v1）
+- [cs.LG] Explore Once, Evaluate Many: Multiple Policy Evaluation for Stochastic Linear Bandits（http://arxiv.org/abs/2610.22252v1）
+- [cs.LG] Language Is a Security Surface for Agent Guards（http://arxiv.org/abs/2610.22244v1）
+- [cs.LG] Shortcut Sensitivity in Agent-Safety Evaluations（http://arxiv.org/abs/2610.22243v1）
+- [cs.LG] SurvICL: a Foundation Model for in-context Survival Analysis（http://arxiv.org/abs/2610.22242v1）
+- [cs.LG] Query-Efficient Rejection Sampling for Parallel Masked Diffusion（http://arxiv.org/abs/2610.22238v1）
+- [cs.LG] Training-Free On-Policy Distillation（http://arxiv.org/abs/2610.22236v1）
+- [cs.LG] OS-Helix: Unifying GUI Interaction and Code Execution in Native Computer-Using Agents（http://arxiv.org/abs/2610.22234v1）
+- [cs.LG] Architecting for Hardware Diversity: Meta's End-to-End Co-Design for High-Performance AI Training on AMD GPUs（http://arxiv.org/abs/2610.22230v1）
+- [cs.LG] How Much Physics Can Vision Learn from Audio? Probing and Distilling Damping Structure（http://arxiv.org/abs/2610.22221v1）
+- [cs.LG] FutureLift: Lifting Trajectory Proposals into Bidirectional Future Graphs for Motion Forecasting（http://arxiv.org/abs/2610.22215v1）
+- [cs.LG] Generalization Guarantees of Randomized Block Coordinate Descent for Nonconvex Learning（http://arxiv.org/abs/2610.22213v1）
+
+## 2026-10-15（107 篇）
+- [cs.AI] LIBERO-PeRM: Benchmarking Personalized Robotic Manipulation（http://arxiv.org/abs/2610.22372v1）
+- [cs.AI] Discovering state-of-the-art quantum circuits with large language models（http://arxiv.org/abs/2610.22367v1）
+- [cs.AI] T2-z: Test-Time Optimization of Environment Latents for Robotic World Models（http://arxiv.org/abs/2610.22364v1）
+- [cs.AI] CoDA: Co-Evolution of Data Engines and Action Policies（http://arxiv.org/abs/2610.22362v1）
+- [cs.AI] Rethinking Routing Exploration in Modern Mixture-of-Experts（http://arxiv.org/abs/2610.22353v1）
+- [cs.AI] FDE-Gym: The Last Mile of AI Delivery（http://arxiv.org/abs/2610.22350v1）
+- [cs.AI] MLExpert: Towards a Generalist Agentic Model for Autonomous Machine Learning Engineering（http://arxiv.org/abs/2610.22344v1）
+- [cs.AI] GeoState: Learning View-Decoupled Geometry States for 3D World Modeling（http://arxiv.org/abs/2610.22343v1）
+- [cs.AI] 3DCodeVerse: Exploring 3D Worlds as Code（http://arxiv.org/abs/2610.22341v1）
+- [cs.AI] Dexterity from Supervised Play（http://arxiv.org/abs/2610.22340v1）
+- [cs.AI] Evaluation Awareness Beyond English: Do LLMs Act Differently When Tested in Indic Languages?（http://arxiv.org/abs/2610.22333v1）
+- [cs.AI] KnowGPO: Knowledge-Grouped Policy Optimization for Search Agents（http://arxiv.org/abs/2610.22331v1）
+- [cs.AI] Designing Transformers for Continuous Diffusion Language Models（http://arxiv.org/abs/2610.22330v1）
+- [cs.AI] ACEdit: Stable Multi-Turn Image Editing via Asymmetric Conditioning（http://arxiv.org/abs/2610.22328v1）
+- [cs.AI] Twice Upon a Time: Complementary Representations for Time-Series Reasoning（http://arxiv.org/abs/2610.22327v1）
+- [cs.AI] Learning Self-Orchestration in Decentralized Agent Swarms（http://arxiv.org/abs/2610.22322v1）
+- [cs.AI] AVC-Reward: Event-Centric Audio-Video Consistency Evaluation（http://arxiv.org/abs/2610.22321v1）
+- [cs.AI] A team of Gemini 4 Argon agents beats Minecraft（http://arxiv.org/abs/2610.22319v1）
+- [cs.AI] Learning to Steer LLM Agents and Multi-Agent Systems（http://arxiv.org/abs/2610.22316v1）
+- [cs.AI] Knowledge That Is Linear Before Fine-Tuning Generalizes After It（http://arxiv.org/abs/2610.22300v1）
+- [cs.AI] AI Consilium: a Benchmark of LLM Clinical Multidisciplinary Second Opinions（http://arxiv.org/abs/2610.22298v1）
+- [cs.AI] Private Retrieval Augmented Generation via Random Projection（http://arxiv.org/abs/2610.22297v1）
+- [cs.AI] Towards Continual Learning: Mitigating Forgetting With Subspace Tuning（http://arxiv.org/abs/2610.22293v1）
+- [cs.AI] EliteReplay: Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search（http://arxiv.org/abs/2610.22290v1）
+- [cs.AI] Improving Environment-Agnostic Coding Agents: The Role of Scaffolding（http://arxiv.org/abs/2610.22289v1）
+- [cs.AI] Asking Smarter Questions: Targeted Active Preference Learning for Underspecified Rewards（http://arxiv.org/abs/2610.22285v1）
+- [cs.AI] LEASH: Uncertainty-Aware Weak-to-Strong Escalation and Oversight for Computer-Use Agents（http://arxiv.org/abs/2610.22280v1）
+- [cs.AI] Librarian Agents: Training LLMs to Curate Long-Context Workspaces that Anticipate Future Queries（http://arxiv.org/abs/2610.22273v1）
+- [cs.AI] X-RIC: An Agentic RAN-Intelligent Controller Benchmark for Enhancing Reinforcement Learning（http://arxiv.org/abs/2610.22269v1）
+- [cs.AI] Disagreement-Guided Weak-to-Strong Routing（http://arxiv.org/abs/2610.22245v1）
+- [cs.CL] OmniVerifier-C1: Decomposed Graded Verifier for Rule-Governed Generative World Modeling（http://arxiv.org/abs/2610.22355v1）
+- [cs.CL] Training Reasoning Models to Generate Diverse Scientific Ideas（http://arxiv.org/abs/2610.22324v1）
+- [cs.CL] MindEval2: Clinically Grounded Patients and Rubrics for Evaluating Language Models in Mental Health Support（http://arxiv.org/abs/2610.22314v1）
+- [cs.CL] Grid-Bench: Can LLMs Predict How Discrete Worlds Change?（http://arxiv.org/abs/2610.22312v1）
+- [cs.CL] Multi-Target Few-Shot Prompting with Diffusion Language Models（http://arxiv.org/abs/2610.22294v1）
+- [cs.CL] CAT-alyzing Honesty: Continuous Adversarial Training for Transferable LLM Honesty（http://arxiv.org/abs/2610.22292v1）
+- [cs.CL] Not X, but When: Diagnosing a Mandarin LLM Writing Tic through Contextual Appropriateness（http://arxiv.org/abs/2610.22249v1）
+- [cs.CL] Language Is a Security Surface for Agent Guards（http://arxiv.org/abs/2610.22244v1）
+- [cs.CL] Training-Free On-Policy Distillation（http://arxiv.org/abs/2610.22236v1）
+- [cs.CL] Beyond Downstream QA: Rethinking How We Evaluate Agent Memory（http://arxiv.org/abs/2610.22209v1）
+- [cs.CL] Hy-Memory-30B-A3B: Attributed Reinforcement Learning for Long-Term Memory Writing（http://arxiv.org/abs/2610.22196v1）
+- [cs.CL] HTN-Orchestrate: A Hierarchical Task Network Framework for Multi-Agent Orchestration（http://arxiv.org/abs/2610.22195v1）
+- [cs.CL] AutoSFT: An Agentic System for Automated Data Research in Supervised Fine-Tuning（http://arxiv.org/abs/2610.22194v1）
+- [cs.CL] Change the Number, Change the Answer: Assessing Rating Scale Sensitivity in LLM-Based Text Scoring（http://arxiv.org/abs/2610.22187v1）
+- [cs.CL] EVA-Cap: Optimizing Audiovisual Video Captioning via Event-Centric Alignment（http://arxiv.org/abs/2610.22186v1）
+- [cs.CL] Mosaic: Multi-Session Agentic Reinforcement Learning（http://arxiv.org/abs/2610.22174v1）
+- [cs.CL] Lexical Reference Frames: Interpreting LM Residual Streams in Native Semantics（http://arxiv.org/abs/2610.22169v1）
+- [cs.CL] CLUE: Uncovering Social Context for Pragmatic Understanding（http://arxiv.org/abs/2610.22167v1）
+- [cs.CL] EMO: A Closed-Loop Test-Time Computation Framework via Alternating Context Optimization and Logits Steering（http://arxiv.org/abs/2610.22160v1）
+- [cs.CL] PremiseSQL: Evaluating Premise Critique and Abstention in Text-to-SQL Systems（http://arxiv.org/abs/2610.22158v1）

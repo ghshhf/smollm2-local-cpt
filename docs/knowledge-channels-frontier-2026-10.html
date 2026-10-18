@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非预训练知识摄入通道 · 前沿调研（2026-10）</title>
+<style>
+  :root{--ink:#1a2233;--sub:#5a6478;--line:#e3e7ef;--bg:#f7f8fb;--card:#fff;
+        --red:#c0392b;--green:#1e8e5a;--blue:#2456c8;--amber:#b8790a;--purple:#6d4fc2;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);
+       color:var(--ink);line-height:1.65;font-size:15px}
+  .wrap{max-width:980px;margin:0 auto;padding:36px 28px 60px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px}
+  h1{font-size:26px;letter-spacing:.5px}
+  .meta{color:var(--sub);font-size:13px;margin-top:8px}
+  h2{font-size:19px;margin:34px 0 12px;padding-left:10px;border-left:4px solid var(--blue)}
+  h3{font-size:16px;margin:20px 0 8px}
+  p{margin:8px 0}
+  .lede{background:var(--card);border:1px solid var(--line);border-radius:10px;
+        padding:16px 20px;margin:16px 0;font-size:15.5px}
+  .lede b{color:var(--blue)}
+  table{width:100%;border-collapse:collapse;background:var(--card);margin:14px 0;
+        font-size:13.5px;box-shadow:0 1px 3px rgba(20,30,60,.06)}
+  th{background:#eef1f7;text-align:left;padding:9px 10px;border:1px solid var(--line);
+    font-weight:600;white-space:nowrap}
+  td{padding:8px 10px;border:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#fafbfe}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;
+       font-weight:600;white-space:nowrap}
+  .t-green{background:#e2f5ec;color:var(--green)}
+  .t-red{background:#fbe7e4;color:var(--red)}
+  .t-blue{background:#e4ecfd;color:var(--blue)}
+  .t-amber{background:#fdf1dc;color:var(--amber)}
+  .t-purple{background:#ede9fb;color:var(--purple)}
+  .paper{background:var(--card);border:1px solid var(--line);border-radius:10px;
+         padding:16px 20px;margin:14px 0}
+  .paper h3{margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .paper .src{color:var(--sub);font-size:12.5px;margin:2px 0 8px}
+  .paper ul{margin:6px 0 0 20px}
+  .paper li{margin:3px 0}
+  .callout{border-left:4px solid var(--amber);background:#fdf8ec;
+           padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+  .callout.green{border-color:var(--green);background:#eef9f3}
+  .callout.blue{border-color:var(--blue);background:#eef3fd}
+  .arrow{color:var(--sub);font-weight:600}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0;font-size:13.5px}
+  .flow .node{background:var(--card);border:1px solid var(--line);border-radius:8px;
+              padding:5px 12px;font-weight:600;white-space:nowrap}
+  .flow .node.hot{border-color:var(--green);color:var(--green)}
+  footer{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);
+         color:var(--sub);font-size:12.5px}
+  code{background:#eef1f7;padding:1px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>非预训练知识摄入通道 · 前沿调研</h1>
+  <div class="meta">报告日期：2026-10-17 ｜ 检索窗口：近 6 个月 ｜ 定位：验证「0.5B 后不靠预训练也能继续吃知识」的路线假设</div>
+</header>
+
+<div class="lede">
+<b>核心结论：用户直觉成立，且已被前沿反复证实。</b>「让模型吃进更多知识」从来不是只有预训练一条通道。2026 年前沿已经跑通另外四条——<b>推理时学习（TTT / fast weights / 记忆层）、工具+检索、自生成数据再训（RSI）、外科手术式知识编辑</b>。预训练只是其中最贵、最慢的一条。对 0.5B 后的融合版模型而言，主通道将从「喂数据重训」切换为「推理时学习 + 工具 + 自进化」。
+</div>
+
+<h2>一、「吃知识」的五条通道全景</h2>
+
+<table>
+<tr><th style="width:14%">通道</th><th style="width:22%">机制</th><th style="width:12%">成本</th><th style="width:12%">即时性</th><th>前沿代表</th></tr>
+<tr>
+  <td><b>① 预训练 / 续训</b></td>
+  <td>语料进梯度，改权重</td>
+  <td><span class="tag t-red">最贵</span></td>
+  <td><span class="tag t-red">最慢</span></td>
+  <td>我们正在跑的 0.3B→0.5B 扩容链</td>
+</tr>
+<tr>
+  <td><b>② 推理时学习</b><br><span style="color:var(--sub);font-size:12px">TTT / fast weights</span></td>
+  <td>推理当场用输入自监督更新一小撮权重，不改主干</td>
+  <td><span class="tag t-green">低</span></td>
+  <td><span class="tag t-green">秒级</span></td>
+  <td>In-Place TTT（ICLR 2026 Oral）；fast-weight memory；Titans</td>
+</tr>
+<tr>
+  <td><b>③ 外置记忆层</b></td>
+  <td>知识住可寻址键值库，推理时检索读回，权重冻结</td>
+  <td><span class="tag t-green">极低</span></td>
+  <td><span class="tag t-green">即时</span></td>
+  <td>Memory Layers；Titans 神经记忆；我们的 10M 个人记忆三层</td>
+</tr>
+<tr>
+  <td><b>④ 工具 + 检索</b></td>
+  <td>不碰权重，调用外部知识源/工具现场取</td>
+  <td><span class="tag t-green">零训练</span></td>
+  <td><span class="tag t-green">即时</span></td>
+  <td>RAG、MCP 工具、zen-gate 模型池协作</td>
+</tr>
+<tr>
+  <td><b>⑤ 自生成数据再训</b><br><span style="color:var(--sub);font-size:12px">RSI</span></td>
+  <td>模型自己出题/解题/验证，只留验证正确的再训练</td>
+  <td><span class="tag t-amber">中</span></td>
+  <td><span class="tag t-amber">轮次级</span></td>
+  <td>BigBang-V1；Darwin-180B-RSI；MetaRSI-v1；AIBuildAI PostTrain</td>
+</tr>
+</table>
+
+<div class="callout blue">
+<b>关键认知：</b>五条通道不是替代关系而是<b>分层关系</b>——预训练打地基（参数容量），推理时学习做现场适配（激活容量），外置记忆做个人知识（可删容量），工具做无限外延（不占容量），RSI 做闭环增长（自己造容量）。0.5B 后的模型形态 = 「小主干 + 强外挂」。
+</div>
+
+<h2>二、四个最关键的发现</h2>
+
+<div class="paper">
+<h3>1. In-Place Test-Time Training <span class="tag t-blue">ICLR 2026 Oral</span></h3>
+<div class="src">arXiv 2604.06169 · 2026-04</div>
+<ul>
+<li>把 Transformer 中<b>本来就存在的 MLP 末端投影矩阵</b>当「fast weights」，推理时更新——不新增任何组件，drop-in 可用，无需重训。</li>
+<li>4B 模型在 128k 上下文上<b>超过更大模型</b>；计算与内存开销可忽略。</li>
+<li><b>理论炸弹</b>：数学证明了此前五年 TTT 方法优化的目标函数对语言建模「期望效果可忽略」——旧路线建立在错误目标上，换成与 next-token prediction 对齐的目标后才真正生效。</li>
+</ul>
+</div>
+
+<div class="paper">
+<h3>2. Learning, Fast and Slow <span class="tag t-amber">反直觉</span></h3>
+<div class="src">Databricks / UC Berkeley · arXiv 2605.12484 · 2026-05</div>
+<ul>
+<li>fast weights = <b>优化过的文本 prompt</b>（吸收任务知识）；slow weights = 锚定在基座附近的参数（少动、慎动）。3× 样本效率，同性能下 drift 减少 70%。</li>
+<li><b>重磅发现：纯 RL 训练会让模型「越学越僵」</b>——权重离基座太远后，注入新任务信息直接崩溃；fast-slow 框架的模型则能继续学第二个任务。</li>
+<li>这与我们的路线直接同构：<b>主干锚定保函数 + 外置适配层吸收新知识</b>，正是 fast-slow 的工程化表述。</li>
+</ul>
+</div>
+
+<div class="paper">
+<h3>3. fast-weight memory：纯前向装新规则</h3>
+<div class="src">独立研究员 · 2026-07 · r/LocalLLaMA 热度验证</div>
+<ul>
+<li>300 万参数小 Transformer，<b>仅前向传播</b>（无反传、无传统 TTT）即在推理时「安装」从未训练过的规则，并泛化到新样本。</li>
+<li>实测比测试时训练和上下文学习<b>更高效</b>——单块 RTX 3090 完全可复现。</li>
+<li>意义：推理时学习的成本下限被压到「一次前向」，端侧常驻模型现场学新规则成为可部署选项。</li>
+</ul>
+</div>
+
+<div class="paper">
+<h3>4. mdlARC：小模型 + TTT 反杀 <span class="tag t-green">成本断档</span></h3>
+<div class="src">75M 参数 · ARC-AGI-1 公开集 44% · 总成本 $0.67 / 1.5 小时</div>
+<ul>
+<li>每道题<b>现场从随机初始化训练</b>（test-time training），用题目自带示例对归纳规则，测试标签严格隐藏。</li>
+<li>同等准确率下成本是 TRM 的 1/240（$0.67 vs $158）；架构组件（3D RoPE、per-task embedding）消融后从 44% 掉到 24%。</li>
+<li>意义：<b>「规模碾压」不是唯一解</b>——小模型 + 测试时学习 + 好表征设计，在低数据抽象推理上匹敌专为 ARC 设计的循环架构。直接支撑「小模型走到极致」的战略。</li>
+</ul>
+</div>
+
+<h2>三、RSI 侧：模型自己「吃知识」的三种形态</h2>
+
+<table>
+<tr><th style="width:16%">形态</th><th style="width:30%">机制</th><th>实证</th></tr>
+<tr>
+  <td><b>Data-RSI</b><br><span style="color:var(--sub);font-size:12px">数据层</span></td>
+  <td>出题/解题/验证全交 AI，自演进合成数据，无人类逐题参与</td>
+  <td>BigBang-V1（35B 激活 3B）：后训练数据 100% AI 自合成，35B 档 10 项第一，FrontierScience/PaperBench <b>超过 1T 级</b> DeepSeek V4 Pro</td>
+</tr>
+<tr>
+  <td><b>Model-RSI</b><br><span style="color:var(--sub);font-size:12px">权重层</span></td>
+  <td>解可验证问题→只留验证正确的解→重训，无人类推理链</td>
+  <td>Darwin-180B-RSI：HF 48 项基准 9 项榜首（AIME/HMMT 满分）；ZTC 内部状态裁判 0.06s/决策，比外部 API 裁判快 10×</td>
+</tr>
+<tr>
+  <td><b>Meta-RSI</b><br><span style="color:var(--sub);font-size:12px">改进「改进本身」</span></td>
+  <td>Loop Kernel 统一 Data/Harness/Model 三个空间，验证器裁决后回流为下一轮信号</td>
+  <td>MetaRSI-v1：3B 模型四基准平均自升 10.9 分；GPT-5.6 / Claude Opus 5 等六款旗舰平均 +7.3 分</td>
+</tr>
+<tr>
+  <td><b>Harness-RSI</b><br><span style="color:var(--sub);font-size:12px">工具层</span></td>
+  <td>System Prompt / Skill / MCP / Tools / Memory 可插拔槽位做加减法</td>
+  <td>AIBuildAI PostTrain Agent：给定基座+目标+算力预算，自主设计后训练全流程，PostTrainBench 46.6 分（人类专家 51.1）</td>
+</tr>
+</table>
+
+<div class="callout">
+<b>RSI 的公共命门（调研中反复出现的评审要点）：</b>reward hacking、多样性崩塌、假验证、能力漂移、不可复现。判断标准永远是三问——<b>谁是老师？信号可验证吗？模型是在骗裁判还是真变强？</b>我们的宪法「控制点从输入端移到输出端、逐位可审计」正是对这个命门的制度性回答。
+</div>
+
+<h2>四、对我们路线的三个直接冲击</h2>
+
+<div class="paper">
+<h3>冲击 1：E-7 宪法被前沿佐证，且是唯一解</h3>
+<ul>
+<li>Titans / Memory Layers 路线 = 知识住神经记忆或键值库，<b>主干权重冻结</b>；我们的「个人数据只进可寻址可删除记忆层、绝不进参数」不是保守，是<b>与前沿同代的设计</b>。</li>
+<li>fast-slow 论文的发现（RL 让模型僵化）进一步支持：<b>主干少动、外置层多动</b>是能力增长与可删除性的共同解。</li>
+</ul>
+</div>
+
+<div class="paper">
+<h3>冲击 2：算力约束下，TTT 比预训练便宜一个数量级</h3>
+<ul>
+<li>node1 实测：容器仅 8 核、主链训练占 7.9 核，纯 CPU 任务被卡到 0.12 核——<b>预训练扩容在免费 CPU 上是奢侈品</b>。</li>
+<li>推理时学习只更新一小撮权重（adapter / 投影矩阵 / 记忆槽），算力需求低 1–2 个数量级，<b>本机都能跑</b>（识图对齐已验证：0.78M 投影层本机训练毫无压力）。</li>
+<li>结论：0.5B 后「继续吃知识」的主战场从 node1 预训练，转移到<b>端侧推理时学习 + 外置记忆</b>——这恰好也是融合版的部署形态。</li>
+</ul>
+</div>
+
+<div class="paper">
+<h3>冲击 3：mdlARC 式「小模型 + 现场学习」是 B 线的终极形态</h3>
+<ul>
+<li>小模型 + 测试时学习 + 脚本验收 = 我们的「模型做 executor、脚本+多模型评委做 verifier、人只目检最终结果」。</li>
+<li>Timeline-Bench（最强 agent 仅 26.8%、72.9% 败在质量非合规）说明<b>瓶颈在验证不在规模</b>；mdlARC 说明<b>验证到位时小模型能反杀</b>。两条拼起来 = B 线的实证地基。</li>
+</ul>
+</div>
+
+<h2>五、落到 0.5B 融合版：「吃知识」的具体形态</h2>
+
+<div class="flow">
+  <span class="node">预训练收尾</span><span class="arrow">→</span>
+  <span class="node hot">推理时学习（fast weights / 记忆槽）</span><span class="arrow">→</span>
+  <span class="node hot">外置记忆层（10M 个人空间）</span><span class="arrow">→</span>
+  <span class="node hot">工具 + 检索</span><span class="arrow">→</span>
+  <span class="node hot">RSI 闭环（代码层→数据层→权重层）</span>
+</div>
+
+<p><b>一句话：</b>参数 0.5B 封顶不是终点而是起点——从「喂出来的智能」切换为「长出来的智能」。前端四条通道全部零/低训练成本，与端侧常驻、BitNet 三值、看门狗共同构成融合版；RSI 是唯一需要回到训练管线的通道，且只消化「自己验证过的数据」。</p>
+
+<h2>六、待办与开放问题</h2>
+<table>
+<tr><th style="width:34%">事项</th><th>说明</th></tr>
+<tr><td>In-Place TTT 目标函数替换</td><td>论文数学证明旧 TTT 目标「期望效果可忽略」；若我们上 TTT，必须直接用 next-token 对齐目标，不继承旧实现</td></tr>
+<tr><td>fast-slow 锚定强度</td><td>RL/后训练离基座多远开始僵化，需在 0.2B 上实测 drift-性能曲线，作为 adapter 学习率的设定依据</td></tr>
+<tr><td>记忆层 vs TTT 分工</td><td>个人数据走记忆层（E-7 可删），通用新知识走 TTT/工具——边界需要形式化定义</td></tr>
+<tr><td>RSI 验证器规格</td><td>ZTC（内部状态裁判）值得测：0.06s/决策，比外部 API 裁判快 10×，可作为自进化回路的本地裁判候选</td></tr>
+</table>
+
+<footer>
+数据来源：arXiv 2501.00663 / 2604.06169 / 2605.12484；ICLR 2026 Oral；智源社区（BigBang-V1）；HuggingFace 官方基准 API（Darwin-180B-RSI）；腾讯网（AIBuildAI PostTrain Agent）；星战科技（MetaRSI-v1）；r/LocalLLaMA（fast-weight memory）；linlog / aibreakingwire（mdlARC）。检索时间 2026-10-17。<br>
+本报告仅为技术路线调研记录，不构成任何投资建议。
+</footer>
+
+</div>
+</body>
+</html>

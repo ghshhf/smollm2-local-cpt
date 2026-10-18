@@ -1,0 +1,35 @@
+��化 tokenizer_config.json: extra_special_tokens list->{}
+Traceback (most recent call last):
+  File "/mnt/workspace/node1/chain/train_remote_v4.py", line 190, in <module>
+    main()
+  File "/mnt/workspace/node1/chain/train_remote_v4.py", line 87, in main
+    model = AutoModelForCausalLM.from_pretrained(args.base_dir, torch_dtype=torch.float32)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/models/auto/auto_factory.py", line 600, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/modeling_utils.py", line 317, in _wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/modeling_utils.py", line 5074, in from_pretrained
+    ) = cls._load_pretrained_model(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/modeling_utils.py", line 5340, in _load_pretrained_model
+    load_state_dict(checkpoint_files[0], map_location="meta", weights_only=weights_only).keys()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/transformers/modeling_utils.py", line 562, in load_state_dict
+    check_torch_load_is_safe()
+  File "/usr/local/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 1622, in check_torch_load_is_safe
+    raise ValueError(
+ValueError: Due to a serious vulnerability issue in `torch.load`, even with `weights_only=True`, we now require users to upgrade torch to at least v2.6 in order to use the function. This version restriction does not apply when loading files with safetensors.
+See the vulnerability report here https://nvd.nist.gov/vuln/detail/CVE-2025-32434
+[10-13 00:24:42] chunk R4 end: NO ckpt, keep old
+[10-13 00:24:42] chunk R4 start: done=0 chunk=400 lr=5e-4
+[10-13 00:25:03] RESET done: W/ckpt re-init from standard 200M base, done=0
+[10-13 00:25:03] chunk R4 start: done=0 chunk=400 lr=5e-4
+[threads] torch.set_num_threads(8)
+[load] model + tokenizer from /root/r4work/base_next
+[tok] 归一化 tokenizer_config.json: extra_special_tokens list->{}
+[load] params=214.1M device=cpu (fp32)
+[cache] 流式 tokenize 2 个文件, 上限 300M tokens
+Token indices sequence length is longer than the specified maximum sequence length for this model (536025 > 8192). Running this sequence through the model will result in indexing errors

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>0.4B 创意·文章语料 — 选型体检与精炼报告</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1d21; --muted:#5c6570; --line:#e3e7ec;
+    --accent:#1f6feb; --ok:#137a3f; --warn:#a8680a; --bad:#b3261e;
+    --card:#f7f9fb; --chip:#eef2f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:36px 28px;background:var(--bg);color:var(--fg);
+       font:15px/1.75 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;max-width:980px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.2px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:28px}
+  h2{font-size:18px;margin:32px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  h3{font-size:15px;margin:20px 0 8px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:var(--card);font-weight:600;color:var(--muted);font-size:13px}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .good{color:var(--ok);font-weight:600}
+  .bad{color:var(--bad);font-weight:600}
+  .warn{color:var(--warn);font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0}
+  .kpi{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}
+  .kpi div{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);
+           border-radius:8px;padding:12px 14px}
+  .kpi b{display:block;font-size:22px;line-height:1.3}
+  .kpi span{font-size:12px;color:var(--muted)}
+  code{background:var(--chip);padding:1px 5px;border-radius:4px;font-size:13px}
+  .quote{border-left:3px solid var(--accent);background:var(--card);padding:10px 14px;
+         margin:10px 0;font-size:14px;color:#2a3038}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  .mono{font-family:Consolas,Menlo,monospace;font-size:13px}
+  footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);
+         color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<h1>0.4B「创意·文章」语料：选型体检与精炼报告</h1>
+<div class="sub">2026-10-17 · 缺口 2.4 亿 token · 结论：弃用 L3，改用网文语料，已填平</div>
+
+<div class="kpi">
+  <div><b class="good">2.400 亿</b><span>产出 token（目标 2.4 亿）</span></div>
+  <div><b>39,476</b><span>保留章节数</span></div>
+  <div><b>26.7 s</b><span>精炼耗时（node1 上外推 4.8 h）</span></div>
+  <div><b>0.41%</b><span>重复率（HTML/URL/广告 0%）</span></div>
+</div>
+
+<h2>一、为什么弃用 L3 multi_style</h2>
+<p>在动手精炼前先做了数据体检（<code>tools/l3_inspect.py</code>，71.2 万行样本）。结论是：<b>问题不在精炼力度，而在选型本身</b>。</p>
+
+<table>
+<tr><th>体检项</th><th>L3 multi_style 实测</th><th>判断</th></tr>
+<tr><td>文本长度中位</td><td class="num">693 字（最大 4319）</td><td class="bad">短篇改写，不是完整作品</td></tr>
+<tr><td><code>style</code> 字段</td><td>唯一值 1（恒为 multi_style）</td><td class="bad">风格配额逻辑无效</td></tr>
+<tr><td>前 80 字重复率</td><td class="num">0.00%</td><td>去重是纯空砍</td></tr>
+<tr><td>HTML / URL / 代码块</td><td class="num">0.08% / 1.29% / 0.01%</td><td>过滤正则砍不到东西</td></tr>
+<tr><td>模板套话（首先/其次/总之）</td><td class="num">19.56%</td><td class="warn">AI 改写腔</td></tr>
+<tr><td>内容定性（抽样目检）</td><td colspan="2">金砖四国百科体 · 儿童玩水硬拆成「人文社科/自然科学/艺术/法律」四段学术腔 · 上市公司关联交易公告体 · 光催化技术说明文</td></tr>
+</table>
+
+<div class="quote">
+<b>定性：</b>L3 zh multi_style 是「网页原文 → Qwen3/MiniCPM 用百科/学术/公文/说明文多风格改写」的产物，<b>零文学性</b>。喂给小模型学到的是空洞套话模式，不是创造力。<b>这是选型错误，再怎么精炼也炼不出创意。</b>
+</div>
+
+<h2>二、新源：sunorme/webnovel-chinese</h2>
+<table>
+<tr><th>属性</th><th>值</th></tr>
+<tr><td>规模</td><td>9000 本网文，10 片 jsonl 共 39 GB，约 9B token</td></tr>
+<tr><td>字段</td><td><code>title</code> + <code>chapter</code> + <code>text</code></td></tr>
+<tr><td>许可</td><td>Apache-2.0</td></tr>
+<tr><td>实际使用</td><td>仅下最小片 <code>webnovel_9.jsonl</code>（1.235 GB ≈ 2.85 亿 token）— <b>语料过剩，绝不全量处理</b></td></tr>
+<tr><td>下载</td><td>hf-mirror 直连 ~7.4 MB/s，约 3 分钟</td></tr>
+</table>
+
+<h3>两源对比</h3>
+<table>
+<tr><th>指标</th><th>L3 multi_style</th><th>网文 webnovel</th></tr>
+<tr><td>长度中位</td><td class="num">693 字</td><td class="num good">3,046 字</td></tr>
+<tr><td>文体</td><td class="bad">百科/公文/学术改写</td><td class="good">叙事（穿越/对话/心理/情境描写）</td></tr>
+<tr><td>重复率</td><td class="num">0.00%</td><td class="num">0.65%</td></tr>
+<tr><td>HTML / URL</td><td class="num">0.08% / 1.29%</td><td class="num good">0% / 0.03%</td></tr>
+<tr><td>成人征兆</td><td class="num">—</td><td class="num warn">4.50%（已滤至 1.27%）</td></tr>
+<tr><td>是否完整作品层</td><td class="bad">否（片段改写）</td><td class="good">是（章节级）</td></tr>
+</table>
+
+<h2>三、精炼规则（每条对应体检发现，不空砍）</h2>
+<table>
+<tr><th>规则</th><th>依据（实测）</th><th>剔除量</th></tr>
+<tr><td>成人/色情正则过滤</td><td>体检 4.50%</td><td class="num">4,841</td></tr>
+<tr><td>太短 &lt;300 字</td><td>min=3，短章 1.23%</td><td class="num">1,290</td></tr>
+<tr><td><b>书目配额</b>（单书 ≤ 预算 4%）</td><td>单书章节极多（2578 章/本）</td><td class="num">1,128</td></tr>
+<tr><td>整篇 sha1 去重</td><td>0.65%</td><td class="num">96</td></tr>
+<tr><td>广告/推广词（求月票等）</td><td>0.01%</td><td class="num">92</td></tr>
+<tr><td>超长 &gt;20000 字（异常合章）</td><td>p99=7420，max=96507</td><td class="num">16</td></tr>
+<tr><td>URL 过滤</td><td>0.03%</td><td class="num">14</td></tr>
+<tr><td colspan="2"><b>达预算即停（读入 46,954 行时停止，未读完 14.7 万行）</b></td><td class="num">—</td></tr>
+</table>
+
+<h2>四、验收（对产物复检）</h2>
+<table>
+<tr><th>项</th><th>精炼前</th><th>精炼后</th></tr>
+<tr><td>重复率</td><td class="num">0.65%</td><td class="num good">0.41%</td></tr>
+<tr><td>HTML / URL / markdown / 广告</td><td class="num">0.03% 等</td><td class="num good">全部 0.00%</td></tr>
+<tr><td>成人征兆</td><td class="num">4.50%</td><td class="num good">1.27%</td></tr>
+<tr><td>短于 100 字</td><td class="num">1.23%</td><td class="num good">0.00%</td></tr>
+<tr><td>坏行</td><td class="num">—</td><td class="num good">0</td></tr>
+<tr><td>书目集中度</td><td>top1 可达数十 %</td><td class="num good">top1 = 4.0%（77 本书）</td></tr>
+</table>
+
+<p>产物：<code class="mono">D:/work/_local_ai/train_15b/corpus_04b/creative_articles_novel.jsonl</code>（338.9 MB，每行 <code>{"text": ...}</code>）</p>
+
+<h2>五、遗留风险</h2>
+<div class="card">
+<b>题材多样性不足。</b>源 jsonl 按书名排序，<code>wn9</code> 是排序尾段，77 本书名多为「朱/诸/主/铸/紫」音，题材集中在<b>男频玄幻·历史</b>。<br>
+补法：再下一片中段（如 <code>webnovel_4</code>，4.2 GB）各取 1.2 亿 token 混合，下载约 10 分钟 + 精炼 30 秒。
+</div>
+
+<h2>六、本轮方法论教训</h2>
+<ul>
+<li><b>先体检再精炼</b>：没看数据就套 hard_filter+去重+密度 top-K，那叫砍量不叫精炼。已固化为工具 <code>tools/inspect_jsonl.py</code>，新语料进场必跑。</li>
+<li><b>语料过剩时不全量处理</b>：需要 2.4 亿却去读 9B token，是根本性浪费。达预算即停。</li>
+<li><b>纯 CPU 文本处理一律本机做</b>：本机 26.7 秒 vs node1 外推 4.8 小时（node1 容器仅 8 核，被主链训练占满 7.9 核）。本机下载也快（ModelScope 11.8 MB/s、hf-mirror 7.4 MB/s）。</li>
+</ul>
+
+<footer>生成于 2026-10-17 · 工具：tools/l3_inspect.py、tools/inspect_jsonl.py、tools/refine_novel.py</footer>
+</body>
+</html>

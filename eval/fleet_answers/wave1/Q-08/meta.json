@@ -1,0 +1,26 @@
+{
+ "id": "Q-08",
+ "title": "多 epoch 重复：学习与死记的边界 + 在线信号",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.north",
+  "kris.gemini",
+  "kris.nemotron"
+ ],
+ "dead": [
+  "kris.minimax",
+  "unclose",
+  "kris.deepseek",
+  "kris.glm",
+  "kris.step",
+  "kris.longcat",
+  "kris.grok",
+  "kris.qwen",
+  "kilo",
+  "dgai",
+  "zen.deepseek",
+  "ovh",
+  "llm7"
+ ]
+}

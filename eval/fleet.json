@@ -1,0 +1,31 @@
+{
+  "_comment": "统一免费 AI 舰队注册表。enabled=false 的舰船不会被轮询。账号池/科学上网就绪后把对应 enabled 改成 true 即可。机密红线：owner_corpus/持仓/密钥/私人文档绝不进任何中转站——本表只存公益/本机网关的访问凭证，不发任何本地机密。",
+  "ships": [
+    {"id":"kris.gemini","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"gemini-3.8-flash-high","vendor":"google","privacy":"public","enabled":true},
+    {"id":"kris.deepseek","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"deepseek-v4-pro-0813","vendor":"deepseek","privacy":"public","enabled":true},
+    {"id":"kris.qwen","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"Qwen3.8-27B","vendor":"qwen","privacy":"public","enabled":true},
+    {"id":"kris.glm","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"glm-5.2","vendor":"zhipu","privacy":"public","enabled":true},
+    {"id":"kris.minimax","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"MiniMax-M3","vendor":"minimax","privacy":"public","enabled":true},
+    {"id":"kris.step","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"step-5-preview","vendor":"step","privacy":"public","enabled":true},
+    {"id":"kris.longcat","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"longcat-2.5","vendor":"longcat","privacy":"public","enabled":true},
+    {"id":"kris.nemotron","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"nemotron-3-ultra","vendor":"nvidia","privacy":"public","enabled":true},
+    {"id":"kris.north","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"north-mini-code","vendor":"cohere","privacy":"public","enabled":true},
+    {"id":"kris.grok","base":"https://api.krisphyn.cc/v1/chat/completions","key":"sk-go28BcSeT4Ig14N30NVLfDq6fZKquKRLRW0S3zdhosXGwa9U","model":"grok-4.7","vendor":"xai","privacy":"public","enabled":true},
+
+    {"id":"zen.ling","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"ling-3.1-flash-free","vendor":"ling","privacy":"local","enabled":true},
+    {"id":"zen.catjam","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"cat-jam-free","vendor":"cat","privacy":"local","enabled":true},
+    {"id":"zen.mimo","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"mimo-v2.6-flash-free","vendor":"mimo","privacy":"local","enabled":true},
+    {"id":"zen.muse","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"muse-spark-1.3-contributor-free","vendor":"muse","privacy":"local","enabled":true},
+    {"id":"zen.nemotron","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"nvidia/nemotron-3.5-lightning:free","vendor":"nvidia","privacy":"local","enabled":true},
+    {"id":"zen.step","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"step-5-preview-free","vendor":"step","privacy":"local","enabled":true},
+    {"id":"zen.longcat","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"longcat-2.5-preview-free","vendor":"longcat","privacy":"local","enabled":true},
+    {"id":"zen.openrouter","base":"http://127.0.0.1:8787/v1/chat/completions","key":"ofm-Ew_gPxhHHGNBpX9PcU-TKqqB1WXuuxmf","model":"openrouter/free","vendor":"openrouter","privacy":"local","enabled":true},
+
+    {"id":"ext.pollinations","base":"https://text.pollinations.ai/openai","key":"any","model":"gpt-oss-20b","vendor":"openai-oss","privacy":"public","enabled":true},
+    {"id":"ext.unclose","base":"https://hermes.ai.unturf.com/v1/chat/completions","key":"any","model":"turboderp/Qwen3.8-27B-exl3","vendor":"qwen","privacy":"public","enabled":true},
+    {"id":"ext.llm7","base":"https://api.llm7.io/v1/chat/completions","key":null,"model":"GLM-5.3-Flash","vendor":"zhipu","privacy":"public","enabled":true},
+    {"id":"ext.kilo","base":"https://api.kilo.ai/api/gateway/chat/completions","key":"any","model":"kilo-auto/free","vendor":"kilo","privacy":"public","enabled":true},
+    {"id":"ext.dgai","base":"https://dg-ai.scriptsnsenses.workers.dev/v1/chat/completions","key":"any","model":"llama-4-scout","vendor":"meta","privacy":"public","enabled":true},
+    {"id":"ext.ovh","base":"https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions","key":"any","model":"Meta-Llama-3_3-70B-Instruct","vendor":"meta","privacy":"public","enabled":true}
+  ]
+}

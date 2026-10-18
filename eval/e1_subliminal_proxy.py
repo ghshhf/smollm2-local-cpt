@@ -40,7 +40,7 @@ LR_T, LR_S = 3e-4, 3e-4
 SEEDS = [0, 1]
 GEN_TOKENS_TARGET = 150_000
 
-torch.set_num_threads(4)
+torch.set_num_threads(int(os.environ.get("E1_THREADS", "4")))
 random.seed(0)
 torch.manual_seed(0)
 
@@ -64,8 +64,16 @@ def get_tok():
 
 def load_base():
     m = build_model()
-    sd = torch.load(os.path.join(ROOT, "out_smollm2_135m_pt/checkpoint-latest/pytorch_model.bin"),
-                    map_location="cpu", weights_only=True)
+    # 权重路径：优先 SMOL_CKPT（node1/云端重组产物），否则回退本地默认相对路径
+    ckpt = os.environ.get("SMOL_CKPT") or os.path.join(
+        ROOT, "out_smollm2_135m_pt/checkpoint-latest/pytorch_model.bin"
+    )
+    if not os.path.isfile(ckpt):
+        raise FileNotFoundError(
+            f"权重不存在: {ckpt} —— 请设环境变量 SMOL_CKPT 指向 pytorch_model.bin"
+        )
+    print(f"[ckpt] {ckpt}")
+    sd = torch.load(ckpt, map_location="cpu", weights_only=True)
     m.load_state_dict(sd, strict=True)
     return m
 
@@ -172,7 +180,9 @@ PROBE_SEN = [
 def eval_student(stu, tok, tag):
     """A: 鸮句 vs 对照鸟句的平均 NLL；B: 续写含鸮率。"""
     def sent_nll(bird):
-        texts = [s.format(b=bird) for s in PROBE_SEN for bird in [bird]]
+        # 注意：原写法 `for bird in [bird]` 会让推导变量遮蔽函数参数，Python 判定
+        # 右侧 [bird] 的 bird 未绑定 ⇒ UnboundLocalError（E1 首跑即崩在此处）。
+        texts = [s.format(b=bird) for s in PROBE_SEN]
         nlls = []
         for t in texts:
             ids = tok(t, add_special_tokens=False)["input_ids"]
@@ -222,21 +232,35 @@ def main():
     results = {"design": "E1 local proxy, SmolLM2-135M arch, quirk=" + QUIRK,
                "seeds": SEEDS, "steps": {"teacher": STEPS_TEACHER, "student": STEPS_STUDENT}}
 
-    log("== 1/4 加载基座 ==")
-    base = load_base()
+    p_treat = os.path.join(OUT, "e1_digits_treat.txt")
+    p_ctrl = os.path.join(OUT, "e1_digits_ctrl.txt")
+    reuse = (os.environ.get("E1_REUSE", "0") == "1"
+             and os.path.exists(p_treat) and os.path.exists(p_ctrl))
 
-    log("== 2/4 TREAT 教师（注入癖好）与 CTRL 教师 ==")
-    treat_t = finetune_teacher(base, tok, make_quirk_corpus(), STEPS_TEACHER, LR_T, "treat-teacher")
-    ctrl_t = load_base()  # 同基座不注入
-    del base
+    if reuse:
+        # 教师微调(250步) + 150k token 数字流生成(≈3.2h) 的产物已在磁盘上，
+        # 直接复用：修 bug 后重跑只需「学生训练 + 评测」，省掉整个准备阶段。
+        log("== 1-3/4 复用磁盘已落盘的数字流（跳过教师微调与生成）==")
+        d_treat = open(p_treat, encoding="utf-8").read()
+        d_ctrl = open(p_ctrl, encoding="utf-8").read()
+    else:
+        log("== 1/4 加载基座 ==")
+        base = load_base()
 
-    log("== 3/4 生成数字流（双盲过滤：只留数字）==")
-    d_treat = gen_digits(treat_t, tok, GEN_TOKENS_TARGET, "digits-treat")
-    d_ctrl = gen_digits(ctrl_t, tok, GEN_TOKENS_TARGET, "digits-ctrl")
-    open(os.path.join(OUT, "e1_digits_treat.txt"), "w", encoding="utf-8").write(d_treat)
-    open(os.path.join(OUT, "e1_digits_ctrl.txt"), "w", encoding="utf-8").write(d_ctrl)
+        log("== 2/4 TREAT 教师（注入癖好）与 CTRL 教师 ==")
+        treat_t = finetune_teacher(base, tok, make_quirk_corpus(), STEPS_TEACHER, LR_T, "treat-teacher")
+        ctrl_t = load_base()  # 同基座不注入
+        del base
+
+        log("== 3/4 生成数字流（双盲过滤：只留数字）==")
+        d_treat = gen_digits(treat_t, tok, GEN_TOKENS_TARGET, "digits-treat")
+        d_ctrl = gen_digits(ctrl_t, tok, GEN_TOKENS_TARGET, "digits-ctrl")
+        open(p_treat, "w", encoding="utf-8").write(d_treat)
+        open(p_ctrl, "w", encoding="utf-8").write(d_ctrl)
+        del treat_t, ctrl_t
+
     assert QUIRK not in d_treat and QUIRK not in d_ctrl, "过滤失败!"
-    log("过滤校验通过：数字流中无癖好字")
+    log(f"过滤校验通过：数字流中无癖好字（treat {len(d_treat)} 字符 / ctrl {len(d_ctrl)} 字符）")
 
     log("== 4/4 学生训练 + 双盲评测 ==")
     per_seed = {}

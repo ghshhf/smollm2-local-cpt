@@ -1,0 +1,172 @@
+{
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.8%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 0.5
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.8%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 0.5
+ },
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.8%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 0.6
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.6%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 0.6
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.6%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 0.8
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.6%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 0.8
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.6%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 1.2
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.6%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 1.7
+ },
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.6%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 1.9
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 503: {\"error\":{\"message\":\"system cpu overloaded (current: 99.6%, threshold: 90%)\",\"type\":\"new_api_error\",\"param\":\"\",\"code\":\"system_cpu_overloaded\"}}",
+  "sec": 2.7
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 25.2
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "**0.5 B Fusion‑版（BitNet b1.58‑三值 QAT）的三位分析**  \n> (遵循给出的答题格式：① 机制/最佳理论 ② 可执行方案或伪代码 ③ 可证伪判据 ④ 若需实验标注 node1 CPU 最小可跑版)\n\n---\n\n## ① STE 数学上不成立但实证有效的解释理论\n\n| 说法 | 关键点 | 与三值 QAT 的关联 |\n|-----|--------|-------------------|\n| **STE 近似梯度** | 直接把非可导的量化函数（round、sign）视作恒等函数，其梯度设为 1（或其他常数）。理论上这并非严格的梯度，但在训练中为 loss 提供了“可传播”梯度。 | 三值 QAT 正是利用 STE 来让频繁出现的 “0/±1” 权重能被反向传播调优。 |\n| **“Surrogate Gradient” 视角** | STE 等价于把量化函数的逆（梯度）用一个光滑的“替代梯度”。在模拟器里，这种替代梯度往往具有更好的收敛性质。 | 在 BitNet b1.58 中，STE 对每层 BitLinear 的量化程序做了轻量级的“光滑化”，在前向通过 0/±1，后向通过 1 或者 1/step。 |\n| **梯度噪声与正则化** | 在 STE 的梯度为 1 时，梯度在梯度爆炸/消失前的“非线性重构”处留下噪声；这种噪声作用类似于 Dropout / SGDR，能把模型推向更鲁棒的权重区间。 | 对 1.58‑bit 权重（0、±1）来说，梯度噪声可以预防模型陷入所有权重“全 0”或“全 1”的死锁。 |\n| **常数梯度对量化误差的“自适应调节”** | STE 使得量化误差不再直接影响误差",
+  "err": null,
+  "sec": 27.4
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 0.5
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 0.6
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"type\\\":\\\"error\\\",\\\"error\\\":{\\\"type\\\":\\\"FreeTierError\\\",\\\"message\\\":\\\"OpenCode's free tier can only be used from within OpenC",
+  "sec": 0.8
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 1.1
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.1
+ }
+}

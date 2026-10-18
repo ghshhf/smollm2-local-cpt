@@ -1,0 +1,14 @@
+=== R5 corpus check ===
+drwxr-xr-x 2 root root      4096 10月 12 23:52 corpus_r4
+lrwxrwxrwx 1 root root        36 10月 12 23:52 corpus_R4 -> /mnt/workspace/node1/chain/corpus_r4
+--- corpus_R5 direct ---
+corpus_R5 MISSING
+--- corpus_r5 direct ---
+corpus_r5 MISSING
+--- find any r5 jsonl ---
+--- root r4work ---
+no /root/r4work/corpus
+=== upload probe ===
+{"name":"probe1.txt","saved":17}HTTP=201
+=== done_steps now ===
+400

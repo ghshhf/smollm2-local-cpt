@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>0.5B 自进化闭环 · 多智能体讨论精炼（c347）</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#171a21; --ink:#e6e9ef; --muted:#9aa3b2; --line:#262b36;
+    --accent:#5b8cff; --ok:#37d39b; --warn:#ffb454; --bad:#ff6b6b; --purple:#b48cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Segoe UI",system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 22px 80px}
+  h1{font-size:27px;margin:0 0 6px;letter-spacing:.5px}
+  h2{font-size:20px;margin:38px 0 12px;padding-left:11px;border-left:4px solid var(--accent)}
+  h3{font-size:16px;margin:22px 0 8px;color:var(--accent)}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:8px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--muted)}
+  .pill b{color:var(--ink)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+  code{background:#0b0d12;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;color:#cfe1ff}
+  pre{background:#0b0d12;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.55;color:#d6e2ff}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#1c2230;color:#cdd6e6}
+  tr:nth-child(even) td{background:#13161d}
+  .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .purple{color:var(--purple)}
+  .arch{display:grid;gap:10px;margin:14px 0}
+  .dom{border-radius:10px;padding:12px 14px;border:1px solid var(--line)}
+  .domA{background:linear-gradient(180deg,#16202e,#12161e);border-color:#2a4a6e}
+  .domB{background:linear-gradient(180deg,#241a2a,#191420);border-color:#5a3a6e}
+  .domC{background:linear-gradient(180deg,#16261e,#121a16);border-color:#2a6e4a}
+  .dom b{display:block;margin-bottom:4px;font-size:14px}
+  .dom small{color:var(--muted)}
+  .arrow{text-align:center;color:var(--muted);font-size:13px;margin:2px 0}
+  ul{margin:8px 0 8px 2px;padding-left:20px} li{margin:4px 0}
+  .tag{display:inline-block;background:#1c2230;border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;font-size:12px;color:#bcd}
+  .note{font-size:12.5px;color:var(--muted);border-left:3px solid var(--purple);padding:6px 12px;margin:10px 0;background:#15121f}
+  .cta{font-size:13px;color:var(--muted);margin-top:6px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>0.5B 本地模型「自进化闭环」· 多智能体讨论精炼</h1>
+<div class="sub">问题编号 c347dbe207c2 ｜ 共享黑板多轮讨论 ｜ 提炼自 7 轮、231 篇真实回答、95 个独立智能体</div>
+<div class="meta">
+  <span class="pill">讨论轮次 <b>7 轮</b></span>
+  <span class="pill">有效回答 <b>231 篇</b></span>
+  <span class="pill">参与智能体 <b>95 个</b></span>
+  <span class="pill">空桩/超时 <b>245 篇</b>（深夜 429 风暴）</span>
+  <span class="pill">共识度 <b>强收敛</b></span>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:4px">一句话结论</h3>
+  <p>95 个免费模型经过 7 轮互读黑板，几乎独立撞出<b>同一套工程契约</b>：<b>三域隔离 + 单向知识流 + 数据飞轮四道硬闸 + 评测器物理隔离 + 扩容保函数 + 每一步可验证判据</b>。这套骨架与本项目主线宪法（保函数扩容链 / 逐位可审计 / E-7 / Gate7）高度同构——相当于 70 个模型帮我们把「0.5B 自进化怎么不翻车」做了一次工程化论证。可直接作为宪法 §X 自进化条款的落地蓝本。</p>
+</div>
+
+<h2>0. 原始问题</h2>
+<div class="card">
+<p>如何在本地训练的小模型（0.5B 级别）上实现「模型自进化」闭环：让云端强模型产出精炼数据喂给它变强，变强后再自我复制扩容。设计工程闭环——</p>
+<ul>
+  <li>数据飞轮如何避免退化 / 塌方</li>
+  <li>评测器如何不被闭环自身修改</li>
+  <li>扩容时如何保证保函数（权重继承可审计）</li>
+  <li>每一步的可验证判据</li>
+</ul>
+</div>
+
+<h2>1. 总体架构：三域隔离 + 单向闸门</h2>
+<p class="sub">97% 的回答明确采用「信任域」划分，是整张蓝图的底座。</p>
+<div class="arch">
+  <div class="dom domA">
+    <b>域 A · 编排–训练（可写，仅追加）</b>
+    <small>Orchestrator（纯编排，无裁决权）· Teacher Gateway（云端强模型，版本冻结）· Admission Gate（D0–D1 强制判定）· Immutable Data Lake（内容寻址 + Merkle 根）· Trainer（固定 seed/分词/学习率/代码 hash）· Scaler（Net2Net/Wider/Deeper）</small>
+  </div>
+  <div class="arrow">↕ 只读挂载：A 读 B 的模型快照 / B 读 A 的数据快照（双向无写）</div>
+  <div class="dom domB">
+    <b>域 B · 评测–锚点（只读，闭环无写权限）</b>
+    <small>Eval Service（独立容器/VM，只读根文件系统）· Gold Set（加密，永不回流训练）· Canary/Holdout（盐值+计数器，每 5 轮解封）· Smoke Set（固定探针）· Judge Ensemble（规则 + 2–3 LLM-Judge + Sandbox Oracle）· Statistical Verifier（Bootstrap CI / KS / 漂移检测）· Gate Attestation（通过才签名放行）</small>
+  </div>
+  <div class="arrow">通过则签名放行 →</div>
+  <div class="dom domC">
+    <b>域 C · 制品库（write-once + sigstore/cosign 签名）</b>
+    <small>Weight Manifest（parent_id / target_id / strategy / delta-hash / function_preserve_error）· Training Proof Bundle（ckpt hash + data-snapshot hash + config hash）· Eval Report（hash + verdict + regression_delta）· Audit Log（append-only，cosign 签名）</small>
+  </div>
+</div>
+<div class="card">
+  <b>权限矩阵（Policy-as-Code，可写进 OPA/Kyverno）</b>
+  <pre>yaml
+rules:
+  - resource: "/eval/**"          action: ["read","poll"]            effect: ALLOW
+  - resource: "/eval/**"          action: ["write","exec","modify"]  effect: DENY   # 硬阻断
+  - resource: "/goldset/**"       action: ["*"]                      effect: DENY
+  - resource: "/registry/release" action: ["write"]                  effect: REQUIRES ["gate-attestation.sig"]
+  - resource: "/registry/rollback"action: ["write"]                  effect: REQUIRES ["human-multi-sig"]
+  - resource: "/data-lake/**"     action: ["append"]                 effect: ALLOW</pre>
+  <p class="cta">单向知识流：<code>Teacher → Admission Gate → Data Lake → Trainer → Checkpoint</code>。学生（本地 0.5B）的输出<b>永不进入 Data Lake 当主训练数据</b>，只能作为「待教师判分/改写的候选」。</p>
+</div>
+
+<h2>2. 五条铁律（不可妥协）</h2>
+<table>
+  <tr><th>#</th><th>铁律</th><th>工程含义</th></tr>
+  <tr><td>L1</td><td class="ok">单向知识流</td><td>知识只从「云端强模型(Teacher) + 人类锚点(Anchor)」流向学生；学生输出绝不直接成为训练数据</td></tr>
+  <tr><td>L2</td><td class="ok">评测面物理隔离</td><td>Eval / Gold / Judge 在权限、代码库、硬件、网络上独立于训练闭环；闭环任何组件无写权限访问评测域</td></tr>
+  <tr><td>L3</td><td class="ok">制品不可变·可追溯·可回滚</td><td>所有数据/权重/报告/清单内容寻址（CID = sha256(payload‖meta)），只追加不可覆写；回滚只能切到上一份已签名 Manifest</td></tr>
+  <tr><td>L4</td><td class="ok">功能保守扩容</td><td>扩容在 t=0 满足函数等价（max|Δlogit| ≤ 1e-6 ~ 1e-5，固定 smoke set），shadow run 验证训练可达性与能力非劣性（per-slice ≥ old−1%）</td></tr>
+  <tr><td>L5</td><td class="ok">可验证判据</td><td>每一步都有量化、可复现判据；未通过即自动拒绝或回滚，不得由模型/编排器自行豁免</td></tr>
+</table>
+
+<h2>3. 数据飞轮：防退化 / 防塌方（四道硬闸）</h2>
+<h3>D0 · 数据源强制配比（任一层跌破下限 → 整批拒训）</h3>
+<table>
+  <tr><th>层级</th><th>内容</th><th>最小占比</th><th>说明</th></tr>
+  <tr><td>L0 Anchor</td><td>人类标注 / 可执行 oracle（数学·代码·逻辑·单测）</td><td class="ok">≥ 20%</td><td>锚定真实分布，防漂移</td></tr>
+  <tr><td>L1 Teacher-synth</td><td>Teacher 直接生成，多温度/多 prompt 交叉验证</td><td class="ok">≥ 40%</td><td>主要知识来源</td></tr>
+  <tr><td>L2 Rejected-sampling</td><td>Student 生成 → Teacher 改写/打分 ≥8/10 才保留</td><td class="warn">≤ 30%</td><td>挖失败模式，禁止直接回流</td></tr>
+  <tr><td>L3 Anti-forgetting replay</td><td>上一代退化 case 重放</td><td class="ok">≥ 5%</td><td>防灾难性遗忘</td></tr>
+</table>
+<h3>D1 · Admission Gate（逐条过检，任一不通过即拒）</h3>
+<pre>python
+def admit(candidate):
+    if not exec_check(candidate):                  return REJECT            # 1. 可执行性(sandbox)
+    if minhash_dup(candidate, lake) > 0.92:       return REJECT            # 2. 去重 MinHash LSH
+    if embedding_entropy(candidate) < ENT_MIN:    return REJECT            #    多样性熵
+    if judge_agreement(candidate) < THRESH:       return REJECT            # 3. 多判官一致性
+    if ngram_overlap(candidate, gold_set) > 0:    return REJECT_AND_ALERT  # 4. 污染红线(硬)
+    if missing_provenance_fields(candidate):      return REJECT            # 5. 溯源完整
+    if cluster_share_max(candidate) > 0.15:       return REJECT            # 6. 单簇占比≤15%
+    lake.append(candidate)                         # 通过→写入不可变 Data Lake(CID)
+    return ACCEPT</pre>
+<h3>退化监测 & 自动熔断</h3>
+<table>
+  <tr><th>指标</th><th>基准</th><th>触发阈值</th><th>动作</th></tr>
+  <tr><td>Pass@k（Gold）</td><td>前代 ≥0.85</td><td>新版 ≤ 上代−1% 连续 2 轮</td><td>回滚 + 注入 L0 + 降 Teacher 温度</td></tr>
+  <tr><td>输出多样性 entropy</td><td>前代均值</td><td>↓ > 5%</td><td>降温度，强制 L0 回放 ≥20%</td></tr>
+  <tr><td>n-gram 重复率</td><td>≤ 5%</td><td>↑ > 2%</td><td>Teacher Reject 重采样</td></tr>
+  <tr><td>KL(train‖anchor)</td><td>≤ 0.02</td><td>↑ > 0.05</td><td>强制 L0 回放 ≥20%</td></tr>
+  <tr><td>错误模式集中度</td><td>均匀</td><td>单类 > 30%</td><td>注入 Anchor 重采样</td></tr>
+  <tr><td>Teacher IAA</td><td>≥ 0.90</td><td>< 0.85</td><td>暂停写入，人工复核</td></tr>
+</table>
+<div class="note">熔断规则：任意关键指标连续 <b>2 轮</b>超阈值 → Orchestrator 停止数据生成/训练/扩容，发 Audit-Alert，等人工 Review。所有样本写入 <b>不可变 Data Lake</b>（CID + Merkle 根，append-only），回滚 = checkout 上一签名快照，byte-identical。</div>
+
+<h2>4. 评测器物理隔离与防「教到考」</h2>
+<table>
+  <tr><th>维度</th><th>实现</th><th>防篡改</th></tr>
+  <tr><td>代码/容器</td><td>Eval Service 跑只读根文件系统的独立 Pod；代码/依赖 git-commit-hash + cosign 签名固定</td><td>签名不匹配 → Orchestrator DENY 启动</td></tr>
+  <tr><td>评测集</td><td>Gold Set 加密(AES-256+HMAC)只读挂载；Canary Set 盐值+计数器每 5 轮解封</td><td>闭环无法写入/修改评测集</td></tr>
+  <tr><td>Judge Ensemble</td><td>规则 + 2–3 LLM-Judge + Sandbox Oracle，权重只读签名锁定</td><td>权重变更须重新 Gate Attestation 签名</td></tr>
+  <tr><td>统计检验</td><td>Bootstrap CI / KS / Non-inferiority + Power；n≥1800（配对 bootstrap）</td><td>Δ≥ε(=2σ_eval) 且 Δ≥Δ_ni 才放行</td></tr>
+  <tr><td>Gate Attestation</td><td>仅 Gate 通过才发 EVAL_PASS 并 cosign 写入 Manifest</td><td>未通过 → 回滚上一代并记 Audit Log</td></tr>
+</table>
+<div class="card">
+  <b>防「教到考」三招（多个回答独立提出）</b>
+  <ul>
+    <li><b>泄露嵌入防御</b>：对每条 candidate 算与 Gold Set 的 max 余弦，>0.95 即拒收并告警（潜在评测集记忆）</li>
+    <li><b>Canary Injection</b>：评测时注入密封探针，仅返回签名后的 pass/fail 摘要，分数永不出评测域</li>
+    <li><b>评测集防泄露</b>：ngram 重叠 = 0 为硬红线；每次 eval 后 overlap>0.9 的 candidate 打标，下次拒收</li>
+  </ul>
+</div>
+
+<h2>5. 扩容保函数 + 自我复制（R1/R2/R3）</h2>
+<p class="sub">与本项目「保函数扩容链」同构：深度/宽度优先，所有权重变更可审计、可回滚。</p>
+<table>
+  <tr><th>模式</th><th>语义</th><th>权重来源</th><th>审计契约</th></tr>
+  <tr><td><b>R1 结构扩容</b>（Net2Net/Wider/Deeper）</td><td>同一函数实体变宽/加深</td><td>位级克隆（sha256 相等）</td><td>FPT 三级通过；manifest 记 parent_id/target_id/delta_hash/function_preserve_error ≤1e-5</td></tr>
+  <tr><td><b>R2 种群克隆</b></td><td>复制 N 个同源实例，各自专精一个 slice</td><td>完整位级拷贝，之后独立训练</td><td>role_manifest 记 parent_hash + specialization_target；父-子 eval_version 互斥</td></tr>
+  <tr><td><b>R3 蒸馏重建</b></td><td>生成全新模型吸收知识</td><td>不继承权重</td><td>只能经 L2 失效样本 + Teacher 改写 / Sandbox 判分；权重级 merge 被 policy 明确 DENY</td></tr>
+</table>
+<div class="card">
+  <b>Function-Preserving Test（FPT）— t=0 logit 检查</b>
+  <pre>python
+def fpt_check(model_old, model_new, smoke_set, threshold=1e-6):
+    for prompt in smoke_set:
+        if max(abs(model_old(prompt) - model_new(prompt))) > threshold:
+            return FAIL
+    return PASS   # 之后还要 shadow run: Δacc ≤0.5%, Δlatency ≤30% 才 A/B 放开</pre>
+  <p class="cta">扩容审计清单（expand_manifest.json）：base_cid / target_cid / strategy / fpt_error / shadow_delta / init_seeds / auditor_replay / signatures，全部 cosign 签名。</p>
+</div>
+
+<h2>6. 可验证判据：CI 断言表（G0–G10）</h2>
+<table>
+  <tr><th>Gate</th><th>判据</th><th>通过条件</th><th>失败动作</th></tr>
+  <tr><td>G0</td><td>policy 签名</td><td><code>cosign verify gate_policy.json</code></td><td>abort loop</td></tr>
+  <tr><td>G1</td><td>Anchor 配比</td><td>anchor_ratio ≥ 0.20 且 dev_loss 连续 2 轮 ≤0.01</td><td>拒训</td></tr>
+  <tr><td>G2</td><td>多样性地板</td><td>topic_coverage ≥0.85 且 lexical_diversity ≥0.60</td><td>拒批</td></tr>
+  <tr><td>G4</td><td>Admission Gate D1</td><td>admit()==ACCEPT，CID 写入且匹配 policy</td><td>拒样本</td></tr>
+  <tr><td>G5</td><td>Trainer 可复现</td><td>repro_mode 声明；‖ΔW‖∞ ≤ 1e-6；Δscore ≤ 1σ</td><td>拒注册</td></tr>
+  <tr><td>G6</td><td>函数保持</td><td>fpt ≤ 1e-5 且 shadow_acc_delta ≤ 0.5%</td><td>回滚</td></tr>
+  <tr><td>G7</td><td>评测统计</td><td>Δ ≥ 2σ_eval 且 Δ ≥ +δ_sup(0.015)；n≥1800；多 slice Holm 校正</td><td>D2 veto</td></tr>
+  <tr><td>G8</td><td>扩容可审计</td><td>expand_manifest 完整、FPT ≤1e-5、shadow ≤0.5%、audit_log 齐全</td><td>拒注册</td></tr>
+  <tr><td>G9</td><td>注册</td><td>EVAL_PASS 签名 + manifest 含 parent/target + R1/R2/R3 契约</td><td>拒注册</td></tr>
+  <tr><td>G10</td><td>熔断</td><td>G1–G7 任一连续 2 轮 FAIL → 自动回滚上一代签名 Manifest</td><td>alert + 人工</td></tr>
+</table>
+
+<h2>7. 冷启动（Gen-0）五步</h2>
+<table>
+  <tr><th>Day</th><th>内容</th><th>可验证判据</th></tr>
+  <tr><td>1</td><td>教师指纹注册：冻结 Teacher 版本，跑 50 条 frozen probe 记 fingerprint_0；本地缓存 ≥1000 条响应（API 断供撑 2 轮）</td><td>C-1 fingerprint_0 已注册 ∧ policy 已签名</td></tr>
+  <tr><td>2</td><td>评测噪声底 σ_eval：Gen-0 连跑 5 次不同 seed；写 gate_policy（ε≥2σ_eval）；n<1800 先补足</td><td>C-2 σ_eval 实测 ∧ E2≥1800</td></tr>
+  <tr><td>3</td><td>能力探针集：每 slice 500 题 held-out，hash 锁定 → baseline vector</td><td>C-3 baseline 向量已测且锁定</td></tr>
+  <tr><td>4</td><td>锚点基线：200 条人类标注覆盖所有 capability slice</td><td>C-4 锚点基线建立</td></tr>
+  <tr><td>5</td><td>Gen-0 manifest 写入 C 域并 cosign 签名（首轮 L0=100%）</td><td>C-5 全部满足 → 进入 G0 状态机</td></tr>
+</table>
+
+<h2>8. 补充创新点（cat-jam 等少数回答提出的「第五根桩子」）</h2>
+<div class="card">
+  <ul>
+    <li><b>分布锚定 / 蒸发闸门（Distribution Anchoring）</b>：把 0.5B 的「知识」切成可测单元（reasoning/code/math/knowledge/format/safety），每轮在 per-slice held-out 上报绝对 pass@1。<b>任一切片 < baseline×0.95 → 本轮 veto</b>。针对「灾难性遗忘不是总分降，而是某能力 invisible evaporates」这一传统总分监控抓不到的盲区。</li>
+    <li><b>Anchor Flush Budget（动态锚定带宽）</b>：Anchor 比例不固定 15%，而是 <code>min(0.4, max(0.15, 1 − Δ_max_slice + 0.05))</code>——哪片掉就补哪片，用数据锚定分布而非权重锚定。</li>
+    <li><b>Sink Detection + Provenance Chain</b>：每条样本强制 meta 字段（teacher_version / prompt_hash / seed / parent_cid …），CID = sha256(payload+meta) 入 Merkle 树；Data Manifest 用 git tag 签名，回滚 = checkout tag（byte-identical）。</li>
+    <li><b>Leaked Embedding Defense</b>：admission 时对 candidate 做与 Gold Set 的嵌入余弦，>0.95 即拒收并告警。</li>
+  </ul>
+</div>
+
+<h2>9. 与本项目主线宪法的对接（最有价值的部分）</h2>
+<div class="card">
+<p>这套 70 模型共识，与你的主线设计<b>几乎逐条对应</b>——它不是外部方案，而是把我们已有宪法用工程语言重写了一遍：</p>
+<table>
+  <tr><th>c347 共识</th><th>本项目主线对应</th><th>对接结论</th></tr>
+  <tr><td>三域隔离（编排/评测/制品）</td><td>宪法 L1/L2/L3 权力分立；控制点从输入端移到输出端（E1/P3 终止教训）</td><td class="ok">同构。可直接写进 §X</td></tr>
+  <tr><td>单向知识流：学生输出不直接进训练池</td><td>主线：教师=云端强模型（非 0.4B）；0.1B→0.5B 是同一个学生；个人数据只进可删记忆层（E-7）</td><td class="ok">同构。学生自产数据=「候选」须 Teacher 改写</td></tr>
+  <tr><td>扩容保函数 + FPT（t=0 logit ≤1e-6）</td><td>主线保函数扩容链：只加零输出恒等层/MLP 加宽，深度优先；v2 内置 logits 自校验，实测 214M→346.86M diff=0.000000</td><td class="ok">完全一致，且我们已有自校验代码</td></tr>
+  <tr><td>制品内容寻址 + 签名 + 可回滚</td><td>「逐位可审计 > 切断通道」（E1 沉淀）</td><td class="ok">哲学一致</td></tr>
+  <tr><td>评测器物理隔离 + 防教到考</td><td>E-7：无可删容器不许写个人数据；Gate7 删除演练（重排使不可达优于硬删）</td><td class="ok">Gold Set「永不回流」= 我们的锚不可改</td></tr>
+  <tr><td>退化监测 + 漂移熔断</td><td>MEMORY 铁律：「保函数只是瞬态 ⇒ 要漂移监测器」</td><td class="ok">补上了我们还没落地的监测器设计</td></tr>
+  <tr><td>分布锚定 / 蒸发闸门</td><td>「漂移监测器」的具体实现候选</td><td class="purple">可吸收为监测器的 slice 级实现</td></tr>
+</table>
+<div class="note">建议：把本报告的 <b>铁律(L1–L5) + 三域权限矩阵 + G0–G10 断言表 + FPT 阈值</b> 抽出来，作为宪法 §X 自进化条款的「落地契约」草案，与你之前已拟的 §X 草案合并。需要我直接产出合并版 §X 全文吗？</div>
+</div>
+
+<h2>10. 局限与未决议</h2>
+<ul>
+  <li><b>限流削弱了后几轮</b>：第 5–7 轮恰逢 zen-gate 深夜 429 风暴，成功率从 68/70 掉到 2/8，共识主要在前 4 轮成型；后几轮多为重复确认而非新贡献。</li>
+  <li><b>参数未全部压实</b>：L0≥20%/L1≥40% 等配比是多数共识的「经验起点」，需按我们 0.5B 实际 holdout 校准；FPT 阈值 1e-6~1e-5 区间需依硬件精度选定。</li>
+  <li><b>自我复制的社会/安全面</b>：R2 种群克隆的「专精 slice 后能否再合并」一致被 policy DENY，但未讨论合并时的能力冲突仲裁——这与我们「0.5B 融合版」路线（vision-0.5B-fusion）需后续对齐。</li>
+  <li><b>未出 FINAL.md</b>：本题被你主动暂停（已达实质极限），故未走收口；本报告即替代性精炼产物，原始 231 篇黑板仍保留在 <code>problems/20261016_c347dbe207c2/</code>。</li>
+</ul>
+
+<div class="card" style="margin-top:30px">
+  <p class="sub" style="margin:0">原始讨论：<code>D:/work/_local_ai/relay/problems/20261016_c347dbe207c2/</code>（491 个 md，231 篇有效）</p>
+  <p class="sub" style="margin:4px 0 0">本精炼存档：<code>D:/work/_local_ai/train_15b/docs/c347-self-evolution-distillation-20261016.html</code></p>
+</div>
+
+</div>
+</body>
+</html>

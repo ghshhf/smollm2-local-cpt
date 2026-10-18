@@ -1,0 +1,26 @@
+{
+ "id": "U2_Q3_effective_rank_self_negation",
+ "title": "U2: 压缩准入规则的有效秩判据（自我否定风险）",
+ "n_ships": 17,
+ "alive": [
+  "kris.north",
+  "pollinations",
+  "kris.nemotron",
+  "kris.gemini",
+  "zen.deepseek"
+ ],
+ "dead": [
+  "kris.minimax",
+  "kris.deepseek",
+  "kris.step",
+  "kris.longcat",
+  "kris.glm",
+  "kris.grok",
+  "unclose",
+  "kris.qwen",
+  "dgai",
+  "llm7",
+  "kilo",
+  "ovh"
+ ]
+}

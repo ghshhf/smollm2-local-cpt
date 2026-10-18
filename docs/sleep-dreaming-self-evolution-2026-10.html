@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>睡眠·做梦·自进化 — 端侧模型的进化引擎设计（2026-10）</title>
+<style>
+  :root { --ink:#1a2233; --sub:#5b6478; --line:#e4e8f0; --bg:#f7f8fb; --card:#fff;
+          --blue:#2563eb; --teal:#0d9488; --amber:#d97706; --red:#dc2626; --purple:#7c3aed; }
+  * { box-sizing:border-box; }
+  body { font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+         background:var(--bg); color:var(--ink); margin:0; line-height:1.75; }
+  .wrap { max-width:920px; margin:0 auto; padding:48px 28px 80px; }
+  header { border-bottom:3px solid var(--ink); padding-bottom:20px; margin-bottom:36px; }
+  h1 { font-size:30px; margin:0 0 10px; letter-spacing:.5px; }
+  .meta { color:var(--sub); font-size:13.5px; }
+  h2 { font-size:21px; margin:44px 0 14px; padding-left:12px; border-left:5px solid var(--blue); }
+  h3 { font-size:17px; margin:26px 0 8px; }
+  p { margin:10px 0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:20px 24px; margin:16px 0; }
+  .paper { border-left:5px solid var(--teal); }
+  .paper h3 { margin-top:0; color:var(--teal); }
+  .key { background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:14px 18px; margin:14px 0; }
+  .key b { color:var(--amber); }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:14px; background:var(--card); }
+  th, td { border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top; }
+  th { background:#eef2f9; font-weight:600; }
+  .tag { display:inline-block; font-size:12px; padding:1px 9px; border-radius:20px;
+         background:#eef2ff; color:var(--blue); margin-right:6px; font-weight:600; }
+  .tag.t2 { background:#ecfdf5; color:var(--teal); }
+  .tag.t3 { background:#f5f3ff; color:var(--purple); }
+  .map { font-size:14.5px; }
+  .map td:first-child { font-weight:600; white-space:nowrap; }
+  .flow { display:flex; flex-wrap:wrap; gap:10px; align-items:stretch; margin:16px 0; }
+  .node { flex:1; min-width:150px; background:var(--card); border:2px solid var(--line);
+          border-radius:10px; padding:12px 14px; font-size:13.5px; }
+  .node b { display:block; margin-bottom:4px; font-size:14.5px; }
+  .node.wake { border-color:var(--amber); }
+  .node.sleep { border-color:var(--purple); }
+  .node.grow { border-color:var(--teal); }
+  .arrow { align-self:center; color:var(--sub); font-size:20px; font-weight:700; }
+  code { background:#eef2f9; padding:1px 6px; border-radius:5px; font-size:13px; }
+  .num { font-variant-numeric:tabular-nums; font-weight:700; color:var(--blue); }
+  footer { margin-top:60px; padding-top:16px; border-top:1px solid var(--line);
+           color:var(--sub); font-size:12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>睡眠 · 做梦 · 自进化</h1>
+  <div class="meta">端侧模型的进化引擎设计 —— 前沿两篇重磅论文精读 × 本地六能力栈同构映射 ｜ 2026-10-17 ｜ train_15b 项目</div>
+</header>
+
+<h2>一、为什么现在认真对待"睡眠"</h2>
+<p>用户直觉指向的方向，在 2026 年 10 月的前沿里已经是一条清晰的主线：<b>模型的持续学习瓶颈不在容量，在"把经历转化成能力"缺少一个离线加工阶段。</b>生物用睡眠解决这个问题——海马体把白天的短期记忆在睡眠中重放、巩固进皮层。两篇同期论文把这条路在语言模型上走通了，而且分工恰好覆盖我们设计的两个层。</p>
+
+<div class="card paper">
+  <h3>论文 A：Language Models Need Sleep <span class="tag t2">arXiv 2605.26099</span></h3>
+  <p style="margin-top:4px;color:var(--sub);font-size:13.5px">CMU + 马里兰大学（Sangyun Lee / Sean McLeish / Tom Goldstein / Giulia Fanti），2026-05</p>
+  <p><b>机制</b>：上下文窗口将满时，模型进入"睡眠"——对已累积内容做 <b>N 次离线递归前向</b>，通过可学习的局部规则把信息写进 SSM 块的 fast weights；睡眠结束清空 KV cache，之后只做单次前向预测。<b>睡眠期不收任何外部 token，只做内部加工。</b></p>
+  <p><b>实测（同 token 预算下）</b>：</p>
+  <table>
+    <tr><th>任务</th><th>基线</th><th>睡眠后</th><th>提升</th></tr>
+    <tr><td>Rule 110 元胞自动机（演化 32 步）</td><td class="num">~10%</td><td class="num">&gt;30%</td><td>3 次/4 次循环均超 30%</td></tr>
+    <tr><td>Depo 多跳检索（16 跳）</td><td>4 跳以上几乎学不到</td><td>4 次循环开始在最难 16 跳取得进展</td><td>质变</td></tr>
+    <tr><td>GSM-Infinite 6 步运算（Jet-Nemotron 2B）</td><td class="num">0.742</td><td class="num">0.812</td><td>+9%</td></tr>
+    <tr><td>GSM-Infinite 6 步运算（Ouro 1.4B）</td><td class="num">0.419</td><td class="num">0.615</td><td class="num" style="color:var(--red)">+47%</td></tr>
+    <tr><td>滑动窗口驱逐 L=512，2 步运算</td><td class="num">0.596</td><td class="num">0.905</td><td>+52%</td></tr>
+  </table>
+  <div class="key"><b>关键结论</b>：瓶颈不是记忆容量，是<b>把上下文转化成有用权重记忆所需的计算量</b>。"睡得越久"（循环次数 N 越大）推理越深——且推理延迟不变，额外计算全花在睡眠期。这与思维链等推理时扩展有本质区别：开销转移到记忆整合阶段，而非预测阶段。</div>
+</div>
+
+<div class="card paper">
+  <h3>论文 B：Language Models Need Sleep: Learning to Self-Modify and Consolidate Memories <span class="tag t2">arXiv 2606.03979</span></h3>
+  <p style="margin-top:4px;color:var(--sub);font-size:13.5px">Google（Ali Behrouz / Farnoosh Hashemi / Vahab Mirrokni —— Nested Learning 团队）</p>
+  <p><b>机制</b>：给持续学习者两个周期性状态，睡眠分两阶段：</p>
+  <p><b>① Memory Consolidation（记忆巩固）</b>：Knowledge Seeding —— 一种<b>向上蒸馏</b>，把"更活跃的小 self"的知识蒸馏进"更稳定的大 self"（新解锁参数层）。既可塑性又保旧知识，缓解灾难性遗忘。</p>
+  <p><b>② Dreaming（做梦）</b>：模型用 RL <b>自己生成一套合成数据课程</b>，对新知识 rehearsal、对旧能力精炼——<b>无人工监督的递归自我改进</b>。</p>
+  <div class="key"><b>关键结论</b>：持续学习的正解不是永远在线训练，而是<b>"清醒时接收 → 睡眠时巩固 + 做梦时自产"的节律</b>。Dreaming 阶段直接对应"自进化"：模型自己出题、自己练。</div>
+</div>
+
+<h2>二、同构映射：我们的架构就是睡眠范式的端侧实现</h2>
+<p>把两篇论文的组件和我们已经落地的东西摆在一起——几乎每个概念都有对应物，这不是巧合，是收敛：</p>
+
+<table class="map">
+  <tr><th style="width:22%">论文概念</th><th style="width:26%">出处</th><th>我们的对应物（已落地/已设计）</th></tr>
+  <tr><td>fast weights + N 次离线递归</td><td>论文 A（CMU）</td><td><b>In-Place TTT</b>（ByteDance，ICLR 2026 Oral）：fast weights = 各 MLP 块 down_proj 的外积累积更新，纯前向、drop-in、已用 r6_final 权重跑通 sanity。"睡得多学得多" = 对同一批上下文多过几遍前向——TTT 的 chunk 累积就是它的轻量端侧版。</td></tr>
+  <tr><td>Knowledge Seeding（小 self → 大 self 向上蒸馏）</td><td>论文 B（Google）</td><td><b>保函数扩容链</b>：R2→0.2B→0.3B→0.5B 逐级扩容，实测 diff=0.000000，同一个"学生"越换越大——这就是 Knowledge Seeding 的保函数实现，且教师始终是云端强模型（蒸馏不中断）。</td></tr>
+  <tr><td>Dreaming（RL 自产数据课程）</td><td>论文 B（Google）</td><td><b>三元组银行</b>（任务, 代码, 验收结果）：模型自己生成任务+代码，vid_verify 八项确定性验收当 reward，通过的沉淀成库。一库两用：检索库 + 未来唯一的 SFT 数据。这是"用 verifier 代替 RL"的端侧 Dreaming。</td></tr>
+  <tr><td>睡眠期不收外部输入</td><td>论文 A</td><td>睡眠态由排队器/schtasks 驱动：银行新增量到达阈值或机器空闲时触发，与"白天干活"（VLM/编程/爬虫）<b>时间隔离</b>——本地永远只跑一条，天然就是两态。</td></tr>
+</table>
+
+<h2>三、落地设计：白天 / 睡眠 / 扩容三态</h2>
+
+<div class="flow">
+  <div class="node wake"><b>☀️ 白天态 Wake</b>识图 VLM、编程续训、爬虫供粮；干活产生的（任务, 代码, 验证）三元组全部入银行 = 海马体</div>
+  <div class="arrow">→</div>
+  <div class="node sleep"><b>🌙 睡眠态 Sleep</b>①巩固：TTT 多遍前向把当日三元组装进 fast weights（可弃）②做梦：模型基于银行自生成新任务+代码+自验收，通过的入银行</div>
+  <div class="arrow">→</div>
+  <div class="node grow"><b>🧬 扩容态 Grow</b>0.2B→0.5B 保函数扩容 = Knowledge Seeding；每次扩容就是一次结构性巩固</div>
+</div>
+
+<h3>睡眠态的两个阶段（端侧实现细节）</h3>
+<div class="card">
+  <p><b>阶段 1 · 巩固（论文 A 的 N 次循环 + 论文 B 的蒸馏）</b>：把银行里当日新增三元组作为上下文，用 TTT 做 2-4 遍前向累积更新 fast weights。只动 fast weights——<b>推理时丢弃即可回滚，主干锚定不动</b>。长期性知识（"这是谁、这是什么界面"）进记忆层不进权重。</p>
+  <p><b>阶段 2 · 做梦（论文 B 的 Dreaming）</b>：模型从银行抽样/组合生成<b>新任务</b>（如"把这三段素材剪成一个 15 秒转场片头"），自己写 FFmpeg/Remotion 代码，vid_verify 验收。<b>通过的（任务, 代码, 验证）三元组回银行</b>——银行自我生长；失败的诊断信息也回库（负样本，未来当反例教材）。每一轮就是一次秒级进化，全程不碰主干权重。</p>
+</div>
+
+<div class="key"><b>宪法 E-7 兼容性（重要）</b>：睡眠期的全部权重改动只发生在两个可弃层——fast weights（推理时可卸载）和记忆层（可寻址可删除）。个人数据绝不进被训练参数。推理路径钉成确定性。睡眠范式不仅不违宪，反而是 E-7 的正例。</div>
+
+<h3>为什么这条路线对 0.2B 是刚需不是奢侈品</h3>
+<ul>
+  <li><b>Fast-Slow 论文的佐证</b>：纯权重 RL 会让小模型越学越僵（权重离基座越远，注入新知识即崩）——所以进化必须走"主干锚定 + 外置可删"，睡眠态正是这个形态。</li>
+  <li><b>算力账</b>：推理时学习 + 外置记忆比预训练便宜 1-2 个数量级，本机 12 核就能跑；node1 那边继续按部就班扩容，两边不打架。</li>
+  <li><b>mdlARC 实证</b>：75M + TTT 在 ARC 任务上 44% 命中率、成本 $0.67，反杀多个大模型——小模型 + 推理时进化是被验证过的路线。</li>
+</ul>
+
+<h2>四、当前资产与下一步</h2>
+<table>
+  <tr><th>组件</th><th>状态</th><th>下一步</th></tr>
+  <tr><td>In-Place TTT 环境（venv_ttt）</td><td>✅ 就绪（torch 2.7.1 + transformers 4.57.3，独立环境不碰训练 venv）</td><td>跑"装知识前后"对比实验（同题 TTT 开/关，脚本断言当裁判）</td></tr>
+  <tr><td>三元组银行</td><td>🔨 设计完成</td><td>随视频线首轮落地（任务→FFmpeg 代码→vid_verify）</td></tr>
+  <tr><td>verifier（vid_verify 8 项）</td><td>✅ 已通（反向验证过：纯黑片正确判 FAIL）</td><td>作为做梦阶段的 reward 信号</td></tr>
+  <tr><td>前沿爬虫</td><td>✅ 每日 08:00 自动 + 手动补跑（归档日期 bug 已修）</td><td>持续供粮：新论文进"进化引擎"知识库</td></tr>
+  <tr><td>保函数扩容链</td><td>🔒 宪法（diff=0.000000 实测）</td><td>= Knowledge Seeding 的保函数实现，随 node1 推进</td></tr>
+</table>
+
+<footer>
+  train_15b 项目内部文档 ｜ 数据来源：arXiv 2605.26099、arXiv 2606.03979（爬虫 data/frontier/ 在盘）<br>
+  设计纪律：本地永远只跑一条长进程；睡眠态与白天态时间隔离；一切权重改动可弃可回滚。
+</footer>
+
+</div>
+</body>
+</html>

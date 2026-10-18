@@ -1,0 +1,172 @@
+{
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": "MiniMax-M3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 23.1
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "### ① 机制 / 最佳理论  \n| 关键点 | 说明 |\n|-------|------|\n| **Net2Net 经典方案** | `Net2WiderNet` 通过复制已有神经元的权重与 bias 并用单位矩阵 \\(I\\) 与均匀映射 \\(W\\) 重新分配权重，从而保证前向输出不变；`Net2DeeperNet` 在已有层后插入 “恒等映射” 包含 \\(0\\) 或 “加法残差” 以保持功能。 ",
+  "err": null,
+  "sec": 23.3
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": "step-5-preview",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 26.5
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 36.0
+ },
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": "deepseek-v4-pro",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 39.3
+ },
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": "longcat-2.5-preview-free",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 42.1
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ok": true,
+  "text": "### 裁决结论先行\n**复制式初始化在 BitNet b1.58 下能「严格保函数」（bit-exact），前提是：把 `gamma` 当作 **buffer 同步复制**，而非运行时重算 `mean(|W|)`。**  \n文献中无现成「量化感知 Net2Net」，但可把 **LSQ/STE 直通估计器的「冻结 scale」范式** 直接迁移过来 —— 这就是最佳理论依据。\n\n---\n\n### ① 机制/最佳理论\n| 问题 | 理论锚点 | 为什么能工作 |\n|------|----------|----------------|\n| **1. 文献支撑** | **LSQ (Learned Step Size Quantization, CVPR 2020)** + **Net2Net (ICML 2016)** 的组合推论 | LSQ 核心结论：**量化 scale 只要在前向传播固定，反向只需直通梯度**。Net2Net 要求 `f_new(x) ≡ f_old(x)`。若 `gamma` 视为 **非参数 buffer**（同步复制），前向数学表达式 `gamma * sign(W) @ x` 与源层逐元素完全一致 → **函数保持证明成立**。 |\n| **2. 显式复制 gamma** | **Buffer 而非 Parameter** 机制 | `gamma = mean(|W|)` 是 **确定性函数**。把它从「运行时统计量」改为「随权重一起 `register_buffer` 复制的常量」，消除了「重新计算带来的数值漂移」。这等价于把量化算子退化为 **固定缩放的线性算子**，完美符合 Net2Net 函数保持定义。 |\n| **3. 三值化输出等价性** | **全局标量的传递性** | 源层：`y = γ_s * sign(W_s) @ x`<br>新层（复制权重+复制 gamma）：`y' = γ_s * sign(W_s) @ x`（`sign` 逐元素确定，`γ_s` 标量完全相同）<br>**∴ y' ≡ y**，无任何近似。**量化步长退化/Clamp 问题不存在**，因为根本不重新统计。 |\n\n> **关键洞察**：BitNet b1.58 的 `gamma = mean(|W|)` **仅在训练期每步重算**；**推理/部署/结构变更时必须冻结为常量**。Net2Net 结构变更本质上是「部署态拓扑手术」，理应沿用部署态规则 —— **冻结 gamma 同步复制**。\n\n---\n\n### ② 可执行方案 / 伪代码\n```python\n# ---------- 通用工具 ----------\ndef freeze_gamma(module: nn.Module):\n    \"\"\"把所有 QuantLinear 的 gamma 从『运行时统计』改为『buffer 常量』\"\"\"\n    for m in module.modules():\n        if isinstance(m, BitLinear):          # 你的三值化线性层\n            if not hasattr(m, 'gamma_frozen'):\n                m.register_buffer('gamma_frozen', m.gamma.detach().clone())\n                m.gamma = m.gamma_frozen      # 覆盖 property / attribute\n                del m.gamma_frozen            # 只留 gamma (buffer)\n\n# ---------- Net2Net 加宽 ----------\ndef widen_layer(src: BitLinear, tgt_width: int) -> BitLinear:\n    \"\"\"\n    src: 原层 (in_dim, out_dim)\n    返回: 新层 (in_dim, tgt_width)  且 f_new ≡ f_src (在 src.out_dim 维度上)\n    \"\"\"\n    assert tgt_width >= src.out_features\n    new = BitLinear(src.in_features, tgt_width, bias=src.bias is not None)\n    with torch.no_grad():\n        # 1. 权重复制 + 零填充\n        new.weight[:src.out_features] = src.weight\n        new.weight[src.out_features:] = 0.0\n        # 2. gamma 显式复制 (buffer 级别，不重算 mean|W|)\n        new.gamma.copy_(src.gamma)            # 关键：buffer 同步\n        # 3. bias 同理\n        if src.bias is not None:\n            new.bias[:src.out_features] = src.bias\n            new.bias[src.out_features:] = 0.0\n    return new\n\n# ---------- Net2Net 加深 (插层: Identity 初始化) ----------\ndef insert_identity_layer(prev: BitLinear, nxt: BitLinear) -> BitLinear:\n    \"\"\"\n    在 prev -> nxt 之间插入一层 Identity 映射 (宽度不变)\n    返回新层 new, 使得 nxt(new(prev(x))) ≡ nxt(prev(x))\n    \"\"\"\n    d = prev.out_features\n    new = BitLinear(d, d, bias=False)\n    with torch.no_grad():\n        new.weight.copy_(torch.eye(d))        # 单位矩阵\n        new.gamma.copy_(torch.ones_like(new.gamma))  # gamma=1.0 (buffer)\n    return new\n```\n\n**部署前必须调用一次**：`freeze_gamma(model)` —— 之后所有结构变更、推理、ONNX 导出全部走 `gamma (buffer)`。\n\n---\n\n### ③ 可证",
+  "err": null,
+  "sec": 53.2
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.2
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": "cohere/north-mini-code:free",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 62.0
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": "gemini-3.8-flash",
+  "ok": true,
+  "text": "### 结论先行与裁决总览\n\n**推翻“三值模型可做严格保函数 Net2Net 扩容”的技术妄想。**\n\n三值（BitNet b1.58）与全精度（FP32/FP16）的代数拓扑完全不同：全精度是**连续紧致空间**，对标量除法封闭；三值是**离散离散点集 $\\{-1, 0, 1\\}$**，对除法不封闭，且强绑定了全局耦合标量 $\\gamma = \\text{mean}(|W|)$。\n\n针对三问的正式裁决：\n1. **文献现状**：**学术界与工业界均不存在极端低比特（1.58-bit）下的严格保函数 Net2Net 方案。** 现有 QAT 扩容文献全部停留在 INT8（可做可除的缩放因子补偿），三值量化只能走“破坏性初始化 + 蒸馏对齐”或“连续空间扩容后重新离散化”。\n2. **Buffer 显式保存 $\\gamma$**：**治标不治本，直接破坏 QAT 收敛动力学。** 强行 Buffer 冻结 $\\gamma$ 虽能避免初始化瞬间的全局重算，但无法解决出射权重 $W_2$ 必须除以 $2$ 的离散不可表示性；且在后续反向传播中，潜权重（Latent Weight）尺度与 $\\gamma$ 脱钩，导致 Straight-Through Estimator (STE) 梯度剧烈振荡。\n3. **复制式初始化能否精确保函数**：**绝对不可行（数学上严格证明恒等崩溃与雪崩翻转）。**\n\n---\n\n### ① 机制 / 最佳理论：三值 Net2Net 保函数破产的数学证明\n\n#### 破产点 1：加深（Net2DeeperNet）——恒等映射的“维度衰减死穴”\n在 Net2Net 中，插入新层要求 $f(X) = X$（恒等映射）。\n设 BitNet b1.58 线性层计算公式为：\n$$\\tilde{W} = \\text{RoundClip}\\left(\\frac{W}{\\gamma + \\epsilon}, -1, 1\\right), \\quad \\gamma = \\frac{1}{d_{\\text{out}} d_{\\text{in}}} \\sum_{i,j} |W_{ij}|$$\n反量化输出为：\n$$Y = \\tilde{X} \\tilde{W}^T \\times \\gamma$$\n若要实现恒等映射 $Y = \\tilde{X}$，必须令反量化后的有效矩阵 $M = \\tilde{W}^T \\times \\gamma = I_d$。\n1. 若 $\\tilde{W} = I_d$（对角矩阵）：\n   $$\\gamma = \\text{mean}(|I_d|) = \\frac{1}{d \\times d} \\sum_{i=1}^d 1 = \\frac{d}{d^2} = \\frac{1}{d}$$\n2. 计算反量化输出：\n   $$Y = \\tilde{X} \\cdot I_d \\cdot \\gamma = \\tilde{X} \\cdot \\frac{1}{d}$$\n**数学死结**：在 $d=1024$ 时，输出信号强度被机械性强制衰减 **1024 倍**。若要在三值下保持 $Y = \\tilde{X}$，必须要求 $\\gamma = 1$，这意味着 $\\sum |W_{ij}| = d^2$，即矩阵内**所有元素必须全为 $\\pm 1$**，根本不存在稀疏对角恒等矩阵的三值表达。\n\n#### 破产点 2：加宽（Net2WiderNet）——“除法不可表示”与“雪崩式跳变”\n设将隐藏层维度从 $d$ 扩至 $d+1$，复制第 $k$ 个神经元：\n1. **出射矩阵 $W_2$ 的不可分性**：\n   为保持 $h_k W_{2,k} = h_k' W_{2,k}^{(1)} + h_k' W_{2,k}^{(2)}$，全精度下令 $W_{2,k}^{(1)} = W_{2,k}^{(2)} = \\frac{1}{2} W_{2,k}$。\n   但在三值空间中，若原权重 $W_{2,k} = 1$，则 $\\frac{1}{2} \\notin \\{-1, 0, 1\\}$。\n   - 若离散化为 $0$：信号丢失 $100\\%$；\n   - 若离散化为 $1$：激活值翻倍（膨胀 $100\\%$）。\n2. **全局标量耦合导致的雪崩式翻转（Avalanche Quantization Flip）**：\n   设行复制导致均值变动：\n   $$\\gamma_{\\text{new}} = \\gamma_{\\text{old}} + \\Delta \\gamma$$\n   即使 $\\Delta \\gamma$ 仅为 $0.01\\%$，由于三值量化采用硬截断函数 $\\text{Round}(W / \\gamma)$，所有处于量化边界临界区（即 $|W_{ij}| \\approx 0.5 \\gamma$）的潜权重，其量化值将发生大规模批量翻转（$0 \\to 1$ 或 $1 \\to 0$）。一个局部神经元的扩展，必然通过标量 $\\gamma$ 触发全矩阵权重的离散相变。\n\n---\n\n### ② 针对三问的裁决与工程执行方案\n\n#### 裁决 1：文献方案审判\n- **文献真实情况**：从 Net2Net (Chen et al., 2016)、NetMorph 到 FPGM，所有声称“保函数”的论文均默认权重处于 $\\mathbb{R}$（连续实数域）。\n- **极低比特现状**：BitNet b1.58 (Microsoft, 2024) 原生架构直接放弃任何 Net2Net 扩容路线。学术界对于 1-bit/1.58-bit 网络的扩展，**唯一被验证可行的方案是：宽模型蒸馏窄模型，或者在全精度空间完成 Net2Net 训练后再做 QAT。**\n\n#### 裁决 2：Buffer 显式保存 $\\gamma$ 的可行性裁决\n- **结论**：**严禁在架构中引入此 Hack。**\n- **理由**：\n  1. 若将 $\\gamma$ 作为 buffer 固定，推导公式变为 $Y = \\tilde{X} \\tilde{W}^T \\times \\gamma_{\\text{buf}}$。但在随后的 QAT 训练中，潜权重 $W$ 会更新，导致 $\\text{mean}(|W|) \\neq \\gamma_{\\text{buf}}$。\n  2. 此时 STE 估计器的前向缩放与反向梯度完全脱节，潜权重将快速漂移至饱和区（$|W| \\gg \\gamma$），导致全矩阵退化为 $-1$ 和 $+1$，彻底丧失三值网络的稀疏 $0$ 表达能力。\n\n#### 裁决 3：复制式初始化的输出等价性裁决\n- **结论**：**严格不等价，不可作为进化主干手段。**\n\n#### RSI 闭环路线强制纠偏方案（严格对齐宪法）\n1. **0.1B $\\to$ 0.4B 阶段**：**必须全程在 FP16/BF16 精度下执行 Net2Net 保函数扩容**。连续空间下标量除以 $c$ 严格成立，恒等映射通过全零偏置或残差直通保证，函数误差为 $0$。\n2. **0.4B $\\to$ 0.5B 阶段**：**执行宪法既定路线——彻底抛弃 Net2Net 继承，采用“深窄原生 BitNet 架构 + 0.4B 蒸馏”**：\n   - 0.5B 原生 BitNet 初始化采用常规的潜权重随机初始化（如 He 正态分布，保证 $\\gamma = \\sqrt{2/\\pi}\\sigma$）。\n   - 采用 0.4B FP16 模型作为 Teacher，在 Node1 上进行 Task-Agnostic Logits 蒸馏 + 隐层特征点互信息蒸馏。\n   - **严禁试图从 0.4B 直接切片/拼装成 0.5B 三值模型。**\n\n---\n\n### ③ 可证伪判据\n\n若任何人声称找到了“三值量化下严格保函数的 Net2Net 初始化方案”，执行以下判据，出现任一情况即判定该方案**破产**：\n\n1. **恒等性崩塌判据**：在未引入非标准逐层自适应系数（打破标准 BitLinear 算子定义）的前提下，向现有 BitNet 模型插入一层该方案初始化的“恒等层”，输入随机正态分布张量 $X$，若变换后的输出 $Y$ 满足：\n   $$\\frac{\\|Y - X\\|_F}{\\|X\\|_F} > 1e-4$$\n   则证明保函数性在数值上不成立（实际 BitNet 恒等初始化误差通常 $> 90\\%$）。\n2. **雪崩翻转判据**：在加宽单层神经元时，统计该层原有位置的三值矩阵 $\\tilde{W}_{\\text{old}}$ 与扩容后截取对应位置 $\\tilde{W}_{\\text{new}}[0:d_{\\text{out}}, 0:d_{\\text{in}}]$。若非零元素翻转率（Hamming Distance）：\n   $$\\mathcal{H}(\\tilde{W}_{\\text{old}}, \\tilde{W}_{\\text{new\\_crop}}) > 0$$\n   即判定该机制无法隔离扩展扰动，保函数等价性破产。\n\n---\n\n### ④ Node1 CPU (64核) 最小可跑实测代码\n\n本脚本直接在 Node1 环境验证：\n1. 插入恒等层后信号衰减 $1/d$ 的灾难；\n2. 加宽时复制操作导致全矩阵 $\\gamma$ 偏移并引发三值雪崩翻转。\n\n```python\nimport torch\nimport torch.nn as nn\n\ndef quantize_ternary(W):\n    \"\"\"标准 BitNet b1.58 三值量化逻辑\"\"\"\n    gamma = W.abs().mean()\n    if gamma < 1e-5:\n        return torch.zeros_like(W), gamma\n    W_scaled = W / gamma\n    W_quant = torch.clamp(torch.round(W_scaled), -1, 1)\n    return W_quant, gamma\n\ndef run_falsification_test():\n    torch.manual_seed(42)\n    d = 1024\n    batch_size = 4\n    X = torch.randn(batch_size, d)\n\n    print(\"===== 判据 1: Net2DeeperNet 恒等映射验证 =====\")\n    # 尝试构造三值恒等矩阵\n    W_identity = torch.eye(d)\n    W_q_id, gamma_id = quantize_ternary(W_identity)\n    \n    # 模拟 BitLinear 前向: Y = (X @ W_q^T) * gamma\n    Y_id = (X @ W_q_id.T) * gamma_id\n    \n    ratio = torch.norm(Y_id) / torch.norm(X)\n    print(f\"理论衰减倍数: 1/d = {1/d:.6f}\")\n    print(f\"实际输出范数 / 输入范数: {ratio.item():.6f}\")\n    print(f\"恒等崩塌判定: {'破产 (衰减近千倍)' if ratio < 0.01 else '通过'}\")\n\n    print(\"\\n===== 判据 2: Net2WiderNet 标量耦合与雪崩翻转验证 =====\")\n    # 初始化一个随机潜权重层\n    W = torch.randn(d, d) * 0.02\n    W_q_orig, gamma_orig = quantize_ternary(W)\n    \n    # 模拟复制第 0 行扩容 (d -> d+1)\n    row_to_copy = W[0:1, :]\n    W_expanded = torch.cat([W, row_to_copy], dim=0)\n    \n    W_q_expanded, gamma_expanded = quantize_ternary(W_expanded)\n    \n    # 检查原有矩阵截取部分是否保持一致\n    W_q_crop = W_q_expanded[:d, :]\n    flipped_elements = (W_q_orig != W_q_crop).sum().item()\n    flip_rate = flipped_elements / (d * d)\n    \n    print(f\"原始 gamma: {gamma_orig.item():.6f}, 扩容后 gamma: {gamma_expanded.item():.6f}\")\n    print(f\"受到牵连翻转的权重个数: {flipped_elements} / {d*d}\")\n    print(f\"全局权重翻转率: {flip_rate * 100:.4f}%\")\n    print(f\"严格保函数判定: {'破产 (全局耦合导致雪崩翻转)' if flipped_elements > 0 else '通过'}\")\n\nif __name__ == \"__main__\":\n    # 在 64 核 CPU 上单线程/多线程极速秒级运行\n    run_falsification_test()\n```\n\n### 最终路线锁定\n保持宪法铁律：**0.1B $\\to$ 0.4B 在连续空间（FP16/BF16）做 Net2Net 保函数扩容；0.4B 落地后，0.5B 三值直接从零深窄 QAT 并通过蒸馏吸纳 0.4B 资产，严禁跨越精度鸿沟强行对三值做 Net2Net。**",
+  "err": null,
+  "sec": 83.7
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": "z-ai/glm-5.3-flash",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 84.0
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": "Qwen3.8-27B",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 98.0
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 0.3
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 0.5
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 2.3
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": "GLM-5.3-Flash",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 59.4
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": "deepseek-v4-flash-free",
+  "ok": true,
+  "text": "### ① 机制/最佳理论裁决\n\n**核心结论**：\n1. **文献裁决**：**无**现成的“量化感知 Net2Net 初始化”方案能同时满足 **BitNet b1.58 三值化** 与 **严格保函数**。现有 Net2Net 文献（Chen et al., 2015; Li et al., 2023）假设全精度或仅 INT8 对称量化，未处理 **逐层标量 gamma 依赖于权重分布** 这一拓扑耦合问题。\n2. **显式复制 Gamma（Buffer 保存）是唯一正解**：**必须**将 `gamma` 从“由权重派生的统计量”降级为“独立的可学习/可复制 Buffer 参数”。**禁止**在结构变更后重新计算 `mean(|W|)`。\n3. **复制式初始化下三值化输出严格等价（数学证明）**：\n   - 源层权重 $W_s$，目标层初始化 $W_t = W_s$（逐元素复制）。\n   - 源层 Gamma $\\gamma_s = \\frac{1}{n}\\sum |W_s|$（已冻结为 Buffer）。\n   - 目标层 Gamma $\\gamma_t \\leftarrow \\gamma_s$（显式复制 Buffer，不重算）。\n   - 三值化函数 $T(W; \\gamma) = \\gamma \\cdot \\text{sign}(W - \\delta) \\approx \\gamma \\cdot \\text{ternarize}(W/\\gamma)$。\n   - **推论**：$W_t \\equiv W_s \\land \\gamma_t \\equiv \\gamma_s \\implies T(W_t; \\gamma_t) \\equiv T(W_s; \\gamma_s)$。\n   - **输出严格逐元素相等**，梯度流完美对齐，保函数成立。\n\n---\n\n### ② 可执行方案/伪代码\n\n#### A. 架构定义：Gamma Buffer 化（宪法级修改）\n```python\n# modeling_bitnet.py - 宪法修正版\nclass BitLinear158(nn.Module):\n    def __init__(self, in_features, out_features, bias=False):\n        super().__init__()\n        self.in_features = in_features\n        self.out_features = out_features\n        self.weight = nn.Parameter(torch.empty(out_features, in_features))\n        # 【宪法】gamma 登记为 buffer，不再是 property/hook 计算\n        # 训练时可由 QAT 更新；结构变更时仅复制张量\n        self.register_buffer('gamma', torch.tensor(1.0))  # shape: []\n        self.register_buffer('weight_scale', torch.tensor(1.0)) # 可选：吸收输入 RMSNorm 系数\n        if bias: self.register_buffer('bias', torch.zeros(out_features))\n        else: self.bias = None\n\n    @torch.no_grad()\n    def update_gamma_from_weight(self):\n        \"\"\"仅在 初始化/恢复全精度检查点 时调用。结构变更后 禁用。\"\"\"\n        self.gamma.copy_(self.weight.abs().mean().clamp_min(1e-5))\n\n    def forward(self, x):\n        # BitNet b1.58 标准前向：W_tern = gamma * ternarize(weight / gamma)\n        w = self.weight\n        # STE 三值化\n        w_tern = (w / self.gamma.clamp_min(1e-5)).round().clamp(-1, 1) * self.gamma\n        return F.linear(x, w_tern, self.bias)\n```\n\n#### B. Net2Net 结构变更算子（零初始化/复制式统一入口）\n```python\n# net2net_surgery.py\n@torch.no_grad()\ndef net2net_widen(layer: BitLinear158, new_out_features: int, mode: str = 'copy') -> BitLinear158:\n    \"\"\"\n    加宽：out_features 扩容。严格保函数。\n    mode='copy': 复制式（推荐，严格等价）\n    mode='zero': 零初始化（需 clamp gamma，功能退化为残差旁路）\n    \"\"\"\n    old_out, in_f = layer.weight.shape\n    assert new_out_features >= old_out\n    \n    new_layer = BitLinear158(in_f, new_out_features, bias=layer.bias is not None).to(layer.weight.device)\n    \n    if mode == 'copy':\n        # 1. 权重复制（循环填充或首尾填充，视策略）\n        reps = (new_out_features + old_out - 1) // old_out\n        w_src = layer.weight.repeat(reps, 1)[:new_out_features]\n        new_layer.weight.copy_(w_src)\n        \n        # 2. 【核心】Gamma 显式复制 Buffer —— 不重算 mean|W|\n        new_layer.gamma.copy_(layer.gamma)  # 标量张量复制\n        \n        # 3. Bias 复制\n        if layer.bias is not None:\n            b_src = layer.bias.repeat(reps)[:new_out_features]\n            new_layer.bias.copy_(b_src)\n            \n    elif mode == 'zero':\n        # 零初始化：权重为 0，gamma 必须 clamp 到量化步长下界，防止梯度消失/数值崩溃\n        new_layer.weight.zero_()\n        new_layer.gamma.fill_(1e-5)  # 宪法下界，对应 b1.58 量化步长\n        if layer.bias is not None: new_layer.bias",
+  "err": null,
+  "sec": 60.2
+ }
+}

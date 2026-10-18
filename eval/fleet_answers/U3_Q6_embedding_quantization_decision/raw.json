@@ -1,0 +1,172 @@
+{
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 429: {\"error\":{\"message\":\"insufficient balance\",\"type\":\"upstream_error\",\"param\":\"\",\"code\":null}}",
+  "sec": 2.0
+ },
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 502: {\"error\":{\"message\":\"openai_error\",\"type\":\"bad_response_status_code\",\"param\":\"\",\"code\":\"bad_response_status_code\"}}",
+  "sec": 2.6
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": "step-5-preview",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 22.0
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": "glm-5.2",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 26.4
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "**① 机制/最佳理论**\n\n- **比例与成本**  \n  - 0.2 B 参数模型（hidden = 576）中，embedding 占比 ≈ 17 %（≈28 M 字节）。  \n  - 若用 fp16：占用 56 M 字节；若用 ternary（3 bit）：占用 10.5 M 字节（≈ 5.3 倍压缩）。  \n  - 但对准频率低的词进行 3‑bit 量化，会使这些词的查询表查到的向量精度大幅下降，导致查询时直接影响多分类/对齐，同时在反向传播中梯度会被“截断”，高频词的梯度也会被不恰当地拉高，造成“梯度漂移”。  \n- **梯度与自适应**  \n  - 针对词频的“混合精度”方案，即 **base_fp16 + delta_ternary**（LoRA‑style）。trainable 只更新 delta，保持基线权重不变，降低梯度“漂移”风险。  \n  - 该方案的核心理论是：  \n    - **参数稀疏化**：Δ 只对低频词使用，保证在高频词上保持 fp16 精度。  \n    - **梯度聚居**：因为 Δ 与 base 在同一日语向量空间累加，梯度在全局不会出现梯度爆炸/消失。  \n- **硬件吞吐与带宽**  \n  - GPL CPU → 64核 node1：fp16 内存访问通常在 16 GB/s，它已满负荷；3‑bit 访问则需要极致压缩、解码开销，CPU 上的解码会成为瓶颈（尤其在 15 ms/Token 的目标下）。  \n  - GPU 后续可使用 GPU 的 *int8* / *int3* 支持，但现阶段 CPU 仅支持 *fp16/float32*，若使用 ternary 必须手写 SIMD 解码路径，带来额外开发与维系成本。  \n- **贴合演化路线**  \n  - **0.1 B → 0.4 B** 主轴是 **Net‑2‑Net** 扩容； embeddings 看重点是保持 **fp16** 以便后续 0.5 B 的蒸馏继承。  \n  - 0.2 B 正是两侧的 “翻转点”，建议 **保持 fp16**，除非在评估阶段发现 **实际性能损失 > 5 %** 或 **能耗 / 带宽** 超标，否则不主动尝试 ternary 量化。\n\n**结论**  \n- **0.2 B** 规模最好**不三值化 embeddings**。  \n- 可以做**少量实验（≈ 1 % 低频词混合 3‑bit）**验证后决定；如效果不明显或梯度异常，直接回退到 fp16。\n\n---\n\n**② 可执行方案或伪代码**\n\n```python\n# 伪代码：Hybrid embedding – base_fp16 + delta_ternary (LoRA-style)\n\nclass HybridEmbedding(nn.Module):\n    def __init__(self, vocab_size, d_model, freq_threshold=500):\n        super().__init__()\n        # base weights: fp16\n        self.base = nn.Embedding(vocab_size, d_model).half()\n\n        # delta weights: ternary (Binarized & scale)\n        # delta is zero for tokens >= freq_threshold\n        self.delta = nn.Parameter(torch.zeros(vocab_size, d_model))\n        self.delta.register_hook(lambda grad: grad * 0)  # Freeze initially\n\n        # mask: 1 for low‑freq, 0 for high‑freq\n        mask = torch.arange(vocab_size) < freq_threshold\n        self.register_buffer(\"mask\", mask.to(torch.bool))\n\n        # scale factor for ternary: [-s, 0, +s]\n        self.scale = nn.Parameter(torch.full((1,), 1.0))\n\n        # Optimizer will only update var with mask==1\n        self.delta.data = self.delta.data * self.mask.float().unsqueeze(-1)\n\n    def forward(self, token_ids):\n        # base lookup\n        base_vec = self.base(token_ids).half()\n\n        # ternary delta lookup\n",
+  "err": null,
+  "sec": 31.0
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 34.4
+ },
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": "longcat-2.5-preview-free",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 39.4
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ok": true,
+  "text": "**① 机制/最佳理论裁决**  \n- **0.2B（hidden=576）不值得把 embedding 三值化**——哪怕接受低频 token 精度损失。  \n  - **量化收益不对等**：embedding 查找表是**稀疏读、密集写**；三值化只省 2/3 显存带宽，但推理时仍需 `gather → dequant → fp16 add`，CPU 上分支错配与去量化开销抵消带宽收益。  \n  - **低频 token 梯度放大效应**：Zipf 分布下低频行更新极少，三值量化噪声会被高频行梯度“平均掉”，导致低频行表示坍缩为同一簇点，破坏尾部知识——这在“禁模型生成数据、人写纯净语料”前提下不可逆。  \n  - **翻转点规律**：embedding 占比随规模单调**下降**；0.2B 是峰值（17.4%），0.4B 降至 ~10%，0.5B 仅 ~7%。**死守 fp16 仅多 28 MB**，在 64 核 CPU 上 L3 命中率已 >95%，不构成 15 ms/token 瓶颈。  \n\n- **部分量化（高频 fp16 + 低频三值）无成熟方案**——LoRA-style `base_fp16 + delta_ternary` **不解决推理开销**：  \n  - 推理仍需两次查表 + 一次 fp16 加法，指令数反增；  \n  - 训练期 `delta` 梯度仍会通过 `base` 反传，除非手写 `stop_gradient`，否则低频噪声依然污染高频行；  \n  - 词表动态分桶（高频/低频）需离线统计，联网自学习场景下词频漂移会导致分桶失效。  \n\n**结论**：**0.2B embedding 全量 fp16 固化**，导出端侧时整体 **int4 非对称量化**（per-token scale + zero-point）即可；省下的工程预算投给**主干三值化 QAT**与**记忆层索引结构**。\n\n---\n\n**② 可执行方案（伪代码级）**  \n\n```python\n# 1. 训练期：embedding 纯 fp16，参与 QAT 但不量化\nclass BitNetEmbedding(nn.Module):\n    def __init__(self",
+  "err": null,
+  "sec": 53.8
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": "cohere/north-mini-code:free",
+  "ok": true,
+  "text": "**① 机制/最佳理论**\n\n| 现象 | 理论解释 | 设计启示 |\n|------------|-------------------|------------------|\n| **Embedding 占参数比例随模型规模单调上升** | 嵌入矩阵是全连接 `V × D` 层，参数量为 `O(V·D)`。核心（Transformer）模块的参数量为 `O(L·D²)`。随着 `L` 和 `D` 增加",
+  "err": null,
+  "sec": 55.3
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.1
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": "gemini-3.8-flash",
+  "ok": true,
+  "text": "### 结论与裁决：直接推翻两个核心前提\n\n1. **推翻“0.2B 规模将 Embedding 三值化以换取带宽”的设想**：\n   **死守高精度底线（严禁三值化）**。你陷入了“将输入查找（Gather）与输出投影（LM Head GEMV）混为一谈”的典型误区。输入 Embedding 在自回归解码中单步仅读取 **1.15 KB**，带宽消耗为 **0**；输出 LM Head 三值化会导致 Softmax 熵塌缩与梯度死锁。0.2B/0.5B 规模下，Embedding 绝不可三值化，折中底线是 **INT8**，绝不能退到三值。\n2. **推翻“LoRA 式 `base_fp16 + delta_ternary`”方案**：\n   这是**数学与体系结构上的反向负优化**。$16\\text{bit (base)} + 2\\text{bit (delta)} = 18\\text{bit}$，存储与带宽不降反增 12.5%；外部建议的“高低频混精（高频 fp16 + 低频三值）”是学术玩具，在 CPU 端侧推理会导致 SIMD 向量化断裂与 Zipf 定律下的梯度冻结，属于典型落地灾难。\n\n---\n\n### ① 机制与最佳理论\n\n#### 1. 输入 Gather 与输出 GEMV 的带宽物理真相\n你看到的 135M ckpt 中 Embedding 占 28.3M（17.4%）、主干占 65.2%，担心 Embedding 拖垮带宽，其机理分析必须将**时间复杂度与访存行为解耦**：\n\n* **输入端（Input Embedding Lookup）**：\n  自回归生成每步输入仅 1 个 token。\n  * 访存量：$1 \\times d \\times 2\\text{ bytes} = 576 \\times 2 = 1.152\\text{ KB}$。\n  * 耗时：在端侧双通道 DDR4（$\\approx 25\\text{ GB/s}$）或 DDR5（$\\approx 50\\text{ GB/s}$）上，读取耗时为 **$0.02\\sim 0.04\\ \\mu\\text{s}$**。\n  * **结论**：输入 Lookup 的带宽占比在解码阶段是 **0.00%**，即使它是 FP32 也对推理延迟毫无影响！\n* **输出端（LM Head GEMV，假设权重绑定 Tied）**：\n  自回归每步必须将隐状态与整个词表做内积：$(1, 576) \\times (576, 49152)$。\n  * 访存量（FP16）：$49152 \\times 576 \\times 2\\text{ bytes} \\approx 56.6\\text{ MB}$。\n  * 带宽耗时：$56.6\\text{ MB} / 25\\text{ GB/s} \\approx 2.26\\text{ ms}$。\n  * 主干三值权重访存（106M 三值参数，2-bit packed）：$106\\text{M} \\times 0.25\\text{ bytes} \\approx 26.5\\text{ MB}$，耗时 $\\approx 1.06\\text{ ms}$。\n  * **真相**：真正吃掉带宽的是 **LM Head 的 GEMV**，而不是作为 Lookup 表的 Embedding。\n\n#### 2. 为什么 Embedding 绝不能三值化？\n* **中心极限定理（CLT）失效**：BitNet b1.58 主干能够三值化，是因为线性层存在累加求和 $y = \\sum_{i=1}^d w_i x_i$（$d=576$），数百个离散值的加权和退火为连续高斯分布，信噪比被维度放大。但 **Embedding Lookup 没有求和操作**，若三值化，Layer 0 的输入将直接退化为超立方体上的离散顶点（$\\{-1, 0, 1\\}^{576} \\times \\gamma$），几何流形破碎，Layer 0 的注意力图（Attention Map）瞬间退化为严重偏置的固定模式。\n* **信息天花板违宪**：$d=576$ 时，FP16 向量最大容量为 $576 \\times 16 = 9216\\text{ bit}$；三值向量容量为 $576 \\times \\log_2 3 \\approx 913\\text{ bit}$，直接损失 **90.1%** 的表示熵。0.2B 模型原本容量就紧缩，输入语义空间直接发生维度坍塌。\n* **LM Head 三值化的 Softmax 熵塌缩**：输出若三值化，Logits 差异被离散阶跃限制，Softmax 分布温度敏感度剧增，高频词与低频词几率无法平滑拉开，导致不可逆的重复生成或退化。\n\n#### 3. 为什么“高低频混精”与“LoRA delta”是深坑？\n* **内存对齐与 AVX-512 向量流水线断裂**：\n  CPU 推理依赖连续内存地址的 SIMD 宽向量加载（如 512-bit 指令单周期读取 32 个 FP16 或 64 个 INT8）。若将词表按频次切分为高频 FP16 和低频三值：\n  1. 矩阵物理排布破碎，CPU 产生大量 Cache Miss 与分支预测失败；\n  2. LM Head 必须执行两次独立的 GEMV 并做非线性拼接与尺度对齐（Rescale），其调度开销直接抹平权重体积减小的收益。\n* **Zipf 定律与 STE 梯度冻结**：\n  低频词在语料中出现极少。直通估计器（STE）在量化感知训练中对低频词本就稀疏的梯度施加阶段截断（Clipping），低频词行因更新量长期低于量化门限而陷入**永久梯度冻结**（Dead Neurons），专业领域实体完全丧失学习能力。\n* **`base_fp16 + delta_ternary` 逻辑悖论**：\n  推理时若不合并，计算需要读取 FP16 权重 + 三值 Delta，访存变成 $16 + 2 = 18\\text{ bits}$，延迟增加；若离线合并，合并结果依然是 FP16，并没有起到任何模型压缩或带宽节省的作用。\n\n---\n\n### ② 可执行方案\n\n针对 0.2B 阶段带宽与参数占比的工业级最佳实践方案为：**主干保持三值，Embedding/Head 解耦或采用“行级对称 INT8（W8A8 / W8A16）”**。\n\n在 0.1B $\\to$ 0.4B Net2Net 期间保持 FP16/BF16 原生训练；向 0.5B BitNet b1.58 演进时，执行以下配置：\n\n```\n[架构标准 - 0.5B BitNet 融合版]\n1. Input Embedding:\n   - 训练期: FP16 / BF16 (保持连续流形与梯度回传)\n   - 导出端侧: INT8 Per-Channel 对称量化 (不占主干带宽, 仅 28MB RAM)\n2. Backbone Linears:\n   - 原生 BitNet b1.58 (三值权重 {-1, 0, 1}, 8-bit 激活量化)\n3. LM Head:\n   - 严禁三值化\n   - 方案 A (保守推荐): 权重与 Input 解绑, 采用 INT8 量化矩阵 (W8A8 / W8A16)\n   - 方案 B (极致压缩): ALBERT 式低秩分解: (576 -> 128) -> (128 -> V), 参数砍掉 75%\n```\n\n#### 端侧 INT8 嵌入表与低开销 LM Head 导出核心逻辑\n\n```python\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass QuantizedEmbeddingHead(nn.Module):\n    \"\"\"\n    兼顾端侧 CPU SIMD 友好性与表示精度的工业级方案：\n    1. Lookup 采用 INT8 存储，取出后在寄存器级反量化为 FP16，访存减半，流形无损\n    2. LM Head 采用 Row-wise INT8 GEMV，适配 CPU AVX-512 VNNI\n    \"\"\"\n    def __init__(self, vocab_size: int, embed_dim: int):\n        super().__init__()\n        self.vocab_size = vocab_size\n        self.embed_dim = embed_dim\n        \n        # 连续内存，严格 64 字节对齐\n        self.register_buffer(\"weight_int8\", torch.zeros((vocab_size, embed_dim), dtype=torch.int8))\n        self.register_buffer(\"scales\", torch.zeros((vocab_size, 1), dtype=torch.float16))\n\n    @torch.no_grad()\n    def calibrate_and_quantize(self, fp16_embedding_weight: torch.Tensor):\n        \"\"\"从训练好的 FP16 权重无损转换\"\"\"\n        # 计算行级（Per-Token）对称缩放因子\n        max_val = torch.max(torch.abs(fp16_embedding_weight), dim=-1, keepdim=True)[0]\n        max_val = torch.clamp(max_val, min=1e-5)\n        scales = max_val / 127.0\n        \n        # 饱和量化到 int8\n        int8_weight = torch.clamp(torch.round(fp16_embedding_weight / scales), -128, 127).to(torch.int8)\n        \n        self.weight_int8.copy_(int8_weight)\n        self.scales.copy_(scales.to(torch.float16))\n\n    def lookup(self, token_ids: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        Input Embedding: 仅 Gather 对应行，耗时在纳秒级\n        \"\"\"\n        # CPU 端 gather 操作\n        w_int8 = self.weight_int8[token_ids]  # [batch, seq, embed_dim] (int8)\n        scale = self.scales[token_ids]        # [batch, seq, 1] (fp16)\n        # 寄存器级单指令反量化\n        return w_int8.to(torch.float16) * scale\n\n    def forward_lm_head(self, hidden_states: torch.Tensor) -> torch.Tensor:\n        \"\"\"\n        LM Head: 运行 INT8-INT8 / INT8-FP16 GEMV\n        计算 logits = hidden_states @ (weight_int8 * scales)^T\n        \"\"\"\n        # 现代 CPU (AVX-512 VNNI / AMX) 采用 vpdpbusd 指令执行 INT8 内积\n        # 显存带宽消耗降低整整 50% (56.6MB -> 28.3MB)\n        w_fp16 = self.weight_int8.to(torch.float16) * self.scales\n        return F.linear(hidden_states, w_fp16)\n```\n\n---\n\n### ③ 可证伪判据\n\n以下任何一条发生，即证明我的论断是错的，应采纳 Embedding 三值化或低频混精：\n\n1. **三值 Embedding 收敛判据**：在 0.2B（$d=576$）相同语料（单遍 3.5B tokens）训练下，若将 Embedding 与 LM Head 原生三值化后，在 WikiText-2 / 自有验证集上的 **PPL 劣化低于 6%**（相对 FP16 基线），则证明三值化并未破坏输入流形，我的理论推导推翻。\n2. **混精 CPU 推理速度判据**：在 node1 64 核 CPU 上，针对词表大小 49,152、隐层 576，编写高频 4K（FP16）+ 低频 45K（三值）的切分 GEMV 算子，若其单 Token 解码延迟**超越**连续 INT8 GEMV（AVX-512），则证明分支访存未阻断流水线，我的体系结构判断推翻。\n3. **LoRA-style 增益判据**：若能在内存占用低于原 FP16 权重的条件下，实现 `base_fp16 + delta_ternary` 的动态解算并展示出显著低于标准 INT8 的端到端解码延迟，则证明该方案成立。\n\n---\n\n### ④ node1 CPU 最小可跑基准测试\n\n直接在 node1 机器上运行以下脚本，压测 **FP16 vs INT8 vs 混精切分** 在 64 核 CPU 上的实际访存延迟与吞吐，用硬件数据终结争论：\n\n```python\n# benchmark_head_bandwidth.py\n# 运行环境: 魔搭 node1 (64核 CPU, AVX-512 支持)\nimport time\nimport torch\nimport torch.nn.functional as F\n\ntorch.set_num_threads(64)\ntorch.set_grad_enabled(False)\n\nVOCAB_SIZE = 49152\nHIDDEN_DIM = 576\nWARMUP = 50\nITERS = 300\n\nprint(f\"=== 运行环境检测: 线程数={torch.get_num_threads()}, 设备=CPU ===\")\n\n# 1. 模拟 FP16 权重 (56.6 MB)\nw_fp16 = torch.randn(VOCAB_SIZE, HIDDEN_DIM, dtype=torch.float32) # PyTorch CPU 线性层 float32 最佳支持\nx = torch.randn(1, 1, HIDDEN_DIM, dtype=torch.float32)\n\n# 2. 模拟连续 INT8 权重 (28.3 MB) + 尺度\nw_int8 = torch.randint(-127, 127, (VOCAB_SIZE, HIDDEN_DIM), dtype=torch.int8)\nscales = torch.randn(VOCAB_SIZE, 1, dtype=torch.float32)\n\n# 3. 模拟高频 4096 (FP32) + 低频 45056 (三值 packed 展开) 切分\nw_high = torch.randn(4096, HIDDEN_DIM, dtype=torch.float32)\nw_low_ternary = torch.randint(-1, 2, (45056, HIDDEN_DIM), dtype=torch.float32) # 模拟三值浮点\n\n# Warmup\nfor _ in range(WARMUP):\n    _ = F.linear(x, w_fp16)\n    _ = F.linear(x, (w_int8.float() * scales))\n    l_h = F.linear(x, w_high)\n    l_l = F.linear(x, w_low_ternary)\n    _ = torch.cat([l_h, l_l], dim=-1)\n\n# 基准 1: 连续全精度/FP32 GEMV\nt0 = time.perf_counter()\nfor _ in range(ITERS):\n    out = F.linear(x",
+  "err": null,
+  "sec": 105.5
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": "Qwen3.8-27B",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 112.7
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 0.7
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 1.2
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 1.7
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": "deepseek-v4-flash-free",
+  "ok": true,
+  "text": "The user is asking for a decision on embedding quantization strategy for a 0.2B model (hidden=576) in the context of a Net2Net scaling path (0.1B -> 0.4B -> 0.5B) targeting BitNet b1.58 native ternary weights.\nKey constraints:\n- Embedding currently kept at fp16 (previous decision).\n- 0.2B is near a \"flip point\" where embedding params % is highest (17.4% at 135M, will be higher at 0.2B? Actually usually embedding % *decreases* as model scales up. The user says \"non-embedding ratio monotonically increases with scale, small models have highest embedding %\". This is correct. At 135M, emb is 17.4%. At 0.2B (hidden=576), vocab likely same (Chinese vocab added), so emb params fixed ~28M. Total params ~200M. Emb % ~14%. Wait, user says 0.2B is near flip point and \"embedding keep fp16 cost highest relatively\". This implies memory bandwidth/storage pressure from embedding is significant at this scale because the model is small enough that embedding isn't negligible, but large enough that total size matters for CPU inference.\n- Target: CPU <= 15ms/token @ 0.5B. 0.2B is intermediate.\n- BitNet b1.58 native ternary QAT.\n- No model-generated data pre-0.5B.\n- Owner corpus local only.\n\nQuestions:\n1. Ternarize embedding at 0.2B (accept low-freq precision loss for bandwidth) vs Keep fp16?\n2. Partial quantization (mixed precision embedding) implementation traps -> mature solution? LoRA-style: base_fp16 + delta_ternary?\n\nAnalysis:\n- **Embedding % Trend**: User says 135M: 17.4% emb. 0.2B (hidden=576, L~24? d=576 -> 12*L*d^2. If L=24, 12*24*576^2 ≈ 95M. Emb=28M. Total ~123M. Emb% = 22%. Wait. If hidden=576, usually L=12-16 for \"deep narrow\". Let's assume L=24 (deep). Non-emb = 12*24*576^2 ≈ 95M. Total = 123M. Emb% = 28/123 = 22.7%. At 0.4B (hidden=1024, L=24? Non-emb=12*24*1024^2=300M. Emb=28M. Emb% = 8.5%. At 0.5B (BitNet, deeper?), Emb% drops further.\n- **Bandwidth vs Precision**: On CPU, memory bandwidth is king. 28M fp16 = 56 MB. Ternary (2-bit) = 7 MB. Saving 49 MB weight loading per token generation (embedding lookup is read-only for inference, but training needs write).\n- **Inference**: Embedding lookup is gather operation. Bandwidth bound. Ternary helps bandwidth massively.\n- **Training (QAT)**: Straight-Through Estimator (STE) for ternary embedding works but low freq tokens get noisy gradients. User mentions \"gradient pulls low freq to high freq\" issue in mixed precision.\n- **LoRA-style (Base fp16 + Delta ternary)**:\n    - Forward: `emb = base_fp16[idx] + delta_ternary[idx] * scale`.\n    - Backward: `grad_base = grad_output`, `grad_delta = grad_output * scale` (STE).\n    - This isolates high-freq stability (base) from low-freq compression (delta).\n    - But: Base is fp16 (56MB). Delta is ternary (7MB). Total 63MB > 56MB. Increases model size! Defeats purpose of compression unless base is frozen/quantized too.\n    - If base is *frozen* fp16 (pre-trained), only delta trained: Good for fine-tuning, bad for native QAT from scratch/continue training.\n    - If base is trained fp16 + delta ternary: Parameter count increases.\n\nDecision Logic:\n1.  **0.2B Verdict**: **Ternarize Embedding (Native BitNet style)**.\n    - Reason: 0.2B is a *stepping stone* to 0.4B/0.5B. The 0.5B target is native BitNet b1.58 (all ternary weights). Carrying fp16 embedding as a special case breaks the \"native\" pipeline, adds kernel complexity (mixed precision gather), and creates a distillation gap (0.4B fp16 emb -> 0.5B ternary emb).\n    - Bandwidth gain (49MB) is critical for CPU 15ms/token target at 0.5B, must validate kernel at 0.2B.\n    - Low-freq token degradation is acceptable for *pre-training/continue-training* phase; tokenizer quality (Chinese vocab added) handles OOV/rare. Distillation to 0.5B will recover.\n    - \"Flip point\" argument: Precisely because emb% is high (22%), bandwidth pressure is highest here. Ternary helps most here.\n\n2.  **Partial Quantization (Mixed) / LoRA-style**: **Reject for Mainline**.\n    - Trap 1: Size increase (Base + Delta).\n    - Trap 2: Two gather kernels / mixed precision kernel (slow on CPU).\n    - Trap 3: Gradient interference requires complex optimizer state separation.\n    - Mature Solution: **Standard BitNet b1.58 Embedding QAT (Full Ternary) + Learned Scale per row/block**.\n    - Alternative for \"Safety Net\": **Embedding Distillation**. Train 0.2B ternary. If specific rare tokens fail eval, fix at 0.4B/0.5B via distillation from fp16 teacher (which we have from 0.1B->0.4B path? No, 0.4B is also ternary target? User said 0.4B \"Net2Net expand + Chinese vocab + own data\". Did not explicitly say 0.4B is ternary. \"0.5B = BitNet b1.58 native\". Implies 0.4B might be fp16/bf16?).\n    - *Correction*: User says \"0.1B→0.4B 逐级 Net2Net 保函数扩容... ",
+  "err": null,
+  "sec": 73.2
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "TimeoutError: The read operation timed out",
+  "sec": 120.5
+ }
+}

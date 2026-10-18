@@ -1,0 +1,23 @@
+{
+  "total": 3000,
+  "unique": 3000,
+  "single_pool": 692,
+  "multi_pool": 9660,
+  "domain_dist": {
+    "tech": 367,
+    "identity": 317,
+    "greeting": 313,
+    "emotion": 265,
+    "work": 254,
+    "life": 233,
+    "knowledge": 228,
+    "study": 216,
+    "ability": 214,
+    "owner": 200,
+    "opinion": 198,
+    "clarify": 155,
+    "boundary": 40
+  },
+  "avg_chars": 153.2,
+  "out": "D:\\work\\_local_ai\\train_15b\\data\\chat_sft_v7.jsonl"
+}

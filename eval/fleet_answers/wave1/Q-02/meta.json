@@ -1,0 +1,26 @@
+{
+ "id": "Q-02",
+ "title": "幻觉边界与「自知无知」的可训练性",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.grok",
+  "kris.north",
+  "kris.nemotron",
+  "kris.gemini"
+ ],
+ "dead": [
+  "kris.minimax",
+  "kris.deepseek",
+  "unclose",
+  "kris.step",
+  "kris.longcat",
+  "kris.glm",
+  "kris.qwen",
+  "dgai",
+  "kilo",
+  "ovh",
+  "zen.deepseek",
+  "llm7"
+ ]
+}

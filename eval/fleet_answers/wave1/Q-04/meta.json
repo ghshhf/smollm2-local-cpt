@@ -1,0 +1,26 @@
+{
+ "id": "Q-04",
+ "title": "三值 QAT（BitNet b1.58）的失败边界",
+ "n_ships": 17,
+ "alive": [
+  "pollinations"
+ ],
+ "dead": [
+  "kris.longcat",
+  "kris.step",
+  "kris.deepseek",
+  "kris.grok",
+  "kris.north",
+  "kris.gemini",
+  "kris.glm",
+  "kris.qwen",
+  "kris.minimax",
+  "kris.nemotron",
+  "unclose",
+  "kilo",
+  "dgai",
+  "zen.deepseek",
+  "ovh",
+  "llm7"
+ ]
+}

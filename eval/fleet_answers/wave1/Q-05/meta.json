@@ -1,0 +1,26 @@
+{
+ "id": "Q-05",
+ "title": "ICL 在小模型上弱在哪 + 能否靠 SFT 补齐",
+ "n_ships": 17,
+ "alive": [
+  "kris.glm",
+  "pollinations",
+  "kris.north",
+  "kris.nemotron",
+  "kris.grok",
+  "kris.gemini"
+ ],
+ "dead": [
+  "kris.minimax",
+  "unclose",
+  "kris.deepseek",
+  "kris.longcat",
+  "kris.step",
+  "kris.qwen",
+  "dgai",
+  "kilo",
+  "zen.deepseek",
+  "ovh",
+  "llm7"
+ ]
+}

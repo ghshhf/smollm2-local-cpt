@@ -1,0 +1,26 @@
+{
+ "id": "Q-11",
+ "title": "联网自学习的形态与安全管线",
+ "n_ships": 17,
+ "alive": [
+  "kris.north",
+  "pollinations",
+  "kris.gemini",
+  "kris.grok"
+ ],
+ "dead": [
+  "kris.nemotron",
+  "kris.minimax",
+  "unclose",
+  "kris.deepseek",
+  "kris.glm",
+  "kris.longcat",
+  "kris.step",
+  "kris.qwen",
+  "kilo",
+  "dgai",
+  "zen.deepseek",
+  "ovh",
+  "llm7"
+ ]
+}

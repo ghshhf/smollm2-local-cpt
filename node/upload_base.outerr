@@ -1,0 +1,20 @@
+RETRY r4base_bin.00 attempt=1 got=185 want=95000000
+RETRY r4base_bin.00 attempt=2 got=185 want=95000000
+RETRY r4base_bin.00 attempt=3 got=185 want=95000000
+RETRY r4base_bin.00 attempt=4 got=0 want=95000000
+FAIL r4base_bin.00
+RETRY r4base_bin.01 attempt=1 got=27798468 want=95000000
+RETRY r4base_bin.01 attempt=2 got=0 want=95000000
+RETRY r4base_bin.01 attempt=3 got=27033600 want=95000000
+RETRY r4base_bin.01 attempt=4 got=0 want=95000000
+FAIL r4base_biRETRYRETRY r4base_bin.02 attempt=1 got=31004964 waRETRY r4baseRETRY r4base_bin.02 attempt=2 got=28390784RETRY r4base_biRETRY r4base_bin.02 attempt=3 got=30132RETRY r4base_bin.0RETRY r4base_bin.02 attempt=4 got=0 want=95000000
+FRETRY r4base_bin.0RETRY r4base_bin.03 attempt=1 goRETRY r4base_bin.0RETRY r4base_bin.03 attempt=2 goRETRY r4base_bin.03 attemRETRY r4base_bin.03 attempt=3 got=29573120 want=95000000
+RETRY r4base_bin.03 attempt=4 got=0 want=95RETRY r4base_bin.04 attempRETRY r4base_bin.04 atteRETRY r4base_bin.04 attempRETRY r4base_bin.04 atteRETRY r4base_bin.04 attempt=3 gotRETRY r4base_bin.04 aRETRY r4base_bin.04 attempt=4 got=31RETRY r4base_bin.04 attempt=4 got=259RETRY r4base_bin.05 attempt=1 got=0 wanRETRY r4basRETRY r4base_bin.05 attempt=2 got=12040180 wanRETRY r4basRETRY r4base_bin.05 attempt=3 got=30064640 wanRETRY r4basRETRY r4base_bin.05 attempt=4 got=26497912 wanRETRY r4base_bin.05 attempt=4 RETRY r4base_bin.06 attempt=1 got=0 want=95000RETRRETRY r4base_bin.06 attempt=2 got=43407 want=95000000RRETRY r4base_bin.06 attempt=3 got=14367 want=95000000
+RERETRY r4base_bin.06 attempt=3 got=0 want=9500000FARETRY r4base_bin.RETRY r4base_bin.07 attempt=1 got=0 want=95000000
+RETRY r4base_bin.07 attempt=2 got=0 want=95000000
+RETRY r4base_bin.07 attempt=3 got=0 want=95000000
+RERETRY r4base_bin.07 attempt=3 got=0 want=9500000FARETRY r4base_bin.RETRY r4base_bin.08 attempt=1 got=0 want=95000000
+RETRY r4base_bin.08 attempt=2 got=0 want=95000000
+RETRY r4base_bin.08 attempt=3 got=0 want=95000000
+RETRY r4bRETRY r4base_bin.08 attempt=3 got=0 want=FAIL r4baRETRY r4base_bin.08 attempt=4 got=0 want=95000000
+FAIL r4baOK r4base_OK r4base_bin.09 (1674211) attempt=1

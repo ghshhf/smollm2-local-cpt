@@ -1,0 +1,12 @@
+{
+  "_comment": "扩展免费舰队（2026-10-15 联网新增）。schema 与 fleet.json 一致；key 用 'ENV:变量名' 约定——引擎会读环境变量，未设置则自动休眠(不计入参与者)，用户填上 key 即自动入伍，无需改代码。机密红线同 fleet.json：只讨论公开课题，绝不发 owner_corpus/持仓/密钥/私人文档到任何中转站。",
+  "ships": [
+    {"id":"x.openrouter","base":"https://openrouter.ai/api/v1/chat/completions","key":"ENV:OPENROUTER_API_KEY","model":"meta-llama/llama-3.3-70b-instruct:free","vendor":"meta","privacy":"public","enabled":true},
+    {"id":"x.groq","base":"https://api.groq.com/openai/v1/chat/completions","key":"ENV:GROQ_API_KEY","model":"llama-3.3-70b-versatile","vendor":"meta","privacy":"public","enabled":true},
+    {"id":"x.gemini","base":"https://generativelanguage.googleapis.com/v1beta/openai/chat/completions","key":"ENV:GEMINI_API_KEY","model":"gemini-2.5-flash","vendor":"google","privacy":"public","enabled":true},
+    {"id":"x.nvim","base":"https://integrate.api.nvidia.com/v1/chat/completions","key":"ENV:NVIDIA_API_KEY","model":"deepseek-ai/deepseek-r1","vendor":"deepseek","privacy":"public","enabled":true},
+    {"id":"x.cerebras","base":"https://api.cerebras.ai/v1/chat/completions","key":"ENV:CEREBRAS_API_KEY","model":"llama-3.3-70b","vendor":"meta","privacy":"public","enabled":true},
+    {"id":"x.zai","base":"https://api.z.ai/v1/chat/completions","key":"ENV:ZAI_API_KEY","model":"glm-4.7-flash","vendor":"zhipu","privacy":"public","enabled":true},
+    {"id":"x.together","base":"https://api.together.xyz/v1/chat/completions","key":"ENV:TOGETHER_API_KEY","model":"meta-llama/Llama-3.3-70B-Instruct-Turbo","vendor":"meta","privacy":"public","enabled":true}
+  ]
+}

@@ -1,0 +1,21 @@
+=== T ===
+01:07:37
+=== loss lines ===
+[train] step 50/400 loss=28.4896 lr=4.92e-04 t=1422s
+[train] step 60/400 loss=29.1068 lr=4.86e-04 t=1697s
+[train] step 70/400 loss=28.7131 lr=4.79e-04 t=1995s
+[train] step 80/400 loss=27.5502 lr=4.70e-04 t=2270s
+[train] step 10/400 loss=81.8125 lr=1.40e-04 t=179s
+[train] step 20/400 loss=43.0083 lr=2.30e-04 t=357s
+[train] step 30/400 loss=40.6849 lr=3.20e-04 t=535s
+[train] step 40/400 loss=38.5258 lr=4.10e-04 t=830s
+[train] step 50/400 loss=37.0450 lr=5.00e-04 t=1009s
+[train] step 60/400 loss=35.7901 lr=4.99e-04 t=1187s
+[train] step 10/400 loss=16.6961 lr=1.40e-04 t=179s
+[train] step 20/400 loss=17.0612 lr=2.30e-04 t=358s
+[train] step 30/400 loss=17.9838 lr=3.20e-04 t=664s
+[train] step 40/400 loss=17.5290 lr=4.10e-04 t=842s
+=== ckpt ===
+
+=== done ===
+0

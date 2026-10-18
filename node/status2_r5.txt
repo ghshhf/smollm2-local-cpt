@@ -1,0 +1,57 @@
+=== TIME ===
+10-13 21:45:42
+=== PROCS ===
+root        1921  0.0  0.0   2900  1892 ?        Ss   21:42   0:00 sh /mnt/workspace/node1/chain/chain_v1.sh
+root        2032  732 21.0 9190080 6804944 ?     Rl   21:42  25:00 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+root        2124  0.0  1.0 3010668 354804 ?      Sl   21:42   0:00 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+root        2132  0.0  1.1 3010680 365468 ?      Sl   21:42   0:00 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+=== done_steps ===
+400
+=== corpus_r5 ===
+总计 225509
+drwxr-xr-x  2 root root      4096 10月 13 21:45 .
+drwxr-xr-x 10 root root      4096 10月 13 21:45 ..
+-rw-r--r--  1 root root 230917741 10月 13 21:45 zh_text_r5.jsonl
+=== corpus_R5 link ===
+drwxr-xr-x  2 root root      4096 10月 12 23:52 corpus_r4
+lrwxrwxrwx  1 root root        36 10月 12 23:52 corpus_R4 -> /mnt/workspace/node1/chain/corpus_r4
+drwxr-xr-x  2 root root      4096 10月 13 21:45 corpus_r5
+=== ckpt ===
+总计 836533
+drwxr-xr-x  2 root root      4096 10月 13 01:23 .
+drwxr-xr-x 10 root root      4096 10月 13 21:45 ..
+-rw-r--r--  1 root root       790 10月 13 02:59 config.json
+-rw-r--r--  1 root root       111 10月 13 02:59 generation_config.json
+-rw-r--r--  1 root root 856595368 10月 13 02:59 model.safetensors
+-rw-r--r--  1 root root         3 10月 13 02:59 step.txt
+=== cache on NAS ===
+-rw-r--r-- 1 root root 375627552 10月 13 03:01 /mnt/workspace/node1/chain/cache_R4.npy
+=== /root ===
+base_next
+=== chain.log tail 1200 ===
+0 lr=4.65e-04 t=2116s
+[train] step 120/400 loss=2.1821 lr=4.52e-04 t=2297s
+[train] step 130/400 loss=2.2220 lr=4.38e-04 t=2478s
+[train] step 140/400 loss=2.2843 lr=4.23e-04 t=2704s
+[train] step 150/400 loss=2.1497 lr=4.06e-04 t=2884s
+[train] step 160/400 loss=2.1747 lr=3.88e-04 t=3065s
+[train] step 170/400 loss=2.2418 lr=3.68e-04 t=3291s
+[train] step 180/400 loss=2.2132 lr=3.48e-04 t=3470s
+[train] step 190/400 loss=2.1682 lr=3.27e-04 t=3651s
+[train] step 200/400 loss=2.1429 lr=3.06e-04 t=3831s
+[ckpt] saved @ step 200
+[train] step 210/400 loss=2.1249 lr=2.84e-04 t=4058s
+[train] step 220/400 loss=2.1192 lr=2.61e-04 t=4239s
+[train] step 230/400 loss=2.0353 lr=2.39e-04 t=4421s
+[train] step 240/400 loss=2.1379 lr=2.16e-04 t=4605s
+[train] step 250/400 loss=2.1490 lr=1.94e-04 t=4786s
+[10-13 21:42:09] chunk R4 start: done=400 chunk=400 lr=5e-4
+[threads] torch.set_num_threads(8)
+[load] model + tokenizer from /root/r4work/base_next
+[tok] 归一化 tokenizer_config.json: extra_special_tokens list->{}
+[load] params=214.1M device=cpu (fp32)
+[cache] 复用已有 token cache: 93906856 tokens
+[train] steps=400 lr=0.0005 accum=8 max_len=512 (fp32)
+[train] step 10/400 loss=2.0959 lr=1.40e-04 t=189s
+=== train script ver ===
+10663 /mnt/workspace/node1/chain/train_remote_v4.py

@@ -1,0 +1,1 @@
+{"ok": false, "poll_ts": 0, "done_steps": 0, "chunk_step": 0, "chunk_total": 400, "loss": null, "lr": null, "tok_s": null, "sec_per_step": null, "eta_s": null, "train_procs": 0, "health": "UNKNOWN", "health_ts": "", "fail_streak": -1, "raw_tail": "", "note": "booting"}

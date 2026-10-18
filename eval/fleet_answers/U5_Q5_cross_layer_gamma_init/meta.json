@@ -1,0 +1,26 @@
+{
+ "id": "U5_Q5_cross_layer_gamma_init",
+ "title": "U5: 跨层加宽时新层 γ 从哪来（量化感知 Net2Net）",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.nemotron",
+  "kris.gemini",
+  "zen.deepseek"
+ ],
+ "dead": [
+  "kris.minimax",
+  "kris.step",
+  "unclose",
+  "kris.deepseek",
+  "kris.longcat",
+  "kris.grok",
+  "kris.north",
+  "kris.glm",
+  "kris.qwen",
+  "dgai",
+  "kilo",
+  "ovh",
+  "llm7"
+ ]
+}

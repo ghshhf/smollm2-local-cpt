@@ -1,0 +1,172 @@
+{
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": "MiniMax-M3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 17.4
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": "step-5-preview",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 21.2
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "**① 机制 / 最佳理论**\n\n| 主题 | 说明 |\n|------|------|\n| **flip‑rate 监测窗口** | 对三值化权重 \\(W_q\\)(\\(-1,0,+1\\)) 的符号变化率（flip‑rate）最合适的窗口是在 **“局部累计窗口 + 全局平滑”** 上。 由于 Alpha 退火是 **线性** 的，\\(W_q\\) 的分布只会在 **权重梯度到达一定阈值** 时发生翻转。  一条经验式：<br/>```grad_norm_threshold = 1e-1 * ∥ΔW_q∥_norm```<br/>一旦此阈值被突破，才打开 flip‑rate 计数。  采用 **滑动窗口 (size = 50 steps)** 计算平均 flip‑rate 并对不同 τ 做加权，能在“窗口不足”问题得到更平滑判断。 |\n| **Alpha 退火冲击** | 退火从 1.0→0.0 使前向传播完全三值化，梯度围绕 “零点” 产生 **非常小的尺度**。 若不与 lr 配合，对角线式更新量极小，梯度在 200 步内无法跨越 0 时刻最近的量化步长（≈ 1.5 · |mean W|）。  这导致 **物理翻转几乎不可见**。  |\n| **梯度泄漏 / 影子权重** | 通过 **缩放 alpha 与学习率** (lr * alpha) 的「影子学派」实现：在 alpha 低时低质量梯度被放大，从而保证梯度尺度保持，避免 “缺梯度” 冲击。|\n| **退火速率与步数** | 经验法则：\\(\\Delta \\alpha = 0.01\\) 每 50 步, 1.0→0 基本需要 500 步以上。 对 0.1B 以 1e‑4 lr 训练时，**步数 ≥ 5000**（或更大）将让梯度跨越至少 1 次量化步长，出现可观测 flip‑rate。  |\n| **静态冲击大小（delta CE）** | 对 alpha 直接设为 0（即纯三值化）与 alpha 1 的 **hold‑out CE 差值** 能测量退火时的“静态”损失。  基准阈值：<br/>・ *delta CE ≤ 0.30* → 同质，可接受 <br/>・ *delta CE ≥ 1.20* → 冲击过大，必须重新设计退火。 |\n| **“影子权重 lr”是否足够检测** | 在 200 步、lr=1e‑5 的预算内，仅用更高 lr 并不一定能看见差异，因为 gradient magnitude 仍受 alpha 限制。 一般 **升高到 lr=1e‑4 并同步加速 alpha**(e.g. 1→0.8→0.6→0.4→0.2→0) 需要至少 500 步才能显现 flip‑rate。 |\n\n---\n\n**② 可执行方案 / 伪代码**\n\n```python\n# -------------------------------\n#   参数设定\n# -------------------------------\nalpha_schedule  = LinearAlphaPoset(1.0, 0.0, steps=5000)  # 线性退火\nlr              = 1e-4                                    # 较高 lr\nsteps           = 5000\nwindow_size     = 50\n\n# -------------------------------\n#   训练循环\n# -------------------------------\nopt = AdamW(params=model.parameters(), lr=lr, weight_decay=0.0)\n\nfor step in range(steps):\n    alpha = alpha_schedule(step)          # 取当前 alpha\n    model.set_alpha(alpha)                # 在前向与量化上使用\n    \n    # 前向 + 反向\n    logits  = model(X_batch)              # X_batch: 训练 batch\n    loss    = criterion(logits, y_true)   # CE loss\n    loss.backward()\n    \n    # 更新权重\n    opt.step()\n    opt.zero_grad()\n    \n    # ---- Flip‑rate 监测 ----\n    if step % window_size == 0:\n        # 获取当前所有三值化权重\n        w_q = model.get_weight_quantized()          # 形状 (N,)\n        # 使用一维卷积计算相邻 flip‑rate\n        sign_changes = (w_q[:-1] != w_q[1:]).float()\n        flip_rate = sign_changes.mean().item()\n        record_flip_rate(step, flip_rate)           # 保存序列\n        \n    # ---- 梯度范数记录 ----\n    grad_norm = sum(p.grad.norm().item() ** 2 for p in model.parameters()) ** 0.5\n    log_grad_norm(step, grad_norm)\n    \n# -------------------------------\n#   评估\n# -------------------------------\n# 1) 计算 CE delta: alpha=1.0 vs alpha=0.0  hold‑out\nholdout_ce1 = evaluate(alpha=1.0)\nholdout_ce0 = evaluate(alpha=0.0)\ndelta_ce    = holdout_ce0 - holdout_ce1\n\nprint(f\"Hold‑out CE delta = {delta_ce:.4f}\")\n```\n\n**参数表**\n\n| 变量 |",
+  "err": null,
+  "sec": 23.4
+ },
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": "deepseek-v4-pro",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 24.4
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": "cohere/north-mini-code:free",
+  "ok": true,
+  "text": "**裁决**（按您要求的 4 部分结构）\n\n---\n\n### ① 机制/最佳实践\n| 问题 | 正确诊断 | 最佳实践/设计理念 |\n|------|----------|--------------------|\n| **1️⃣ Flip‑rate 测量窗口** | *flip‑rate = 0 e‑6* 只是**测量窗口太短**（200 步 × 1e‑5 lr ≈ 0.004 % 量化步长）的症状，而非模型无法翻转的真实证据。在 1e‑5 的 lr 下，单个权重需要≈3000‑25000 步才能移动一个量化级，因此 Flip‑rate 在 200 步内将始终为零。 | • **使用足够大的步数（≥5000）和/或更大的学习率（≥1e‑4）进行 Flip‑rate 计算。  <br>• 采用*滑动窗口*（如每 100 步记录一次符号变化率），同时保留*原始*单步符号变化，以捕捉任何早期“缓慢”的翻转事件。  <br>• 并行跟踪**加权翻转率**：将每个权重的量化步长 *Δ = |Δw|/α* 标准化，以消除 α 的影响。 |\n| **2️⃣ 三值化静态冲击** | *alpha = 1.0 → 0.0* 的前向 CE 变化（V1‑02 实验）是真正的“冲击”幅度。如果 **ΔCE < 0.3**，冲击较小，继承式训练可以",
+  "err": null,
+  "sec": 25.8
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": "glm-5.2",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 28.4
+ },
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": "longcat-2.5-preview-free",
+  "ok": true,
+  "text": "# 裁决书\n\n先给结论：你的诊断方向对，但有三处需要修正——尤其是 Q1 的窗口设计犯了一个测量学错误，会把你引向\"调参无效\"的假阴性。\n\n---\n\n## 裁决 1：flip rate 窗口设计 —— 你的推理对一半，但推荐参数会误导\n\n### ① 机制/最佳理论\n\n**你对的部分**：位移-步长比论证成立。lr=1e-5 × 200步，AdamW 归一化后每步位移约 lr 量级 ≈ 1e-5，量化边界带宽 ~1.0|mean|W|，占比 34~46% 的权重离边界中位数距离 ~0.5|mean|W|。200步累计位移 ~2e-3|mean|W|，是带宽的 0.2%，翻转概率趋近零。这是**测量窗口不足**，判定正确。\n\n**你错的部分**：5000步 × lr=1e-4 不等于\"5000步观测\"。\n\n关键区分——**等效位移预算** = lr × steps：\n- 原方案：1e-5 × 200 = 2e-3 → 翻转数 ≈ 0 ✓（实测一致）\n- 你提议：1e-4 × 5000 = 5e-1 → 等效位移 = 带宽的 50%，必然大量翻转\n\n但问题是：**这个窗口混淆了两个变量**。你把 lr 和 steps 同时提高了 10 倍和 25 倍，如果翻转率终于上来了，你无法归因是\"lr 够了\"还是\"窗口长了\"还是\"两者缺一不可\"。更危险的是——5000步 × lr=1e-4 已经超出退火完成区间，alpha 可能早已到 0，你测到的 flip 全部发生在\"已经全是三值权重\"的阶段，无法分离\"退火过程中\"和\"退火完成后\"的翻转行为。\n\n**正确窗口设计**——分离变量：\n\n```\n# 伪代码：翻转率测量实验矩阵\nfor lr in [1e-5, 5e-5, 1e-4, 5e-4]:      # 分离 lr 效应\n    for anneal_steps in [200, 1000, 5000]: # 分离窗口效应\n        # alpha 退火在 anneal_steps 内完成\n        # 翻转率分两段测：\n        #   flip_during_anneal: alpha ∈ [1,0) 区间\n        #   flip_post_anneal:    alpha = 0 稳态后继续 N 步\n```\n\n**推荐最小可跑版**（node1 CPU 64核，135M fp32，BitLinear 替换后）：\n\n| 配置 | lr | 总steps | alpha退火步数 | 预计耗时(node1) |\n|------|-----|---------|-------------|---------------|\n| A-对照 | 1e-5 | 200 | 200 | ~2min（你的基线）|\n| B-纯lr | 1e-4 | 200 | 200 | ~2min |\n| C-纯窗口 | 1e-5 | 5000 | 5000 | ~50min |\n| D-联合 | 1e-4 | 5000 | 5000 | ~50min |\n\nB 是关键——**如果 B 仍然 flip=0 而 C 上来了，说明是窗口不够不是 lr 不够**。你现在的实验缺了这一格。\n\n### ② 可执行方案\n\n```python\n# 核心：翻转率窗口的分段定义\ndef measure_flip_rate(model, loader, lr, total_steps, anneal_steps, measure_interval=50):\n    \"\"\"\n    alpha: 1.0 -> 0.0 线性，在 anneal_steps 内完成\n    measure: 每 50 步 snapshot 一次 W，统计相邻 snapshot 间符号变化\n    \"\"\"\n    flip_records = []\n    \n    for step in range(total_steps):\n        # alpha 调度\n        alpha = max(0.0, 1.0 - step / anneal_steps)\n        \n        # 训练一步\n        loss = train_step(model, loader, lr)\n        \n        # 测量\n        if step % measure_interval == 0:\n            W_snapshot = extract_bitlinear_weights(model)\n            if len(flip_records) > 0:\n                W_prev = flip_records[-1]['W']\n                flips = count_sign_changes(W_prev, W_snapshot)\n                total = count_quantizable(W_prev)  # 排除已稳定的 ±阈值\n                phase = 'annealing' if alpha > 0 else 'post_anneal'\n                flip_records.append({\n                    'step': step, 'alpha': alpha,\n                    'flip_rate': flips / max(total, 1),\n                    'phase': phase\n                })\n            flip_records.append({'W': W_snapshot, 'alpha': alpha})\n    \n    return flip_records\n\n# 翻转率汇总：按 phase 分组\ndef summarize_flips(records, phase):\n    phase_records = [r for r in records if r['phase'] == phase and 'flip_rate' in r]\n    if not phase_records:\n        return 0.0\n    return np.mean([r['flip_rate'] for r in phase_records])\n```\n\n### ③ 可证伪判据\n\n**什么结果算你错**：\n- 配置 B（lr=1e-4, steps=200）如果 flip > 0（哪怕 0.1%），说明\"lr 太小\"是主因之一，你的\"纯窗口不足\"判定不完整\n- 配置 C（lr=1e-5, steps=5000）如果 flip > 0 但 B 仍然 = 0，**完全证实**你的判定，外部归因\"提高 lr\"是伪命题\n\n**什么结果算你对**：\n- B flip=0 且 C flip>0 → 窗口不足是唯一约束\n- B flip>0 且 C flip≈B → lr 是约束，窗口不是\n- B flip>0 且 C flip>>B → 两者都重要\n\n### ④ node1 最小可跑版\n\nA/B/C/D 四组全跑 node1 CPU 无压力。135M 模型 Batch=8, seq=516, 单步前向+反向 ~0.12s/步（已验证你实测的 3 tok/s 对应 batch 配置）。C/D 组 5000 步 ≈ 10min/组。总实验时间 ~30min 出",
+  "err": null,
+  "sec": 46.2
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ok": true,
+  "text": "### � 裁决\n\n#### 1. Flip Rate 测量窗口：`steps=5000, lr=1e-4` **勉强够“看见”，不够“看清”** —— 必须改为 **`lr=1e-3, steps=2000`** 或 **`lr=1e-4, steps=20000`**\n\n**① 机制/最佳理论**  \n三值量化步长 $\\Delta \\approx 2\\langle|W|\\rangle$。影子权重 $W$ 需移动 $\\sim 0.5\\Delta$ 才能触发符号翻转。  \n物理位移上界：$\\delta W_{\\max} \\approx \\eta \\cdot \\|\\nabla W\\| \\cdot T$。  \n你的实测：$\\|\\nabla W\\| \\sim 7$（后期），$\\langle|W|\\rangle \\sim 0.05$（典型 135M 模型），$\\Delta \\sim 0.1$。  \n- `lr=1e-4, T=5000` → $\\delta W_{\\max} \\approx 3.5 \\times 10^{-3}$ ≈ **$0.035\\Delta$** → 期望翻转概率 $< 10^{-3}$，**仍看不见**。  \n- `lr=1e-3, T=2000` → $\\delta W_{\\max} \\approx 1.4 \\times 10^{-2}$ ≈ **$0.14\\Delta$** → 边界带 34~46% 权重中约 5~7% 会翻转，**flip rate 可测**。  \n- `lr=1e-4, T=20000` → 同数量级，但算力 10 倍，**不划算**。\n\n**② 可执行方案（伪代码）**  \n```python\n# V1-03_flip_window_probe.yaml\nlr: 1e-3                 # 关键：提高 10 倍\nsteps: 2000              # 200 步 * 10 = 2000 步，总 token 不变\nalpha_schedule: \"linear\" # 保持原退火，验证“退火太快”假说\nlog_every: 50\nmetrics:\n  - flip_rate_per_layer  # 每层单独记录\n  - grad_norm_shadow\n  - holdout_ce\n```\n**若算力极其受限**，可只跑 **前 2 层 + 后 2 层**（代表浅/深分布），batch size 不变，显存/算力几乎不增。\n\n**③ 可证伪判据**  \n- ❌ `lr=1e-4, steps=5000` 仍得 `flip_rate < 1e-4` → **窗口仍不足，裁决错**。  \n- ✅ `lr=1e-3, steps=2000` 出现 `flip_rate ∈ [1e-3, 1e-2]` 且呈现 **先升后降**（边界带清空→稳定）→ **窗口合格，裁决对**。\n\n**④ node1 CPU 最小可跑版**  \n`batch=4, seq=256, 2000 steps` ≈ **1.2 万 token** ≈ **40 分钟**（3 tok/s × 2000 × 1.3 倍开销）。可跑。\n\n---\n\n#### 2. 三值化静态冲击阈值：**`delta_CE < 0.3` = 可承受 / `≥ 0.8` = 静态冲击大、继承式失败根因是退火太快**  \n（你给的 `1.2` 过松，`0.3` 过紧，**取中间值 `0.8` 为硬分界**）\n\n**① 机制/最佳理论**  \n- BitNet b1.58 论文 & 复现（1.3B/3B）显示：**从头训练**三值模型，训练初期 CE 仅比 fp16 基线 **高 0.15~0.25 nats**（≈0.1~0.15 bits/token）。  \n- **继承式**（fp32→三值）属于 **“模型编辑”**，信息瓶颈在 **权重重投影**。若 `",
+  "err": null,
+  "sec": 54.7
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.4
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 68.8
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": "Qwen3.8-27B",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 88.3
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": "gemini-3.8-flash",
+  "ok": true,
+  "text": "### 结论速判与核心推翻\n\n1. **推翻“继承式失败根因是退火太快”的假设**：V1-02 测出的静态冲击 $\\Delta\\text{CE}$ 必然 $\\ge 1.8$（甚至直奔随机猜测的 3.0+）。但这**绝非**退火速度问题，而是**高维连续流形向三值离散顶点的表征断裂**。单纯放慢线性退火至 5 万步，在无逐层重构或蒸馏约束下，进入 $\\alpha \\in [0.2, 0.4]$ 依然会发生不可逆相变崩溃。\n2. **推翻外部模型“提高影子权重 $lr$ 可在当前预算下解决问题”的建议**：在 200 步预算下提高 $lr$ 纯属指标作弊。它能强行砸出 flip rate $> 0$，但 AdamW 二阶动量尚未越过冷启动期（$1/(1-\\beta_2) \\approx 1000$ 步），粗糙的 STE 代理梯度会导致权重在量化阈值两侧发生极限环震荡（limit cycle），Loss 必然在 200 步内进一步发散。\n\n---\n\n### ① 机制与理论裁决\n\n#### 裁决 1：Flip Rate 的测量窗口与物理真身\n*   **物理机制**：设权重服从高斯分布 $W \\sim \\mathcal{N}(0, \\sigma^2)$，BitNet b1.58 缩放因子 $\\gamma = \\mathbb{E}[|W|] \\approx 0.8\\sigma$。量化判决门限位于 $\\pm 0.5\\gamma \\approx \\pm 0.4\\sigma$。\n    使用 AdamW 时，单步有效更新位移为：\n    $$\\Delta W_{step} \\approx \\eta \\cdot \\frac{m_t}{\\sqrt{v_t} + \\epsilon} \\le \\eta$$\n    当 $\\eta = 10^{-5}$，步长 $\\Delta W \\approx 10^{-5}$。对于标准 135M 模型（$\\sigma \\approx 0.02$），量化步长 $\\gamma \\approx 0.016$，门限绝对距离在 $10^{-2}$ 量级。\n    在相邻测点（如每 10 步），权重位移处于随机游走状态，净位移期望仅为 $\\sqrt{10} \\times 10^{-5} \\approx 3.16 \\times 10^{-5}$。落入翻转带 $[0.5\\gamma - \\Delta W, 0.5\\gamma + \\Delta W]$ 的理论概率密度极低。\n*   **指标修正**：**严禁测量“相邻测点瞬时翻转率”**。必须改测**累积符号翻转率（Cumulative Flip Rate, CFR）**：\n    $$\\text{CFR}(t) = \\frac{1}{N} \\sum_{i=1}^N \\mathbb{I}\\left( \\text{Quant}(W_i^{(t)}) \\ne \\text{Quant}(W_i^{(0)}) \\right)$$\n*   **窗口裁决**：要让 CFR 展现出统计规律性（$> 5\\%$ 权重越过边界），所需步数 $T$ 满足：\n    $$\\sqrt{T} \\cdot \\eta \\cdot \\beta_{corr} \\approx 0.5\\gamma \\implies T \\approx \\left(\\frac{0.5 \\times 0.016}{10^{-4} \\times 0.3}\\right)^2 \\approx 7000\\text{ 步 (当 }\\eta=1e-4\\text{)}$$\n    **裁决**：若使用 $\\eta=1e-4$，至少需要 **3000~5000 步** 才能脱离布朗运动噪声区，看清稳态迁移；在 200 步内，瞬时 flip rate 恒为 0 是数学必然，而非物理异常。\n\n#### 裁决 2：三值化静态冲击（Static Shock）的本质\n*   **理论预测**：V1-02 静态阶梯实验中，$\\alpha=1.0 \\to 0.0$ 的 holdout $\\Delta\\text{CE}$ 必然 $\\ge 1.8$。\n*   **机制**：三值量化引入的理论相对重构误差（Relative MSE）为：\n    $$\\frac{\\|W - W_q\\|_F^2}{\\|W\\|_F^2} \\approx 18\\% \\sim 22\\%$$\n    在 12 层 Transformer 级联下，前向信噪比衰减为 $\\text{SQNR}_{out} \\approx (1 - 0.20)^{12} \\approx 0.068$（信号能量被噪声完全淹没）。\n    线性插值 $W_{eff} = \\alpha W + (1-\\alpha) W_q$ 并非几何测地线。当 $\\alpha$ 越过临界点（约 0.4）时，特征空间的奇异值谱发生坍缩，激活值方差被 LayerNorm/RMSNorm 异常放大。\n    **这不是“退火太快”的工程失误，而是“无监督硬投”在几何上的必然崩溃**。从 fp32 到 BitNet b1.58，权重与激活必须存在协同重新排布（Co-adaptation），平滑退火无法凭空提供这种重排布所需的自由能。\n\n#### 裁决 3：200 步预算下提高 $lr$ 的后果\n*   **理论判定**：**绝对不可行**。\n*   **机制**：AdamW 的 $\\beta_2=0.999$，二阶矩估计器达到无偏有效窗口需 $t \\ge \\frac{1}{1-\\beta_2} = 1000$ 步。在 200 步时，分母校正因子仍在剧烈变动。若此时将影子权重 $lr$ 暴力拔高到 $10^{-3}$：\n    1. 前向梯度范数（已达 6.90）会直接使步长击穿整个死区（Deadzone）；\n    2. STE（直通估计器）截断了 $[-1, 1]$ 之外的真实曲率，导致影子权重在量化阈值周围剧烈震荡（Thrashing）；\n    3. 200 步结束时，CFR 虽被刷高到 $15\\%$ 以上，但 Loss 必然发散至 4.0 以上甚至 NaN。\n\n#### 吞吐 18 跌至 3 tok/s 的隐蔽病因\n*   在 CPU 上，`alpha * W + (1 - alpha) * W_q` 构成了极其昂贵的动态张量图，阻断了 OpenBLAS/MKL 的连续内积内核，并在每个 step 强制进行三次内存克隆与显式广播。\n*   **在 CPU 训练 BitNet，必须使用原位（in-place）STE 算子，禁止在 Python 层保留混合浮点权重图。**\n\n---\n\n### ② 可执行方案：渐进式注入蒸馏（PID）与 CFR 监控\n\n放弃全局无差别线性 $\\alpha$ 退火，转向**单层推进（Block-wise progressive）+ 0.4B 输出 logits 蒸馏（KL散度）**。在 CPU 上，训练必须分阶段闭环。\n\n#### 核心执行伪代码（PyTorch 核心逻辑）\n\n```python\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass FastControllableBitLinear(nn.Linear):\n    \"\"\"\n    针对 64核 CPU 优化的低开销 BitLinear:\n    - 消除 alpha 混合动态图\n    - 原位 STE 截断\n    - 内置累积翻转率 (CFR) 无锁统计\n    \"\"\"\n    def __init__(self, in_features, out_features, bias=False):\n        super().__init__(in_features, out_features, bias=bias)\n        self.register_buffer('init_quant_state', torch.zeros_like(self.weight, dtype=torch.int8))\n        self.state_initialized = False\n\n    def get_quant_weight(self, w):\n        # BitNet b1.58 scale: mean(abs(w))\n        scale = w.abs().mean().clamp(min=1e-5)\n        # RoundClip 到 {-1, 0, 1}\n        w_scaled = w / scale\n        w_q = torch.clamp(torch.round(w_scaled), -1, 1)\n        # STE 直通\n        return (w_q - w_scaled).detach() + w_scaled, scale, w_q.to(torch.int8)\n\n    def forward(self, x, quantize=True):\n        if not quantize:\n            return F.linear(x, self.weight, self.bias)\n        \n        w_ste, scale, w_disc = self.get_quant_weight(self.weight)\n        \n        # 记录初始量化状态用于 CFR 计算\n        if not self.state_initialized:\n            self.init_quant_state.copy_(w_disc)\n            self.state_initialized = True\n            \n        # CPU 向量化优化: 避免额外张量分配\n        return F.linear(x, w_ste * scale, self.bias)\n\n    @torch.no_grad()\n    def compute_cfr(self):\n        \"\"\"计算相对于 step 0 的累积符号翻转率\"\"\"\n        _, _, current_state = self.get_quant_weight(self.weight)\n        flips = (current_state != self.init_quant_state).sum().item()\n        return flips / self.weight.numel()\n\ndef train_distill_step(student, teacher, x, optimizer, scheduler):\n    \"\"\"\n    能力层从 0.4B 蒸馏继承：强制加入蒸馏损失，抹平量化冲击\n    \"\"\"\n    optimizer.zero_grad(set_to_none=True)\n    \n    with torch.no_grad():\n        t_logits = teacher(x)\n        \n    s_logits = student(x)\n    \n    # 纯 CE 极易在三值化中崩溃，必须以 KL 散度约束软标签几何\n    loss_ce = F.cross_entropy(s_logits.view(-1, s_logits.size(-1)), x.view(-1))\n    loss_kl = F.kl_div(\n        F.log_softmax(s_logits, dim=-1),\n        F.softmax(t_logits, dim=-1),\n        reduction='batchmean'\n    )\n    \n    loss = 0.3 * loss_ce + 0.7 * loss_kl\n    loss.backward()\n    \n    # 梯度硬截断，防止 STE 梯度爆炸\n    torch.nn.utils.clip_grad_norm_(student.parameters(), max_norm=1.0)\n    \n    optimizer.step()\n    scheduler.step()\n    return loss.item()\n```\n\n---\n\n### ③ 可证伪判据（何种结果算我错）\n\n1. **判据 1（关于静态冲击）**：\n   在 V1-02 零训练阶梯实验中，若 $\\alpha=0.0$ 时的 holdout CE 增量 $\\Delta\\text{CE} < 0.8$（当前 baseline 为 0.29，即总 CE $\\le 1.09$），**算我彻底错误**。\n   *意义*：证明 fp32 流形与 b1.58 流形之间存在天然的平滑退化低能量通道，我的“几何断裂论”不成立。\n\n2. **判据 2（关于 200 步调大 lr）**：\n   若将影子权重 $lr$ 提高至 $5e-4 \\sim 1e-3$，且在 **200 步、全局全量退火** 的约束下：\n   Holdout CE 能够压回至 $\\le 0.45$，同时累积翻转率 CFR 达到 $3\\% \\sim 10\\%$ 且未发生梯度范数震荡（norm $\\le 3.0$），**算我彻底错误**。\n   *意义*：证明 200 步下 AdamW 无需预热即可在强噪声三值梯度下收敛，我的“极限环破坏论”不成立。\n\n---\n\n### ④ 魔搭 Node1 64核 CPU 最小可跑验证脚本\n\n单次运行必须在 **3 分钟内完成**，直接闭环验证：(1) 静态冲击全阶梯、(2) 200步暴力提 $lr$ 的崩塌过程、(3) 内存瓶颈解绑（验证吞吐回归）。\n\n保存为 `node1_ternary_test.py`，单脚本直跑：\n\n```python\nimport time\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\n# 强绑 64 核 CPU 线程\ntorch.set_num_threads(64)\ntorch.set_num_interop_threads(64)\n\nclass ToyBitLinear(nn.Linear):\n    def get_quant(self):\n        scale = self.weight.abs().mean().clamp(min=1e-5)\n        w_scaled = self.weight / scale\n        w_q = torch.clamp(torch.round(w_scaled), -1, 1)\n        w_ste = (w_q - w_scaled).detach() + w_scaled\n        return w_ste * scale, w_q.to(torch.int8)\n\n    def forward(self, x, alpha=0.0):\n        if alpha == 1.0:\n            return F.linear(x, self.weight)\n        w_q_ste, _ = self.get_quant()\n        if alpha == 0.0:\n            return F.linear(x, w_q_ste)\n        # 避免广播崩溃的计算\n        return F.linear(x, alpha * self.weight + (1.0 - alpha) * w_q_ste)\n\ndef run_experiment():\n    device = \"cpu\"\n    B, S, D = 8, 128, 768  # 模拟 135M 某几层的真实计算密度\n    VOCAB = 4000\n    steps = 200\n\n    print(\"=== [Node1 CPU 极速基准] 初始化模拟权重 ===\")\n    torch.manual_seed(42)\n    layer = ToyBitLinear(D, D, bias=False).to(device)\n    head = nn.Linear(D, VOCAB, bias=False).to(device)\n    \n    # 模拟 fp32 预训练后方差\n    nn.init.normal_(layer.weight, mean=0.0, std=0.02)\n    nn.init.normal_(head.weight, mean=0.0, std=0.02)\n\n    x = torch.randn(B, S, D, device=device)\n    y = torch.randint(0, VOCAB, (B, S), device=device)\n\n    # 1. 验证静态冲击 (V1-02 极速复现)\n    print(\"\\n--- 任务 1: V1-02 静态冲击曲线测量 ---\")\n    alphas = [1.0, 0.9, 0.7, 0.4, 0.2, 0.0]\n    with torch.no_grad():\n        for a in alphas:\n            hidden = layer(x, alpha=a)\n            logits = head(hidden)\n            ce = F.cross_entropy(logits.view(-1, VOCAB), y.view(-1)).item()\n            print(f\"Alpha: {a:.1f} | Holdout CE: {ce:.4f}\")\n\n    # 2. 验证暴力提升 lr=1e-3 在 200 步下的物理崩溃与 CFR\n    print(\"\\n--- 任务 2: 暴力提 lr=1e-3 + 200步 AdamW 压力测试 ---\")\n    _, init_state = layer.get_quant()\n    optimizer = torch.optim.AdamW(layer.parameters(), lr=1e-3, betas=(0.9, 0.999), eps=1e-8)\n    \n    start_t = time.time()\n    for step in range(1, steps + 1):\n        optimizer.zero_grad()\n        # 强制纯三值 alpha=0\n        hidden = layer(x, alpha=0.0)\n        logits = head(hidden)\n        loss = F.cross_entropy(logits.view(-1, VOCAB), y.view(-1))\n        loss.backward()\n        \n        grad_norm = torch.nn.utils.clip_grad_norm_(layer.parameters(), max_norm=10.0)\n        optimizer.step()\n\n        if step % 50 == 0 or step == 1:\n            with torch.no_grad():\n                _, curr_state = layer.get_quant()\n                cfr = (curr_state != init_state).sum().item() / curr_state.numel()\n                print(f\"Step {step:03d} | Loss: {loss.item():.4f} | Grad Norm: {grad_norm:.2f} | CFR: {cfr*100:.2f}%\")\n\n    tok_per_sec = (steps * B * S) / (time.time() - start_t)\n    print(f\"\\n优化算子后吞吐: {tok_per_sec:.1f} tok/s (已剔除动态图内存颠簸)\")\n\nif __name__ == \"__main__\":\n    run_experiment()\n```\n\n### 终极行动建议\n立即终止“试图在 200 步内通过调大 $lr$ 拯救全局退火”的实验分支。将注意力锁定在：\n1. 先由 `node1_ternary_test.py` 输出 V1-02 的不可抗硬冲击基线；\n2. 严格按宪法路线走：**0.5B 从头原生三值 QAT**，拿 0.4B 的 checkpoint 充当 **Teacher** 做 Logits 连续蒸馏，绝不可直接在 0.4B fp32 的骨架上做硬拆换。流形断裂无法通过微调修复。",
+  "err": null,
+  "sec": 113.1
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 0.3
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 2.3
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 6.8
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.2
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": "deepseek-v4-flash-free",
+  "ok": true,
+  "text": "① **机制/最佳理论**  \n**Flip-rate 的物理意义是“量化边界带权重穿越符号阈值的频率”，其可观测性取决于「位移量 / 量化步长」的信噪比。**  \n- 量化步长 Δ ≈ 2·E[|W|]（三值化 {-1,0,+1} 的间距）。  \n- 单步位移 ≈ η·‖g‖。你的实测：η=1e-5, ‖g‖≈5 → 单步位移 ≈ 5e-5；Δ≈0.1（典型 135M 模型权重均值） → **单步位移/Δ ≈ 5e-4**。  \n- 要看到 ≥1 次翻转，需累计位移 ≳ 0.5Δ → **最少步数 ≈ 0.5Δ / (η‖g‖) ≈ 1000 步**（乐观）至 **5000 步**（保守）。  \n- **结论**：200 步窗口在物理上**不可能**观测到 flip，任何 flip=0 都是测量窗口不足，**与模型行为无关**。  \n\n**三值化静态冲击**（α:1→0 纯前向 CE 增量）是**架构/权重分布的内禀属性**，与训练超参无关。  \n- 继承式三值化的核心假设：**预训练 fp32 权重分布天然落在三值量化器的「低损失盆地」附近**，静态冲击 ΔCE < 0.3 才意味“无需大幅移动权重即可补偿”。  \n- 若 ΔCE ≥ 1.2，说明 fp32 权重分布与三值码本**结构性错位**，靠微调 lr/退火调度**无法弥补**——必须重初始化或改用 QAT-from-scratch。  \n\n**“提高影子权重 lr”在 200 步预算下的可检测性**：  \n- 影子权重（fp32 master）更新量 ∝ η_shadow。若 η_shadow=1e-3（提高 100×），200 步位移 ≈ 0.1Δ，**勉强进入可观测域**（flip-rate 可能从 0 变为 1e-4~1e-3）。  \n- 但 **Loss 下降量 ≈ η_shadow·‖g‖²·steps**，若真因是静态冲击（ΔCE≥1.2），200 步即便 η_shadow=1e-2 也只能回收 <0.05 CE，**统计上不可区分噪声**。  \n- **裁决**：200 步预算**无法**验证“提高影子 lr 是否有效”，实验设计上属于**欠采样**，结论不可信。\n\n---\n\n② **可执行方案 / 伪代码**\n\n```python\n# 1. Flip-rate 标准测量窗口（写入实验宪法）\nFLIP_WINDOW = {\n    \"steps\": 5000,           # ≥ 5000 步（含 warmup）\n    \"lr\": 1e-4,              # 影子权重 lr，配合 1e-5 主 lr 的 10×\n    \"measure_every\": 100,    # 每 100 步记录一次 flip-rate\n    \"boundary_band\": (0.5, 1.5),  # |W|/E[|W|] ∈ [0.5,1.5] 为边界带\n    \"min_flips_for_significance\": 10  # 累计翻转 ≥10 次才算有统计意义\n}\n\n# 2. 静态冲击基线（V1-02 必产出物）\n@torch.no_grad()\ndef static_shock_ce(model, holdout_loader, alphas=[1.0,0.9,0.7,0.4,0.2,0.0]):\n    ce = {}\n    for a in alphas:\n        model.set_alpha(a)\n        ce[a] =",
+  "err": null,
+  "sec": 86.8
+ }
+}

@@ -128,21 +128,23 @@ class TernaryView(nn.Module):
 
 
 @torch.no_grad()
-def holdout_ce(model, tok, bs=8, max_batches=40):
-    """在中文 holdout 上算交叉熵（每 token 平均）"""
+def holdout_ce(model, tok, bs=1, max_batches=40):
+    """在中文 holdout 上算交叉熵（每 token 平均）。
+    bs = 真·批大小：把 bs 条序列拼成 (bs, seq) 一起前向 -> GEMM 放大 bs 倍，才能吃满多核。
+    总评测序列数固定 max_batches 条（与旧版 bs=1 完全同口径，CE 可直接对比）。"""
     nll, ntok = 0.0, 0
     seq = INTER
     nb = 0
-    for i in range(0, len(tok) - seq - 1, seq):
-        if nb >= max_batches:
-            break
-        ids = torch.tensor(tok[i:i + seq], dtype=torch.long).unsqueeze(0)
-        out = model(ids).logits
+    starts = list(range(0, len(tok) - seq - 1, seq))[:max_batches]
+    for g in range(0, len(starts), max(1, bs)):
+        group = starts[g:g + max(1, bs)]
+        batch = torch.tensor([tok[i:i + seq] for i in group], dtype=torch.long)
+        out = model(batch).logits
         lp = torch.nn.functional.cross_entropy(
             out[:, :-1].reshape(-1, out.shape[-1]).float(),
-            ids[:, 1:].reshape(-1))
-        ntok += ids[:, 1:].numel()
-        nll += lp.item() * ids[:, 1:].numel()
+            batch[:, 1:].reshape(-1), reduction="sum")
+        ntok += batch[:, 1:].numel()
+        nll += lp.item()
         nb += 1
     return nll / max(ntok, 1), nb
 
@@ -152,8 +154,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--threads", type=int, default=12)
     ap.add_argument("--out", default=os.path.join(ROOT, "eval", "v1_02_alpha_ladder.json"))
+    ap.add_argument("--alpha", type=float, default=None,
+                    help="只跑指定的单个 alpha（分片并行用）；不给则跑全阶梯")
+    ap.add_argument("--batch", type=int, default=1,
+                    help="真批大小：把 N 条序列拼批前向，GEMM 放大 N 倍以吃满多核")
     a = ap.parse_args()
     torch.set_num_threads(a.threads)
+    try:
+        torch.set_num_interop_threads(1)   # 防 inter-op 超订
+    except RuntimeError:
+        pass
     torch.manual_seed(0)
 
     print("=" * 74)
@@ -167,50 +177,57 @@ def main():
     model = load_fp32_model()
 
     # 先测 fp32 基线（原样）
-    base_ce, nb = holdout_ce(model, tok)
-    print(f"\n[alpha=--]  fp32 原模型          CE={base_ce:.4f}  ({nb} batches, {time.time()-t0:.0f}s)")
+    base_ce, nb = holdout_ce(model, tok, bs=a.batch)
+    print(f"\n[alpha=--]  fp32 原模型          CE={base_ce:.4f}  ({nb} fwd, batch={a.batch}, {time.time()-t0:.0f}s)")
 
     rows = [dict(alpha=None, ce=round(base_ce, 4), label="fp32 baseline")]
     ce_map = {"fp32": base_ce}
 
-    for al in ALPHAS:
+    todo = [a.alpha] if a.alpha is not None else list(ALPHAS)
+    for al in todo:
         t1 = time.time()
         view = TernaryView(model, al)
-        ce, _ = holdout_ce(view, tok)
+        ce, _ = holdout_ce(view, tok, bs=a.batch)
         ce_map[f"{al}"] = ce
         d = ce - base_ce
         rows.append(dict(alpha=al, ce=round(ce, 4), delta=round(d, 4)))
         print(f"[alpha={al:.1f}]  三值化插值          CE={ce:.4f}  delta={d:+.4f}  ({time.time()-t1:.0f}s)")
 
-    # ---- 裁决 ----
-    pure = ce_map.get("0.0", base_ce)
-    delta_pure = pure - base_ce
-    verdicts = {
-        "static_shock_small(d<0.3)": delta_pure < 0.3,
-        "static_shock_moderate(0.3<=d<1.2)": 0.3 <= delta_pure < 1.2,
-        "static_shock_large(d>=1.2)": delta_pure >= 1.2,
-        "monotonic_in_alpha": all(ce_map[f"{ALPHAS[i]}"] >= ce_map[f"{ALPHAS[i+1]}"] - 1e-6
-                                  for i in range(len(ALPHAS) - 1)),
-    }
-    print("\n" + "=" * 74)
-    print("裁决")
-    print("=" * 74)
-    for k, v in verdicts.items():
-        print(f"  {'PASS' if v else 'no  '}  {k}")
-    print(f"\n  纯三值(alpha=0)相对 fp32: delta={delta_pure:+.4f}")
-    if delta_pure >= 1.2:
-        print("  => 静态冲击很大：三值化本身就是主要障碍，继承式失败根因是")
-        print("     '退火太快+权重没动，来不及补偿'。可修路径：慢退火 / 只三值FFN / 大幅提预算。")
-    elif delta_pure < 0.3:
-        print("  => 静态冲击很小：模型权重本就能承受三值化，V1-01 的 loss 暴涨另有原因")
-        print("     （需查 lr 尺度 / STE 实现 / 数据分布，不在'三值化固有代价'上）。")
-    else:
-        print("  => 静态冲击中等：三值化代价真实但可补偿，需找该走多长的退火路径。")
+    full = a.alpha is None
+    verdicts = {}
+    delta_pure = None
+    if full:
+        # ---- 裁决（仅全阶梯时给出） ----
+        pure = ce_map.get("0.0", base_ce)
+        delta_pure = pure - base_ce
+        verdicts = {
+            "static_shock_small(d<0.3)": delta_pure < 0.3,
+            "static_shock_moderate(0.3<=d<1.2)": 0.3 <= delta_pure < 1.2,
+            "static_shock_large(d>=1.2)": delta_pure >= 1.2,
+            "monotonic_in_alpha": all(ce_map[f"{ALPHAS[i]}"] >= ce_map[f"{ALPHAS[i+1]}"] - 1e-6
+                                      for i in range(len(ALPHAS) - 1)),
+        }
+        print("\n" + "=" * 74)
+        print("裁决")
+        print("=" * 74)
+        for k, v in verdicts.items():
+            print(f"  {'PASS' if v else 'no  '}  {k}")
+        print(f"\n  纯三值(alpha=0)相对 fp32: delta={delta_pure:+.4f}")
+        if delta_pure >= 1.2:
+            print("  => 静态冲击很大：三值化本身就是主要障碍，继承式失败根因是")
+            print("     '退火太快+权重没动，来不及补偿'。可修路径：慢退火 / 只三值FFN / 大幅提预算。")
+        elif delta_pure < 0.3:
+            print("  => 静态冲击很小：模型权重本就能承受三值化，V1-01 的 loss 暴涨另有原因")
+            print("     （需查 lr 尺度 / STE 实现 / 数据分布，不在'三值化固有代价'上）。")
+        else:
+            print("  => 静态冲击中等：三值化代价真实但可补偿，需找该走多长的退火路径。")
 
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
-        json.dump(dict(rows=rows, verdicts=verdicts,
-                       delta_pure=round(delta_pure, 4),
+        json.dump(dict(rows=rows, ce_map={k: round(v, 4) for k, v in ce_map.items()},
+                       verdicts=verdicts,
+                       delta_pure=(round(delta_pure, 4) if delta_pure is not None else None),
+                       shard=(a.alpha is not None),
                        model="SmolLM2-135M (inherit, NO training)",
                        tokens=len(tok), threads=a.threads), f, indent=2, ensure_ascii=False)
     print(f"\n[out] {a.out}")

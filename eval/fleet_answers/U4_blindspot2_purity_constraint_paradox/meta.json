@@ -1,0 +1,26 @@
+{
+ "id": "U4_blindspot2_purity_constraint_paradox",
+ "title": "U4: 语料纯度约束的自相矛盾（宪法级，必须在 0.4B 前决）",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.north",
+  "kris.gemini",
+  "kris.nemotron",
+  "zen.deepseek"
+ ],
+ "dead": [
+  "kris.step",
+  "kris.deepseek",
+  "kris.minimax",
+  "kris.glm",
+  "kris.longcat",
+  "unclose",
+  "kris.grok",
+  "kris.qwen",
+  "dgai",
+  "ovh",
+  "kilo",
+  "llm7"
+ ]
+}

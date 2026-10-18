@@ -1,0 +1,26 @@
+{
+ "id": "U3_Q6_embedding_quantization_decision",
+ "title": "U3: 0.2B embedding 量化决策（部分量化可行性）",
+ "n_ships": 17,
+ "alive": [
+  "pollinations",
+  "kris.nemotron",
+  "kris.north",
+  "kris.gemini",
+  "zen.deepseek"
+ ],
+ "dead": [
+  "kris.deepseek",
+  "kris.minimax",
+  "kris.step",
+  "kris.glm",
+  "unclose",
+  "kris.longcat",
+  "kris.grok",
+  "kris.qwen",
+  "dgai",
+  "kilo",
+  "ovh",
+  "llm7"
+ ]
+}

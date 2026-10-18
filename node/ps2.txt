@@ -1,0 +1,24 @@
+=== procs ===
+ 124479       08:05 sh chain_v1.sh
+ 124556       07:49 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+ 124958       05:57 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+ 124966       05:57 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+=== done ===
+0
+=== log tail ===
+ tokenizer from /root/r4work/base_next
+[tok] 归一化 tokenizer_config.json: extra_special_tokens list->{}
+[load] params=214.1M device=cpu (fp32)
+[cache] 流式 tokenize 2 个文件, 上限 300M tokens
+Token indices sequence length is longer than the specified maximum sequence length for this model (536025 > 8192). Running this sequence through the model will result in indexing errors
+[cache] 完成: 93906856 tokens -> /root/c_cache_R4.npy
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+[train] steps=400 lr=0.0005 accum=8 max_len=512 (fp32)
+[train] step 10/400 loss=81.8125 lr=1.40e-04 t=179s

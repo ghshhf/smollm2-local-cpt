@@ -1,0 +1,172 @@
+{
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": "MiniMax-M3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 19.0
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "**回答：**  \n\n> **目标**：在不使用 hold‑out 评估的前提下，以“在线信号”实时判别",
+  "err": null,
+  "sec": 28.2
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": "cohere/north-mini-code:free",
+  "ok": true,
+  "text": "**① 机制/最佳理论**\n\n**单样本损失方差 (SLV)** 是首选“在线判别器”，因为它直接反映了模型对当前批次的**统一性**。\n\n* **泛化增益阶段** – 模型正在学习*模式*（如语法、实体类型、函数式关系）。这些抽象将使**不同**输入以*类似*的方式响应，从而使批次中样本的损失变得**更加均匀**。方差收缩，且收缩速度远快于损失本身的下降。\n\n* **纯记忆阶段** – 一旦*特定*输入的表示被精确地编码（过拟合），损失将被分割成**两极**分布：少数样本的损失降低到近零，而其他样本保持较高损失。批次级的方差**反弹**或保持在高水平，即使总体损失继续缓慢下降。",
+  "err": null,
+  "sec": 29.0
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 29.0
+ },
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": "deepseek-v4-pro",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 30.3
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": "glm-5.2",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 34.4
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": "step-5-preview",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 45.6
+ },
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": "longcat-2.5-preview-free",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 45.6
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.8
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": "gemini-3.8-flash",
+  "ok": true,
+  "text": "### ① 机制 / 最佳理论\n\n在固定语料的第二遍（Epoch 2）训练中，模型面临两股力量的博弈：\n* **泛化增益（Shared Manifold Learning）**：模型在不同样本间提取更深层的结构不变性（如句法嵌套、跨段落的指代与逻辑约束）。此时，任意微批次（Mini-batch）的真实梯度方向，在参数空间中均投影在同一个低维流形切空间上，**样本间梯度是统计共线的（Collinear）**。\n* **纯记忆化（Idiosyncratic Noise Fitting）**：数据中的结构特征已被吃尽，剩余未下降的 Loss 主要由样本特异性噪声、罕见字的拼写偶然性、纯事实死记硬背驱动。根据高维几何性质，高维独立样本的特异性特征向量相互正交。因此，**微批次间的梯度在参数空间中退化为相互正交的随机游走（Orthogonal Random Walks）**，甚至因相互冲突而产生反向振荡。\n\n#### 为什么候选指标中大多数不适合 node1 CPU？\n1. **梯度噪声谱（GSNR）**：严格计算需单样本梯度（Per-sample gradient）或极大的 Micro-batch 方差，在 64 核 CPU 上显存/内存带宽开销致命（需向量外积或多次后向传播），直接被毙。\n2. **Loss 轨迹曲率（Hessian Trace / Top Eigenvalue）**：需运行数次 Hutchinson 矩阵-向量积（HVPs），训练吞吐会跌落 5–10 倍，不符实时在线要求。\n3. **参数漂移率（$\\|\\theta_t - \\theta_0\\|$）**：对泛化和记忆均持续增大，无法区分是“沿泛化低谷下山”还是“在记忆空间游走”。\n\n#### 最佳理论解：Adam 隐式梯度-动量方向相干度（Gradient-to-Momentum Alignment, GMA）\n利用 AdamW 优化器本身已在内存中维护的一阶动量 $m_t$（$\\beta_1$ 平滑后的历史轨迹方向），实时计算**当前 Mini-batch 梯度 $g_t$ 与历史累积动量 $m_{t-1}$ 的余弦相似度**：\n\n$$\\Phi_t = \\cos(g_t, m_{t-1}) = \\frac{\\langle g_t, m_{t-1} \\rangle}{\\|g_t\\|_2 \\cdot \\|m_{t-1}\\|_2}$$\n\n* **相干态（泛化主导）**：新样本梯度与历史动量共线度高，$\\Phi_t > 0$ 且具有统计显著性。说明新 Batch 正在强化历史学到的公共流形结构。\n* **正交态（临界退化）**：结构信息耗尽，梯度退化为样本特异性噪声，相互正交。根据高维各向同性性质，高维正交向量内积期望为 0：$\\Phi_t \\to \\mathcal{N}(0, \\frac{1}{d})$，数值跌入极小的噪声带。\n* **互斥态（纯记忆与过拟合破坏）**：模型开始死记硬背样本 A 的特征，而该特征与后续样本 B 的特征冲突，导致参数空间震荡，$\\Phi_t$ 频繁出现负值（$\\Phi_t < 0$）。\n\n在 AdamW 步进循环中计算 $\\langle g_t, m_{t-1} \\rangle$ **几乎为零成本**，仅需利用现有内存中的两个 Tensor 进行一次点积，在 64 核 CPU 上单步耗时 $<3\\text{ms}$，增加的计算开销 $< 0.1\\%$。\n\n---\n\n### ② 可执行方案与伪代码\n\n#### 信号定义与判定阈值形态\n定义窗口平滑后的相干度指标 $\\bar{\\Phi}_W$（滑动窗口 $W=50$ 或 $100$ steps）：\n\n$$\\bar{\\Phi}_W = \\frac{1}{W} \\sum_{i=t-W+1}^t \\Phi_i$$\n\n以及相干性信噪比（Z-score）：\n$$Z_t = \\frac{\\bar{\\Phi}_W}{\\sigma_W(\\Phi)}$$\n\n**状态判定状态机（阈值形态）：**\n\n1. **强泛化增益区（Generalization Regime）**：\n   $$\\bar{\\Phi}_W \\ge 0.05 \\quad \\text{且} \\quad Z_t \\ge 2.0$$\n   *行动*：继续安全迭代，模型在深化抽象表征。\n2. **收益递减/临界停滞区（Diminishing Returns）**：\n   $$0 < \\bar{\\Phi}_W < 0.05 \\quad \\text{或} \\quad 0 \\le Z_t < 2.0$$\n   *行动*：泛化红利已接近枯竭。此区间产出的 Token 增益代价比（Compute-per-Generalization）极差，准备触发 Early Stop。\n3. **纯记忆化/流形破坏区（Pure Memorization Trap）**：\n   $$\\bar{\\Phi}_W \\le 0 \\quad \\text{或} \\quad \\Pr(\\Phi_i < 0) > 0.45$$\n   *行动*：**立即无条件中止训练（Hard Stop）**。此时的 Loss 下降 100% 由样本死记硬背贡献，继续训练将破坏上一阶段通过 Net2Net 继承的低秩通用特征。\n\n#### 伪代码实现（针对 64 核 CPU 高度优化）\n\n```python\nimport torch\nfrom collections import deque\n\nclass OnlineGeneralizationMonitor:\n    def __init__(self, optimizer, window_size=50, threshold_gma=0.03):\n        self.optimizer = optimizer\n        self.window_size = window_size\n        self.threshold_gma = threshold_gma\n        self.phi_history = deque(maxlen=window_size)\n        self.eps = 1e-12\n\n    @torch.no_grad()\n    def step_and_evaluate(self):\n        \"\"\"\n        在 optimizer.step() 之前立即调用（此时 p.grad 存在，而 optimizer.state 存有上一步的 exp_avg）。\n        单次调用在 64 核 CPU (0.1B-0.4B 参数) 上耗时 ~2-4ms。\n        \"\"\"\n        dot_product = 0.0\n        norm_g_sq = 0.0\n        norm_m_sq = 0.0\n\n        for group in self.optimizer.param_groups:\n            for p in group['params']:\n                if p.grad is None:\n                    continue\n                \n                # 获取梯度与上一时刻一阶动量 (m_{t-1})\n                g = p.grad\n                state = self.optimizer.state.get(p, None)\n                \n                # 若动量尚未初始化（第 1 步），跳过\n                if state is None or 'exp_avg' not in state:\n                    continue\n                \n                m = state['exp_avg']\n                \n                # 累加全局点积与 L2 范数平方 (平铺向量操作，受 CPU OpenMP/AVX512 极速加速)\n                dot_product += torch.dot(g.view(-1), m.view(-1)).item()\n                norm_g_sq += torch.dot(g.view(-1), g.view(-1)).item()\n                norm_m_sq += torch.dot(m.view(-1), m.view(-1)).item()\n\n        if norm_g_sq <= self.eps or norm_m_sq <= self.eps:\n            return \"WARMUP\", 0.0\n\n        phi_t = dot_product / ((norm_g_sq ** 0.5) * (norm_m_sq ** 0.5) + self.eps)\n        self.phi_history.append(phi_t)\n\n        if len(self.phi_history) < self.window_size:\n            return \"WARMUP\", phi_t\n\n        # 计算窗口统计量\n        history_tensor = torch.tensor(self.phi_history, dtype=torch.float32)\n        mean_phi = history_tensor.mean().item()\n        neg_ratio = (history_tensor < 0).float().mean().item()\n\n        # 状态判定\n        if mean_phi > self.threshold_gma and neg_ratio < 0.25:\n            state_str = \"GENERALIZATION\"\n        elif mean_phi > 0.0 and neg_ratio < 0.40:\n            state_str = \"DIMINISHING\"\n        else:\n            state_str = \"MEMORIZATION_HARD_STOP\"\n\n        return state_str, mean_phi\n```\n\n---\n\n### ③ 可证伪判据（什么结果算我错）\n\n若在固定语料（如 0.1B 或 0.4B 阶段）启动 Epoch 2 实验，出现以下任意**一种**现象，即证明本方案机制错误，直接推翻：\n\n1. **判据一（漏判假阳性）**：当 $\\bar{\\Phi}_W$ 已跌穿 $0$（进入判定为纯记忆化的红区），且负相干比例 $> 45\\%$ 时，强行继续训练 500 个 Step，外部纯净 Holdout 集（从未见过的分布内人工校验集）上的 Perplexity（PPL）**依然出现统计显著的下降（$\\Delta \\text{Loss}_{\\text{holdout}} < -0.05$ nats/token，且置信区间非重叠）**。\n   *反证含义*：说明梯度正交甚至互斥震荡依然能形成分布式泛化表征，动量相干性假设不成立。\n2. **判据二（误判假阴性）**：当 $\\bar{\\Phi}_W$ 维持在强泛化区（如 $\\bar{\\Phi}_W \\ge 0.10$），且梯度与动量高度同向时，Holdout 集的 Loss 却发生严重的早发性过拟合陡增（$\\Delta \\text{Loss}_{\\text{holdout}} > +0.10$）。\n   *反证含义*：说明相干方向本身可能只是锁死在训练集特异性局部极小值的狭窄沟壑中，共线度无法表征通用流形。\n3. **判据三（算力开销违约）**：在魔搭 64 核 CPU 节点上，对 0.4B 模型执行 `step_and_evaluate()` 的单步耗时占比超过正常单步反向传播总耗时的 $3\\%$（超过则说明 CPU 带宽受限，无法作为常驻在线探针）。\n\n---\n\n### ④ node1 CPU 最小可跑版验证实验\n\n无需全量 0.1B/0.4B，使用深窄 0.03B 原型（L=12, D=256），在 10MB 文本上强行跑 3 个 Epoch，验证 $\\Phi_t$ 跌入 0 与 Holdout Loss 拐点的精确同步性。\n\n```python\nimport torch\nimport torch.nn as nn\nfrom torch.utils.data import DataLoader, Dataset\nimport math\n\n# 1. 极简深窄模型结构 (对应架构原则)\nclass DeepNarrowToyLM(nn.Module):\n    def __init__(self, vocab_size=4096, d_model=256, n_layers=12):\n        super().__init__()\n        self.tok_emb = nn.Embedding(vocab_size, d_model) # embedding fp32用于测试\n        self.layers = nn.ModuleList([\n            nn.TransformerEncoderLayer(\n                d_model=d_model, nhead=4, dim_feedforward=512, \n                activation=\"gelu\", batch_first=True, norm_first=True\n            ) for _ in range(n_layers)\n        ])\n        self.head = nn.Linear(d_model, vocab_size, bias=False)\n\n    def forward(self, x):\n        h = self.tok_emb(x)\n        for layer in self.layers:\n            h = layer(h)\n        return self.head(h)\n\n# 2. 构造固定少量语料与独立测试集\ntorch.manual_seed(42)\nvocab_size = 4096\nseq_len = 64\ntrain_tokens = torch.randint(0, vocab_size, (200, seq_len)) # 200 个样本，极易记死\nholdout_tokens = torch.randint(0, vocab_size, (50, seq_len))\n\ntrain_loader = DataLoader(train_tokens, batch_size=8, shuffle=True)\nval_loader = DataLoader(holdout_tokens, batch_size=8, shuffle=False)\n\ndevice = torch.device(\"cpu\")\ntorch.set_num_threads(64) # 跑满 node1 64核\n\nmodel = DeepNarrowToyLM(vocab_size=vocab_size).to(device)\noptimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.01)\ncriterion = nn.CrossEntropyLoss()\n\n# 引入监控器\nmonitor = OnlineGeneralizationMonitor(optimizer, window_size=10, threshold_gma=0.02)\n\ndef evaluate_holdout(model):\n    model.eval()\n    total_loss = 0.0\n    with torch.no_grad():\n        for b in val_loader:\n            b = b.to(device)\n            out = model(b[:, :-1])\n            loss = criterion(out.reshape(-1, vocab_size), b[:, 1:].reshape(-1))\n            total_loss += loss.item()\n    model.train()\n    return total_loss / len(val_loader)\n\nprint(f\"{'Epoch':<6}{'Step':<8}{'TrainLoss':<12}{'HoldoutLoss':<14}{'GMA_Mean':<12}{'State'}\")\nprint(\"-\" * 65)\n\n# 3. 运行 4 个 Epoch，观察 Epoch 2 及之后指标突变\nglobal_step = 0\nfor epoch in range(1, 5):\n    for x in train_loader:\n        global_step += 1\n        x = x.to(device)\n        optimizer.zero_grad()\n        logits = model(x[:, :-1])\n        loss = criterion(logits.reshape(-1, vocab_size), x[:, 1:].reshape(-1))\n        loss.backward()\n\n        # 核心在线检测 (不依赖 val 数据)\n        state_str, gma_val = monitor.step_and_evaluate()\n        optimizer.step()\n\n        if global_step % 10 == 0:\n            val_loss = evaluate_holdout(model)\n            print(f\"{epoch:<6}{global_step:<8}{loss.item():<12.4f}{val_loss:<14.4f}{gma_val:<12.4f}{state_str}\")\n\n            if state_str == \"MEMORIZATION_HARD_STOP\" and epoch > 1:\n                print(f\"\\n[ALERT] 在第 {epoch} 轮第 {global_step} 步触发纯记忆停机阈值！\")\n                print(f\"[VERIFICATION] 当前 Holdout Loss: {val_loss:.4f}。流形提取完毕，立即安全退场。\")\n                exit(0)\n```\n\n**运行预期轨迹**：\n* **Epoch 1**：Train Loss 下降，Holdout Loss 缓慢下降；`GMA_Mean` 稳定在 `0.10 ~ 0.25`，状态为 `GENERALIZATION`。\n* **Epoch 2 前半段**：Train Loss 继续下降，Holdout Loss 触底（达到全生命周期泛化最低点）；`GMA_Mean` 线性向 `0.0` 衰减。\n* **Epoch 2 后半段**：Train Loss 剧烈跌向接近 0，但 Holdout Loss 不降反升；`GMA_Mean` 彻底穿破 `0` 轴（跌入负值振荡），状态转入 `MEMORIZATION_HARD_STOP`。这一信号**不需要任何 Holdout 计算，纯凭优化器一阶动量几何学，便能在物理步内实时捕捉该拐点**。",
+  "err": null,
+  "sec": 73.2
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ok": true,
+  "text": "① 机制/最佳理论  \n**信号：单样本「梯度-损失」相关系数 ρₜ = corr₍i∈batch₎( ‖gᵢ‖ , ℓᵢ )**  \n- 理论依据：  \n  - **泛化阶段**：难样本（大 ℓ）梯度大、易样本（小 ℓ）梯度小 → 正相关（ρ > 0）。  \n  - **记忆化阶段**：模型把易样本「过拟合」到接近 0 损失，梯度反而极小；难样本因标签噪声/异常值被强行拉拟，梯度反而大 → 负相关或 ρ ≈ 0。  \n  - 该现象在 *Fort et al. \"Emergent Properties of Training Dynamics\" (ICLR 2020)* 与 *Jastrzębski et al. \"Gradient Noise Scale\" (2017)* 均有实证：ρ 符号翻转比 loss 曲率、GSNR 早 10–20% steps 出现，且不受 LR schedule 干扰。  \n- 为什么不是 GSNR / Drift / Loss Variance？  \n  - GSNR 需要累积全参数梯度协方差 → O(|θ|²) 不可行；  \n  - Drift 需要 EMA 参数影子 → 双倍显存/内存；  \n  - Loss Variance 只能告诉「样本难度分布变没变」，无法区分「学会规律」vs「背下答案」。\n\n② 可执行方案（node1 CPU 单进程，零额外内存）  \n```python\n# 伪代码：每 step 仅加 2 次 all-reduce（或单机无需 all-reduce）\n# batch 内每样本：前向得 loss_i，反向得 grad_i（仅最后一层或 embedding 梯度即可，经验上代表性足够）\n# 为省算力：只取 output.head.weight.grad（形状 [V, d]）→ 对每样本做 grad_i = (logits_i - y_i) @ hidden_i.T  # [V, d] 但只需范数\n# 更极简：用 scalar「样本级 loss」×「样本级 grad_norm」做在线协方差\n\nclass RhoMonitor:\n    def __init__(self, window=200, alpha=0.99):\n        self.w = window\n        self.alpha = alpha\n        self.sum_l = self.sum_g = self.sum_lg = self.sum_l2 = self.sum_g2 = 0.0\n        self.n = 0\n        self.rho_hist = []\n\n    def update(self, loss_vec: Tensor, grad_norm_vec: Tensor):  # [B]\n        B = loss_vec.shape[0]\n        l  = loss_vec.detach()\n        g  = grad_norm_vec.detach()\n        # Welford 在线协方差\n        self.sum_l  += l.sum().item()\n        self.sum_g  += g.sum().item()\n        self.sum_lg += (l*g).sum().item()\n        self.sum_l2 += (l*l).sum().item()\n        self.sum_g2 += (g*g).sum().item()\n        self.n += B\n        if self.n >= self.w:\n            cov = self.sum_lg/self.n - (self.sum_l/self.n)*(self.sum_g/self.n)\n            var_l = self.sum_l2/self.n - (self.sum_l/self.n)**2\n            var_g = self.sum_g2/self.n - (self.sum_g/self.n)**2\n            rho = cov / (var_l.sqrt()*var_g.sqrt()+1e-8)\n            self.rho_hist.append(rho)\n            # 指数滑动均值用于判定\n            self.ema_rho = rho if not hasattr(self,'ema_rho') else self.alpha*self.ema_rho + (1-self.alpha)*rho\n            # 滑窗减最旧（近似：按 batch 平均值回退，误差 <1%）\n            self.sum_l  *= (1 - B/self.n)\n            self.sum_g  *= (1 - B/self.n)\n            self.sum_lg *= (1 - B/self.n)\n            self.sum_l2 *= (1 - B/self.n)\n            self.sum_g2 *= (1 - B/self.n)\n\n    def should_stop_second_epoch(self) -> bool:\n        # 判定阈值形态（见 ③）\n        return self.ema_rho < self.threshold()\n```\n\n**CPU 成本**：  \n- 只需最后一层 `grad_norm`（`torch.autograd.grad(loss_i, head_weight, retain_graph=False)` 逐样本太慢）→ **改用 batch-level 向量化技巧**：  \n  `grad_norm_vec = (logits - y_onehot).norm(dim=1) * hidden.norm(dim=1)`  # 近似上界，实测 ρ 相关性 >0.95  \n- 每 step 约 **0.3 ms / 1k samples @ 64 核**（纯 NumPy/PyTorch CPU），可忽略。\n\n③ 可证伪判据（什么结果算我错）  \n| 实验设定 | 判定阈值形态 | 成功标准（ρ 信号优于 holdout） | 失败即证伪 |\n|---|---|---|---|\n| **0.1B→0.4B Net2Net 扩容后、固定语料第 2 遍** | `threshold = max(0.15, 0.5 * ρ_peak_first_epoch)`<br>（ρ_peak_first_epoch = 第 1 遍训练中 ρ 的最大值）",
+  "err": null,
+  "sec": 90.1
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": "Qwen3.8-27B",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 100.9
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 0.6
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 1.1
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"type\\\":\\\"error\\\",\\\"error\\\":{\\\"type\\\":\\\"FreeTierError\\\",\\\"message\\\":\\\"OpenCode's free tier can only be used from within OpenC",
+  "sec": 1.2
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 2.4
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.1
+ }
+}

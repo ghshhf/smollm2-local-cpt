@@ -1,0 +1,9 @@
+{
+  "T1_tens": "PASS",
+  "T1_row": "PASS",
+  "T2_tens": "FAIL",
+  "T2_row": "FAIL",
+  "T3_blockwise": "PASS",
+  "T4_replicate": "FAIL",
+  "T5_addblock": "PASS"
+}

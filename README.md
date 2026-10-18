@@ -7,9 +7,13 @@
 
 ## 📍 阅读导航
 
+> **先读这两个，再往下：**
+> - [`PROJECT.md`](PROJECT.md) — **项目总纲**：北极星是什么、六条能力线真实现状、目录地图、宪法与纪律
+> - [`PROGRESS.md`](PROGRESS.md) — **进展时间线**（倒序，只写硬数据与未完成项）
+
 | 我想找… | 去这里 |
 |---|---|
-| **训练好的权重备份** | [`backups/`](backups/) — `0.1B/`（R2 完）· `0.2B/`（R4 完 + 底座 + 语料谱系） |
+| **训练好的权重备份** | [`backups/`](backups/) — `0.1B/`（R2 完）· `0.2B/`（R4 完 + 底座 + 语料谱系）· `0.3B/`（346.9M） |
 | 模型宪法（三律） | [`CONSTITUTION.md`](CONSTITUTION.md) |
 | 0.4B 数据方案（35 亿 token 配比 + 补齐总账） | [`docs/data-plan-0.4B.md`](docs/data-plan-0.4B.md) · [`docs/data-topup-0.4B.md`](docs/data-topup-0.4B.md) |
 | System 1/2 混合推理研究（B4） | [`docs/b4-system1-2-plan.md`](docs/b4-system1-2-plan.md) · 代码 `b4/` |

@@ -1,0 +1,20 @@
+=== T ===
+02:29:01
+=== loss tail ===
+[train] step 250/400 loss=16.1608 lr=1.94e-04 t=4819s
+[train] step 260/400 loss=18.1943 lr=1.73e-04 t=4997s
+[train] step 270/400 loss=16.9770 lr=1.52e-04 t=5177s
+[train] step 280/400 loss=17.0744 lr=1.32e-04 t=5400s
+[train] step 290/400 loss=16.8461 lr=1.12e-04 t=5579s
+[train] step 300/400 loss=16.0109 lr=9.41e-05 t=5757s
+=== alive ===
+ 129760    01:39:02 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+=== ckpt ===
+总计 836533
+drwxr-xr-x 2 root root      4096 10月 13 01:23 .
+drwxr-xr-x 3 root root      4096 10月 13 01:23 ..
+-rw-r--r-- 1 root root       790 10月 13 02:27 config.json
+-rw-r--r-- 1 root root       111 10月 13 02:27 generation_config.json
+-rw-r--r-- 1 root root 856595368 10月 13 02:27 model.safetensors
+=== done ===
+0

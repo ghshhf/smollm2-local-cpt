@@ -1,0 +1,27 @@
+=== corpus dir ===
+总计 75521
+drwxr-xr-x 2 root root     4096 10月 12 23:52 .
+drwxr-xr-x 8 root root     4096 10月 13 00:50 ..
+-rw-r--r-- 1 root root 77329784 10月 12 04:38 zh_text_r4.jsonl
+lrwxrwxrwx 1 root root       53 10月 12 23:52 zh_text_R4.jsonl -> /mnt/workspace/node1/chain/corpus_r4/zh_text_r4.jsonl
+=== sample lines ===
+{"text": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有，物品也是无，物品是用女神点来脱换的。王杰咂咂嘴，打开系统面板看了看。宿主：王杰年龄：16魅力：95体力：80性能：95\n属性点：0技能：无物品：无王杰从系统中知道这个世界和自己所在前世的地球不一样，这个是世界是自己前世在地球�
+=== base_next ===
+总计 1787180
+drwxr-xr-x 2 root root      4096 10月 13 00:49 .
+drwxr-xr-x 3 root root      4096 10月 13 00:49 ..
+-rw-r--r-- 1 root root       835 10月 13 00:49 config.json
+-rw-r--r-- 1 root root       111 10月 13 00:49 generation_config.json
+-rw-r--r-- 1 root root 969841664 10月 13 00:49 model.safetensors
+-rw-r--r-- 1 root root 856674211 10月 13 00:49 pytorch_model.bin
+-rw-r--r-- 1 root root       407 10月 13 00:50 tokenizer_config.json
+-rw-r--r-- 1 root root   3522871 10月 13 00:49 tokenizer.json
+=== CE on node1 corpus ===
+[load] params=214.1M vocab=49152
+[data] lines=200 chars=144061
+Token indices sequence length is longer than the specified maximum sequence length for this model (273660 > 8192). Running this sequence through the model will result in indexing errors
+[data] tokens=273660
+=== HOLDOUT CE = 1.8661 (tokens=50078) ===
+GEN[中国的历史]: 中国的历史，虽然不知道他是谁，但是他的身份，却是一个人，他的
+GEN[人工智能]: 人工智能，真的不能看清楚，只是看看，看看，看看
+BASE_CHECK_DONE

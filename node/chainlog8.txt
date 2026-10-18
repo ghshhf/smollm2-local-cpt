@@ -1,0 +1,19 @@
+=== T ===
+01:15:30
+=== loss tail ===
+[train] step 60/400 loss=35.7901 lr=4.99e-04 t=1187s
+[train] step 10/400 loss=16.6961 lr=1.40e-04 t=179s
+[train] step 20/400 loss=17.0612 lr=2.30e-04 t=358s
+[train] step 30/400 loss=17.9838 lr=3.20e-04 t=664s
+[train] step 40/400 loss=17.5290 lr=4.10e-04 t=842s
+[train] step 50/400 loss=17.6766 lr=5.00e-04 t=1020s
+[train] step 60/400 loss=17.8854 lr=4.99e-04 t=1199s
+[train] step 70/400 loss=17.4886 lr=4.96e-04 t=1378s
+=== procs ===
+ 129685       25:47 sh chain_v1.sh
+ 129760       25:31 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+ 130169       23:39 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+ 130177       23:39 python3 /mnt/workspace/node1/chain/train_remote_v4.py --base_dir /root/r4work/base_next --corpus_dir /mnt/workspace/node1/chain/corpus_R4 --run_dir /mnt/workspace/node1/chain/run_tmp --cache /root/c_cache_R4.npy --steps 400 --lr 5e-4 --warmup 50 --upload_url http://47.99.131.12:8081/upload
+=== ckpt files ===
+=== done ===
+0

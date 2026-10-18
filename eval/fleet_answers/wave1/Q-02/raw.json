@@ -1,0 +1,172 @@
+{
+ "kris.minimax": {
+  "vendor": "minimax",
+  "privacy": "public",
+  "model": "MiniMax-M3",
+  "served": "MiniMax-M3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 19.9
+ },
+ "kris.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "public",
+  "model": "deepseek-v4-pro-0813",
+  "served": "deepseek-v4-pro",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 30.1
+ },
+ "pollinations": {
+  "vendor": "openai-oss",
+  "privacy": "public",
+  "model": "gpt-oss-20b",
+  "served": "gpt-oss-20b",
+  "ok": true,
+  "text": "**背景说明**  \n- 下面的回答遵循你给出的模板：①机制/最佳理论 / ②可执行方案或伪代码 / ③可证伪判据 / ④实验标注（如需在 node1 上跑）。  \n- 本回答假设你已经完成了 0.1B → 0.4B → 0.5B 的 Net2Net 迁移，且 0.5B 模型已通过三值 QAT 训练完成。  \n- “高 NLL 低熵 = 系统性空洞” 仅是 E2 阶段的假设性探针。若后续实验表明此假设不成立，我们会直接否定并给出修正理由。\n\n---\n\n## ① 机制 / 最佳理论  \n### 1. 校准误差为何难压？\n\n| 维度 | 典型原因 | 机制说明 |\n|------|----------|----------|\n| **1. 参数容量不足** | 1B 以下模型由于权重数量有限，无法逼近理想的概率分布 | 低层特征表达受到瓶颈，即使多任务或 L2 正则不易克服 |\n| **2. 训练数据分布截断** | 训练集不包含全部领域或噪声数据 | 低熵往往来源于输入中高置信度样本，NLL 高则是 OOD 或标签错误导致模型输出不合理 |\n| **3. 学习率/优化器** | 最佳化过程在概率平面上停留在局部最优 | 尽管 NLL 下降，softmax 仍趋于 “尖锐”，导致熵低但未改变校准偏差 |\n| **4. 量化 + 三值化** | 量化误差会在梯度传播中放大 | 三值化会改变梯度的尺度，导致从概率分布到校准指标的映射失真 |\n| **5. 泛化误差** | 模型过拟合训练集导致评级尾部过低 | 低熵与高 NLL 必往往出现 OOD 的尖锐输出 |\n\n> **结论**：校准错误的根源在于 *概率平面上的非线性压缩* 与 *训练分布与推理分布的不匹配*，二者的协同作用使微小模型难以落到单个基准点。\n\n### 2. \"高 NLL 低熵 = 系统性空洞\" 的假设是否成立？\n\n- **反例**：在 OOD 数据上，模型往往产生高 NLL（误差大）且低熵（过度自信），但并非因“缺失知识”而是 *分布漂移*。\n- **理论支持点**：当训练集与测试集共享相同分布时，若模型充分学习，则高 NLL 通常伴随高熵；噪声/标签错误则可能出现异端组合。\n\n**更优的探针设计**  \n- **梯度马赛克探针**（Gradient‑Sparsity Probe）：  \n  - 计算当前样本相对于每个类别 logits 的梯度幅值分布。  \n  - **量化指标**：  \n    ```\n    G_j = |∂ℓ/∂z_j|  // loss w.r.t. logit of class j\n    grad_entropy = -∑_j (G_j / ∑_k G_k) log(G_j / ∑_k G_k)\n    grad_norm = ||G||₂ / ||ℓ||₂\n    ```\n  - **解释**：若模型在正确类别上梯度低且整体梯度几乎孤立，说明模型对当前输入“过度确定”而缺乏信息；若梯度分布均匀，则说明存在薄弱记忆区。\n- **融合熵-梯度组合**（Entropy‑Gradient Joint Probe, EGJ）：  \n  - 计算标准 softmax entropy + 梯度熵。  \n  - 用 *线性判别* 或小 MLP 预测 “是否缺失知识”  \n    `crit = sigmoid(a * entropy + b * grad_entropy + c)`\n\n> **优点**  \n> 1. 只依赖一点前向+反向，不需要额外标记数据。  \n> 2. 对量化与三值化的鲁棒性更强，梯度信息易保留。  \n> 3. 兼顾自信与信息缺失双重信号。\n\n---\n\n## ② 元认知头：接入位置与训练目标\n\n| 位置 | 是否可读/写 | 说明 |\n|------|-------------|------|\n| **1. 最高宽层（如最后一个自注意力",
+  "err": null,
+  "sec": 32.7
+ },
+ "unclose": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "turboderp/Qwen3.8-27B-exl3",
+  "served": "turboderp/Qwen3.8-27B-exl3",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 35.7
+ },
+ "kris.step": {
+  "vendor": "step",
+  "privacy": "public",
+  "model": "step-5-preview",
+  "served": "step-5-preview",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 41.9
+ },
+ "kris.grok": {
+  "vendor": "xai",
+  "privacy": "public",
+  "model": "grok-4.7",
+  "served": "grok-4.7",
+  "ok": true,
+  "text": "① **机制/最佳理论**：  \n校准误差难压的核心是“小容量+离散化”双重瓶颈——<1B模型参数极少（~0.5B），难以同时学习精确点估计（校准曲线的ECE偏差通常>0.2）和置信度校准；三值QAT（BitNet b1.58原生-1/0/1）进一步把fp16激活稀释成离散标量，NLL/熵信号被截断，难以区分“系统性空洞”（高NLL低熵）与正常高不确定性。  \n探针假设“高NLL低熵=系统性空洞”成立但不优（仅在序列级NLL+token级熵混合时有~65-70%相关性），因为它忽略了记忆层上下文和外部一致性。  \n更优替代理论：**记忆-检索一致性探针**（Memory-Consistency Probe，MCP），即计算模型回答与外置可寻址记忆（每人10M条，删除权0/1硬需求）的“检索NLL差值+自洽性余弦”（用fp16 embedding保5.5B_eff），零样本时高NLL差+低自洽性=空洞；理论依据是0.4B蒸馏继承已注入的“认主对比头”能力，0.5B深窄架构+外置记忆天然形成闭环，远优于纯激活探针。\n② **可执行方案或伪代码**：  \n接入位置：0.5B最后一层（第L层）的激活输出（attention+FFN融合后）或最后一attention head的value输出标量（维度hidden=~4M@0.5B）；训练时冻结主模型，只训练MCP头。  \n训练目标：二元交叉熵 + L1稀疏（鼓励只读标量），标签用纯净人写数据（0.5B前禁模型生成）。  \n伪代码（PyTorch，融入记忆检索）：  \n```python\nimport torch, torch.nn as nn\nclass MCP(nn.Module):\n    def __init__(self, hidden_dim, mem_size=10_000_000):\n        super().__init__()\n        self.head = nn.Linear(hidden_dim, 1)          # 只读标量输出\n        self.mem = nn.EmbeddingBag(mem_size, hidden_dim, mode='sum')\n        # 外置记忆层，每人10M，删除权0/1硬需求\n    def forward(self, activation, query_key):\n        # 检索：用fp16 embedding保5.5B_eff\n        retrieved = self.mem(query_key) if hasattr(self, 'mem') else torch.zeros_like(activation)\n        consistency = torch.cosine_similarity(activation.float(), retrieved.float(), dim=-1)\n        nll_diff = torch.log(1 + torch.exp(-consistency))  # 高NLL差=空洞\n        scalar = torch.cat([activation.mean(), consistency.unsqueeze(0)], dim=0)\n        logit = self.head(scalar).squeeze()\n        return torch.sigmoid(logit), nll_diff  # 返回置信+探针信号\n```\n训练：用0.4B蒸馏继承的纯净数据单遍（0.1B→0.4B默认单遍），标签=“正确/超出边界”由人工标注；0.5B三值QAT后微调MCP头，LR=1e-4，batch=64，CPU目标≤15ms/token。\n③ **可证伪判据**：  \n假设不成立/失效的明确结果：  \n- 在node1上跑≥1000条纯净QA对后，MCP AUC<0.65（或与随机标量预测等效，p>0.05）；  \n- 三值模型下探针标量输出std<0.1（几乎全0）；  \n- 外部记忆检索NLL差值与人工标签相关系数<0.3。  \n任意一条成立即推翻“高NLL低熵=系统性空洞”假设或MCP有效性。\n④ **实验标注node1 CPU最小可跑版**：  \n0.5B三值模型 + MCP头（hidden=4M）在node1 64核CPU上单遍1000条纯净数据：  \n- 内存：~4.5GB（fp16 embedding + 10M条外置记忆）；  \n- 时间：~8-12分钟（15ms/token目标内）；  \n- 启动命令最小版：`python -m torch.distributed.launch --nproc_per_node=1 train_mcp.py --model 0.5b_bitnet --epochs 1 --batch 64 --cpu_only --mem_size 10000000`。  \n若需更小：去掉外置记忆层（只用最后一层激活），内存降至2.1GB，时间~4分钟，保留基本探针功能。\n**理由**：前提“高NLL低熵=系统性空洞”本身成立但信号弱，纳入记忆层后替代方案更匹配路线（0.4B蒸馏+10M记忆+0/1删除权），三值稀释风险已在伪代码中用标量拼接+fp16检索缓解。",
+  "err": null,
+  "sec": 45.9
+ },
+ "kris.north": {
+  "vendor": "cohere",
+  "privacy": "public",
+  "model": "north-mini-code",
+  "served": "cohere/north-mini-code:free",
+  "ok": true,
+  "text": "## 概述\n\n| 部分 | 内容 | 作用 |\n|------|------|------|\n| **① 机制/最佳理论** | 解释为什么≤1B规模模型的校准误差（CE）难以压制，以及对“高NLL低熵 → 系统性空洞”元认知探针的理论分析，并提出替代设计。 | 提供**解释性模型**，并为下一步实验提供理论依据。 |\n| **② 可执行方案/伪代码** | 实现两种探针（NLL/熵和候选替代方案）以及元认知头的完整端到端流程（位置、训练目标、梯度流程），并确保所有操作都适用于您的BitNet b1.58三值化管道（FP16嵌入，L1/L2/L3宪法）。 | 给研究人员一个**可直接运行的脚本/代码片段**。 |\n| **③ 可证伪判据** | 定义**三个独立失败标准**（统计、功能、硬件限制），只要其中之一成立，就认为该组成部分失败。 | 为验收测试提供**二元决定逻辑**。 |\n| **④ 前提校验** | 检查**三个核心前提**（探针有效性、元认知头可行性、三值稀释效应），并明确指出其中的任何不成立之处及原因。 | 确保后续工作**建立在正确假设的基础上**。 |\n\n> **Notation** (used throughout)\n> - `x` – 输入令牌\n> - `y` – 真实标签（或空标签用于“不知道”）\n> - `pθ(y|x)` – 基于0.5B模型的参数化似然\n> - `ℓ_NLL = -log pθ(y|x)` – 负对数似然\n> - `H(pθ) = -∑_k pθ(k|x) log pθ(k|x)` – 预测分布熵\n> - `z` – 元认知头的标量输出（**[0,1]**）\n> - `M` – 可选的可寻址记忆层（每人10M条记录）\n> - `Q` – 量化类型（FP16、TERNARY等）\n\n---\n\n## ① 机制/最佳理论\n\n### 1.1 为什么≤1B模型的校准误差难以压制？\n\n| 因素 | 定性影响 | 定量洞察（文献） |\n|------|----------|------------------|\n| **参数预算限制** | 少量参数限制了模型同时捕捉数据分布和置信度分布的能力。 | *Guo et al., 2017* 表明，≤1B参数的模型在真实数据集上的软性max交叉熵CE通常≥**0.15–0.25**。 |\n| **欠参数化导致的欠拟合** | 模型无法充分拟合每个类别的条件概率，导致预测分布偏向于均匀分布（高熵）。 | *Zhang et al., 2021* 证实，随着参数数量达到约5×10⁸，训练误差与CE的相关性开始减弱。 |\n| **有限数据噪声** | ≤1B模型在有限高质量语料上训练时，会从真实分布中学习**基线噪声**，导致对边缘案例的置信度不可靠。 | *Krueger et al., 2020* 估计了数据噪声下达到的CE下限：`CE_min ≈ H(p_data) + σ²_noise / (2σ²_model)`。 |\n| **三值量化（如果使用）** | 0.5B BitNet b1.58 采用原生三值QAT，将连续权重离散化，从而故意增加训练噪声，迫使模型更鲁棒，但同时也增加了校准误差。 | *Muzio et al., 2023* 表明，0.5B三值CNN的CE比等精度FP16基线高**~10–15%**。 |\n| **自有资料+认主对比头** | 仅使用外部语料+认主对比头（CM）会使训练目标多样化，减少对日志似然（NLL）的直接监督，从而进一步拉宽校准。 | *Rives et al., 2021* 证明，对比辅助任务在下游分类任务上的CE通常会暂时增加。 |\n\n**综合观点**：CE ≈ `CE_data + CE_quant + CE_obj` 的三个正向项之和难以通过≤1B参数的模型计算能力完全消除。因此，即使“完美”的正则化也只能将CE降低到某个不可忽略的**约0.10–0.15**的水平。\n\n### 1.2 “高NLL低熵 → 系统性空洞”假设是否成立？\n\n**定义：**\n- *空洞*：模型**无法正确预测**真实分布的输入",
+  "err": null,
+  "sec": 48.0
+ },
+ "kris.longcat": {
+  "vendor": "longcat",
+  "privacy": "public",
+  "model": "longcat-2.5",
+  "served": "longcat-2.5-preview-free",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 50.0
+ },
+ "kris.glm": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "glm-5.2",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "RemoteDisconnected: Remote end closed connection without response",
+  "sec": 60.6
+ },
+ "kris.nemotron": {
+  "vendor": "nvidia",
+  "privacy": "public",
+  "model": "nemotron-3-ultra",
+  "served": "nvidia/nemotron-3-ultra-550b-a55b",
+  "ok": true,
+  "text": "### ① 校准误差难压根因 & 探针假设裁决 / 更优替代设计\n\n**核心机制（为什么压不下去）：**\n≤1B 模型的 **参数量不足以支撑「预测分布」与「校准分布」的解耦**。\n- **Logit 坍缩**：小模型最后一层投影矩阵 $W_{out} \\in \\mathbb{R}^{V \\times d}$ 秩不足，$d \\ll V$。正确 token 与错误 token 的 logit 差值被压缩进同一低维锥体，**Softmax 温度 $T$ 失效**（缩放只能整体平移锥体，无法展开角度）。\n- **熵-NLL 耦合退化**：训练目标只最小化 $H(p_{data}, p_{model})$，未显式约束 $H(p_{model})$。小模型倾向「高频 token 低熵高自信、低频 token 高熵低自信」，**熵成为词频的代理变量，而非不确定性",
+  "err": null,
+  "sec": 71.0
+ },
+ "kris.gemini": {
+  "vendor": "google",
+  "privacy": "public",
+  "model": "gemini-3.8-flash-high",
+  "served": "gemini-3.8-flash",
+  "ok": true,
+  "text": "### ① 机制推翻与更优探针设计\n\n#### 1. 推翻前提：“高 NLL 低熵 = 系统性空洞”的致命缺陷\n直接推翻该假设。将其作为元认知探针存在两个不可调和的逻辑与数学矛盾：\n* **运行时不可观测（时序错位）：** $\\text{NLL} = -\\log P(y^*|x)$ 强依赖于真值标签 $y^*$。在端侧自洽推理、自主决策或边界拒答时，$y^*$ 根本不存在。无法基于一个不可观测量构建在线探针。\n* **病态伪空洞（Aleatoric vs. Epistemic 混淆）：** 即使在离线评测下，“高 NLL + 低熵”在 $\\le 1\\text{B}$ 小模型中**大概率不是“知识空洞”（Epistemic 认知不确定性），而是“高频伪记忆/局部塌陷”（Aleatoric 归纳偏置绑架）**。小模型在参数量受限时，极易对长尾语料中的高频 N-gram 产生过拟合，Softmax 极度尖锐地指向错误 Token（低熵、高 NLL）。这是**模型表达容量不足导致的表征畸变**，不是它意识到了“自己不知道”。真正的“系统性空洞”（完全未见过的分布），小模型的常态是表征发散或均匀塌陷。\n\n#### 2. 校准误差（ECE）为什么在 $\\le 1\\text{B}$ 模型上极难压制？\n* **容量压缩与 Logit 尺度膨胀（Temperature Collapse）：** 交叉熵损失的渐进性质是使正确类别 Logit 趋近 $+\\infty$。大模型（70B+）拥有足够的正交子空间来分离“语义特征”与“不确定性度量”；$\\le 1\\text{B}$ 深窄模型的多义性叠加（Polysemanticity）极其严重，每个维度都被高密度重用，模型没有多余容量维持软概率分布，残差流更新步长过大，直接摧毁了微调校准（如 Temperature Scaling）的线性假设。\n* **孤立点投影畸变：** 小模型词表嵌入（$d_{model}$ 较小，如 768~1024）与大词表（如 50k~100k）通过矩阵乘法解耦时，输出层极其敏感。小微波动在点积后会被指数放大，造成极度自信的错觉。\n\n#### 3. 替代探针方案：流形残差范数与注意力弥散偏离度（R-AND, Residual & Attention Normalized Dispersion）\n不需要真实标签 $y^*$，纯粹利用模型推理时的前向几何动力学特征。\n构造双变量联合标量：\n$$S_{\\text{meta}} = \\alpha \\cdot \\frac{\\|h_L - h_{L-k}\\|_2}{\\|h_L\\|_2} + \\beta \\cdot \\mathcal{H}_{\\text{attn}}^{(k)}$$\n* **几何机制：** 当模型遇到已知知识时，深层残差流演化趋于稳定，向量增量范数衰减（残差收敛）；当遇到系统性知识空洞时，深层网络无法匹配先验注意力路径，导致后 $k$ 层残差向量发生剧烈方向偏转（增量相对范数暴增），且顶层注意力头的熵值 $\\mathcal{H}_{\\text{attn}}$ 显著弥散（无法聚焦在任何语义锚点上）。这一无监督指标在小模型上与实际错误率呈现单调强相关。\n\n---\n\n### ② 元认知头的最优接入位置与训练目标\n\n元认知头目标：输入隐层激活，直接输出标量 $p_{\\text{know}} \\in [0, 1]$，预测“当前回答是否位于自身知识边界内 / 输出是否正确”。\n\n```\n                    [ 词表输出 Logits ]\n                            ^\n                            | (LayerNorm + Linear Head)\n[ Layer L ]     -> h_L   ---+-> 浅层融合 (Concat/Diff)\n      ^                     |        |\n     ...                    |        v\n[ Layer 0.75L ] -> h_mid ---+-> [ MLP 探针头 (FP16) ] -> 输出 p_know (标量)\n```\n\n#### 1. 最优接入位置：$0.75L$ 与 $1.0L$ 残差特征差分拼接（Dual-Tap Tap-off）\n* **绝对不要只接在最终层 $L$：** $L$ 层的激活已被严密拉向“词表投影空间”，充斥着下一词的句法、词性等表面细节（Surface form），全局的事实验证几何信息反而被压缩衰减。\n* **绝对不要接在纯中间层（如 $0.5L$）：** $\\le 1\\text{B}$ 深窄网络计算深度较浅，半程时推理链路尚未收敛，事实真值尚未完成抽取。\n* **最优接入点：**\n  提取 $L_{\\text{mid}} = \\lfloor 0.75 \\times L \\rfloor$ 与 $L_{\\text{final}} = L$（在进入最终 RMSNorm 之前）的残差流，构造差分特征向量：\n  $$v_{\\text{probe}} = [\\text{RMSNorm}(h_{L_{\\text{final}}}) \\,;\\, \\text{RMSNorm}(h_{L_{\\text{final}}} - h_{L_{\\text{mid}}})]$$\n  维度为 $2 \\times d_{model}$。这个向量同时编码了“最终抽象语义”和“最后 25% 深度的计算演化代价”。\n\n#### 2. 训练目标设计\n不能直接用 BCE 拟合 0/1（极易再次导致探针过拟合小模型训练集的置信度偏见）。采用 **Brier Score 约束 + Focal 边界校准损失**：\n\n$$\\mathcal{L}_{\\text{probe}} = \\lambda_1 (p_{\\text{know}} - y_{\\text{true}})^2 + \\lambda_2 \\text{FL}(p_{\\text{know}}, y_{\\text{true}})$$\n\n其中 $y_{\\text{true}} \\in \\{0, 1\\}$ 表示主干输出是否完全命中正确事实或未胡言乱语；$\\text{FL}$ 为 Focal Loss（聚焦于难分类的不确定边界样本，$\\gamma=2.0$）。\n* **梯度隔离：** 元认知头计算必须 `.detach()`，**严禁向主干残差流反向传播梯度**，防止破坏 0.5B 主干本就脆弱的语言建模表征。\n\n---\n\n### ③ 0.5B 三值模型（BitNet b1.58）上的稀释与失效问题\n\n#### 结论：不会被稀释失效，几何信号反而“信噪比更高”，但有两个物理铁律必须遵守。\n\n#### 1. 为什么三值化不会摧毁元认知表征？\n* **残差流全精度保障：** BitNet b1.58 架构中，全连接权重矩阵被量化至 $\\{-1, 0, 1\\}$，激活被量化为 $\\text{INT8}$，**但残差连接（Residual Stream）全程保持 FP16 累加**。\n* **聚类离散化效应：** 三值权重具有极强的特征选择与剪枝能力（权重 0 阻断了微弱噪声的传递）。这导致隐层状态空间呈现更强的“聚类块状化（Clustering）”。连续空间中模糊的认知边界在三值化后被离散割裂，元认知探针在判别“已知”与“未知”流形时，其线性可分界面的对比度甚至高于 FP16 模型中弥散的背景噪声。\n\n#### 2. 探针在三值网络中不失效的刚性边界条件：\n* **探针本身必须为 FP16 架构：** 探针参数量极小（仅 $2 \\times d_{model} \\to d_{model}/4 \\to 1$，约 $10^5$ 参数，占用内存 $< 1\\text{MB}$）。若将探针强行三值化，极小的梯度变化无法驱动离散权重跳变，探针校准必定失效。\n* **探针输入接口必须取“未量化的反量化累加态”：** 探针必须挂载在层与层之间的 **FP16 残差流累加节点** 上，绝对不能挂在 Linear 内部量化后的 $\\text{INT8}$ 激活上，否则量化舍入噪声会直接抹杀用于区分不确定性的微弱几何范数差异。\n\n---\n\n### ④ 可证伪判据（什么结果证明上述全错）\n\n在魔搭 node1 运行最小可跑版实验后，若出现以下任一现象，直接判定本方案推翻：\n\n1. **判据 A（流形探针无效）：** 在包含 50% 域内问题和 50% OOD（完全乱序/未录入生僻知识）的测试集上，$S_{\\text{meta}}$ 或元认知头标量的 **AUROC 曲线面积 $\\le 0.65$**（等同于随机猜测，说明小模型深层残差范数无法区分知识边界）。\n2. **判据 B（三值退化）：** 相同的双 TAP 探针，在 0.4B FP16 主干上 AUROC 达标（如 $>0.80$），但迁移至 0.5B BitNet b1.58 相同深窄架构后，**AUROC 暴跌超过 0.15**，证明三值化切断了置信度流形传导，上述理论被证伪。\n3. **判据 C（耗时超标）：** 在 64 核 CPU 上单步推理挂载探针的额外计算开销 **$> 0.5\\text{ms}$**，破坏整体 $15\\text{ms/token}$ 的上限红线。\n\n---\n\n### ⑤ Node1 CPU 最小可验证实现\n\n该单文件脚本可在魔搭 node1 64 核 CPU 容器中直接运行。\n其通过模拟深度窄模型、BitNet 权重量化环境，对比基准探针（Logit 熵）与双 TAP 几何探针对“知识空洞（OOD 注入）”的识别能力，并严密测试单步微秒级 CPU 延迟。\n\n```python\nimport time\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\n# 严格绑定 CPU 环境\ntorch.set_num_threads(64)\ndevice = torch.device(\"cpu\")\n\n# --- 1. 模拟 BitNet b1.58 核心算子 ---\ndef weight_quant(w):\n    scale = w.abs().mean()\n    w_quant = torch.clamp(torch.round(w / (scale + 1e-8)), -1, 1)\n    return w_quant, scale\n\nclass BitLinear(nn.Module):\n    \"\"\"三值权重，保留 FP16/FP32 计算接口与残差直通\"\"\"\n    def __init__(self, in_features, out_features):\n        super().__init__()\n        self.in_features = in_features\n        self.out_features = out_features\n        self.weight = nn.Parameter(torch.randn(out_features, in_features) * 0.02)\n\n    def forward(self, x):\n        # x: [B, S, D] (FP32/FP16)\n        w_q, scale = weight_quant(self.weight)\n        # 前向使用三值模拟\n        out = F.linear(x, w_q * scale)\n        return out\n\nclass NarrowDeepBlock(nn.Module):\n    def __init__(self, d_model):\n        super().__init__()\n        self.norm = nn.LayerNorm(d_model)\n        self.w1 = BitLinear(d_model, d_model * 2)\n        self.w2 = BitLinear(d_model * 2, d_model)\n\n    def forward(self, x):\n        # 残差流保持高精度\n        residual = x\n        h = self.norm(x)\n        h = F.silu(self.w1(h))\n        h = self.w2(h)\n        return residual + h\n\n# --- 2. 元认知头架构 (FP16/FP32 紧凑 MLP) ---\nclass MetacognitiveHead(nn.Module):\n    def __init__(self, d_model):\n        super().__init__()\n        # 输入维度: 2 * d_model (拼接 Layer_0.75L 与 Layer_1.0L 差分)\n        self.proj = nn.Sequential(\n            nn.Linear(2 * d_model, d_model // 4),\n            nn.SiLU(),\n            nn.Linear(d_model // 4, 1),\n            nn.Sigmoid()\n        )\n\n    def forward(self, h_final, h_mid):\n        # 严格截断梯度，不向主干反传\n        diff = (h_final - h_mid).detach()\n        feat = torch.cat([h_final.detach(), diff], dim=-1)\n        return self.proj(feat)\n\n# --- 3. 极简可跑主干与基准对比环境 ---\nclass MicroBitNet(nn.Module):\n    def __init__(self, layers=16, d_model=512, vocab_size=3200):\n        super().__init__()\n        self.d_model = d_model\n        self.layers = layers\n        self.tap_layer = int(layers * 0.75) # 0.75L 采样点\n        \n        self.embed = nn.Embedding(vocab_size, d_model)\n        self.blocks = nn.ModuleList([NarrowDeepBlock(d_model) for _ in range(layers)])\n        self.final_norm = nn.LayerNorm(d_model)\n        self.lm_head = BitLinear(d_model, vocab_size)\n        self.meta_head = MetacognitiveHead(d_model)\n\n    def forward(self, input_ids):\n        x = self.embed(input_ids)\n        h_mid = None\n        for i, block in enumerate(self.blocks):\n            x = block(x)\n            if i == self.tap_layer:\n                h_mid = x\n                \n        h_final = self.final_norm(x)\n        logits = self.lm_head(h_final)\n        \n        # 挂载元认知判断\n        p_know = self.meta_head(h_final, h_mid)\n        return logits, p_know\n\n# --- 4. 验证脚本：延迟与分类能力 ---\ndef run_verification():\n    print(\"=== 初始化 0.5B-scale 拓扑结构 (CPU node1 压测模式) ===\")\n    model = MicroBitNet(layers=16, d_model=512, vocab_size=3200).to(device)\n    model.eval()\n\n    batch_size = 1\n    seq_len = 16\n    dummy_input = torch.randint(0, 3200, (batch_size, seq_len)).to(device)\n\n    # 1. 延迟测定 (评估 CPU 单步开销是否超限)\n    latencies = []\n    meta_head_latencies = []\n    \n    with torch.no_grad():\n        # 预热\n        for _ in range(20):\n            _ = model(dummy_input)\n\n        # 测主干 + 探针总耗时\n        for _ in range(100):\n            t0 = time.perf_counter()\n            logits, p_know = model(dummy_input)\n            latencies.append((time.perf_counter() - t0) * 1000)\n\n        # 单独测试探针极速开销\n        h_final_sample = torch.randn(1, 1, 512)\n        h_mid_sample = torch.randn(1, 1, 512)\n        for _ in range(1000):\n            t0 = time.perf_counter()\n            _ = model.meta_head(h_final_sample, h_mid_sample)\n            meta_head_latencies.append((time.perf_counter() - t0) * 1000)\n\n    avg_step_lat = sum(latencies) / len(latencies)\n    avg_probe_lat = sum(meta_head_latencies) / len(meta_head_latencies)\n\n    print(f\"主干单步前向均值耗时: {avg_step_lat:.3f} ms / step\")\n    print(f\"元认知头单步计算开销: {avg_probe_lat:.5f} ms / call (红线预算: <= 0.5 ms)\")\n    assert avg_probe_lat < 0.5, \"判据 C 触发：探针延迟严重超标！\"\n\n    # 2. 模拟空洞测试与可分性比对\n    print(\"\\n=== 执行流形检测性能测试 (判据 A & B 验证) ===\")\n    # 模拟已知样本 (随机小扰动激活流)\n    h_known_mid = torch.randn(100, 512)\n    h_known_final = h_known_mid + torch.randn(100, 512) * 0.1 # 残差收敛\n\n    # 模拟系统性空洞 OOD (深层残差剧烈发散、偏转)\n    h_void_mid = torch.randn(100, 512)\n    h_void_final = h_void_mid + torch.randn(100, 512) * 1.8   # 流形断裂发散\n\n    # 训练简易元认知头\n    probe = MetacognitiveHead(512)\n    optimizer = torch.optim.Adam(probe.parameters(), lr=1e-3)\n    \n    # 构建训练数据\n    inputs_mid = torch.cat([h_known_mid, h_void_mid], dim=0)\n    inputs_final = torch.cat([h_known_final, h_void_final], dim=0)\n    labels = torch.cat([torch.ones(100, 1), torch.zeros(100, 1)], dim=0)\n\n    for epoch in range(50):\n        optimizer.zero_grad()\n        preds = probe(inputs_final, inputs_mid)\n        # Brier Score 优化目标\n        loss = F.mse_loss(preds, labels)\n        loss.backward()\n        optimizer.step()\n\n    # 验证分类准确度 (分离度评估)\n    with torch.no_grad():\n        test_preds = probe(inputs_final, inputs_mid)\n        acc = ((test_preds > 0.5) == (labels > 0.5)).float().mean().item()\n        \n    print(f\"知识空洞可分离度测试 (Accuracy): {acc * 100:.2f}%\")\n    if acc < 0.65:\n        print(\"[FAIL] 判据 A 触发：流形特征在三值网络激活中完全失效！\")\n    else:\n        print(\"[PASS] 结论成立：深层残差几何可有效作为三值小模型的元认知边界探针。\")\n\nif __name__ == \"__main__\":\n    run_verification()\n```",
+  "err": null,
+  "sec": 82.9
+ },
+ "kris.qwen": {
+  "vendor": "qwen",
+  "privacy": "public",
+  "model": "Qwen3.8-27B",
+  "served": "Qwen3.8-27B",
+  "ok": false,
+  "text": "",
+  "err": null,
+  "sec": 105.0
+ },
+ "dgai": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "llama-4-scout",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: <!doctype html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US\"> <![endi",
+  "sec": 0.4
+ },
+ "kilo": {
+  "vendor": "kilo",
+  "privacy": "public",
+  "model": "kilo-auto/free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Your authentication token is invalid. Please sign in again.\"},\"error_type\":\"authentication_required\"}",
+  "sec": 0.9
+ },
+ "ovh": {
+  "vendor": "meta",
+  "privacy": "public",
+  "model": "Meta-Llama-3_3-70B-Instruct",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 403: {\"message\":\"Forbidden: authentication failed.  Please generate a new one at https://kepler.ai.cloud.ovh.net/v1/oauth/ovh/authorize?iam_action=publicCloudProject",
+  "sec": 1.4
+ },
+ "zen.deepseek": {
+  "vendor": "deepseek",
+  "privacy": "local",
+  "model": "deepseek-v4-flash-free",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 401: {\"error\":{\"code\":null,\"message\":\"{\\\"type\\\":\\\"error\\\",\\\"error\\\":{\\\"type\\\":\\\"FreeTierError\\\",\\\"message\\\":\\\"OpenCode's free tier can only be used from within OpenC",
+  "sec": 2.3
+ },
+ "llm7": {
+  "vendor": "zhipu",
+  "privacy": "public",
+  "model": "GLM-5.3-Flash",
+  "served": null,
+  "ok": false,
+  "text": "",
+  "err": "HTTP 429: {\"error\":{\"message\":\"Upstream provider rate limit exceeded.\",\"type\":\"upstream_rate_limited\",\"param\":null,\"code\":\"upstream_rate_limited\"}}",
+  "sec": 13.0
+ }
+}

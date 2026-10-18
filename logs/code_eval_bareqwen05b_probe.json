@@ -1,0 +1,74 @@
+{
+  "tag": "bareqwen05b_probe",
+  "model": "D:/work/_local_ai/models/models/Qwen--Qwen2.5-0.5B-Instruct/snapshots/master",
+  "adapter": null,
+  "n": 4,
+  "seconds": 87.5,
+  "agg": {
+    "pass": 2,
+    "loose_pass": 1,
+    "fmt_pass": 0,
+    "strict_fail": 1,
+    "fail": 0
+  },
+  "format_rate": {
+    "code_block": 1.0,
+    "lang_tagged": 1.0,
+    "has_prose": 0.75,
+    "has_eos": 1.0
+  },
+  "results": [
+    {
+      "id": "py_sq",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\nfor i in range(1, 11):\n    print(i**2)\n```\n\n这段代码会逐个打印从 1 到 10 的每个数字的平方，并且每行只包含一个数字及其平方。"
+    },
+    {
+      "id": "py_sum",
+      "verdict": "loose_pass",
+      "detail": "stdout='1 加到 100 的和是: 5050' 未精确匹配但关键片段全中",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\n# 计算 1 加到 100 的和\nsum = sum(range(1, 101))\nprint(\"1 加到 100 的和是:\", sum)\n```\n\n这段代码首先使用 `range` 函数生成从 1 到 100 的整数序列（包括 1 和 100），然后使用 `sum` 函数计算这些数字的总和，并将结果存储在变量 `sum` 中。最后，通过 `print` 函数输出这个总和。"
+    },
+    {
+      "id": "py_rev",
+      "verdict": "strict_fail",
+      "detail": "执行失败: Traceback (most recent call last):\n  File \"C:\\Users\\admin\\AppData\\Local\\Temp\\tmpapguc3n4.py\", line 2, in <module>\n    re",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": true,
+        "has_eos": true
+      },
+      "text": "```python\n# 将字符串 abcdef 反转并打印\nreversed_string = 'abcdef'.reverse()\nprint(reversed_string)\n```\n\n这段代码首先将字符串 `abcdef` 转换为反向字符串 `'abcdef'`, 然后使用 `reverse()` 方法将其反转，并最后打印出结果。"
+    },
+    {
+      "id": "py_prime",
+      "verdict": "pass",
+      "detail": "stdout 完全匹配",
+      "format": {
+        "has_code_block": true,
+        "lang_tagged": true,
+        "lang": "python",
+        "has_prose": false,
+        "has_eos": true
+      },
+      "text": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return False\n    return True\n\n# 测试\nprint(is_prime(97))  # 输出: True\n```"
+    }
+  ]
+}
