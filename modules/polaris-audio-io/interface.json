@@ -1,0 +1,72 @@
+{
+  "module": "polaris-audio-io",
+  "version": "0.1.0",
+  "kind": "tool",
+  "summary": "音频外设：听觉（Whisper 完整版权重，含 decoder）与说话（edge-tts 神经音色 / Windows SAPI 离线回落）。提供的是可插拔的感知与表达通道，不是行为模块。",
+  "positioning": {
+    "what_it_is": "外设层（tool）。主人身边随时可用的耳朵和嘴，工业级组件直接封装，不训练。",
+    "what_it_is_not": "不是「内化进主干的听觉能力」。那一条是独立路线，见 docs/audio-align-diagnosis-2026-10-19.md，结论是 346M 冻结主干上 prefix 范式样本效率不足。",
+    "why_kind_is_tool": "本模块零参数、不 hook 主干、不产生 LoRA。因此 attach_points 为空，不受「只接恒定维」接口契约约束——那份契约管的是会改主干计算图的模块。"
+  },
+  "attach_points": [],
+  "params_touched_by_main_model": 0,
+  "engines": {
+    "listen": {
+      "impl": "transformers.WhisperForConditionalGeneration（openai/whisper-small，完整 encoder+decoder）",
+      "weights": "models/whisper-small/model.safetensors（~967MB，fp32）",
+      "input": "任意常见音频格式（soundfile 解码，不需 ffmpeg）；内部重采样到 16kHz 单声道",
+      "lang": "zh（可换）",
+      "offline": true
+    },
+    "speak_natural": {
+      "impl": "edge-tts 神经 TTS（微软服务）",
+      "output": "mp3",
+      "voices": ["zh-CN-XiaoxiaoNeural", "zh-CN-YunxiNeural", "zh-CN-YunjianNeural", "zh-CN-YunyangNeural", "zh-CN-XiaoyiNeural"],
+      "offline": false,
+      "note": "音质最好，但断网即失效，所以必须留回落"
+    },
+    "speak_local": {
+      "impl": "Windows SAPI（System.Speech）Microsoft Huihui Desktop",
+      "output": "wav",
+      "offline": true,
+      "note": "音质机械，但永远在。这是 auto 模式存在的理由：不允许因为断网就变哑巴"
+    }
+  },
+  "io": {
+    "say": "text -> {engine, path, seconds, bytes}",
+    "hear": "path -> {text, chars, audio_sec, seconds, rtf}",
+    "loop": "text -> 合成 -> 识别 -> 字符级 CER（闭环自测，无需麦克风）",
+    "cli": [
+      "python modules/polaris-audio-io/audio_io.py say \"你好，主人\" --play",
+      "python modules/polaris-audio-io/audio_io.py hear data/a.wav",
+      "python modules/polaris-audio-io/audio_io.py loop \"文本\" -n 3"
+    ]
+  },
+  "acceptance": {
+    "speak_up": "两条引擎至少一条产出 >=1s 的可解码音频；auto 模式下断网必须自动落到 local",
+    "hear_up": "对 16k 中文语音给出非空文本，且 RTF < 1.0（CPU 上识别快于实时）",
+    "loop_cer": "自合成中文语音的闭环 CER < 0.15 视为通道健康；< 0.05 视为优",
+    "not_acceptance": "闭环 CER 不是真实听写精度。自家 TTS 的音色单一，真实麦克风录音会更差，别拿这个数字对外宣称"
+  },
+  "deps": {
+    "python": ["transformers>=5", "torch", "soundfile", "scipy", "numpy", "edge-tts"],
+    "system": ["Windows PowerShell + System.Speech（SAPI 回落）"],
+    "absent": ["ffmpeg（不需要）", "librosa（不需要）", "openai-whisper（不需要）"]
+  },
+  "measured": {
+    "at": "2026-10-19 18:2x，本机 i5-12450H CPU，venv，无 GPU",
+    "speak_natural": {"audio_sec": 4.78, "bytes": 28656, "call_sec": 2.0},
+    "speak_local": {"audio_sec": 2.32, "bytes": 102306, "offline": true},
+    "hear_beam1": {"audio_sec": 5.4, "asr_sec": 4.57, "rtf": 0.78, "cer": 0.120},
+    "hear_beam3": {"audio_sec": 5.4, "asr_sec": 8.74, "rtf": 1.55, "cer": 0.120},
+    "loop_3rounds": {"mean_cer": 0.125, "variance": "三轮输出逐字相同"},
+    "beam_conclusion": "beam=1 与 beam=3 的 CER 相同，速度差一倍 ⇒ 默认 beam=1",
+    "contrast": "同一批 5464 条数据训 20 小时的 0.3B prefix 方案 CER=7.422、0/10 正确 ⇒ 本模块比它好 59 倍，且零训练"
+  },
+  "known_limits": [
+    "SAPI 只有 Huihui 一个中文音色，听感机械；多音色要靠 edge-tts（需联网）",
+    "Whisper small 中文 zero-shot CER 约 8~15%，低于专训系统，但零训练成本",
+    "本模块解决了「听得到、说得出」，没有解决「听得懂」——语义理解仍归主干",
+    "与 0.3B 主干的参数没有任何共享，所以它不会随模型一起进化；这是刻意的，外设就该稳定"
+  ]
+}

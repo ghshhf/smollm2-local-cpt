@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-10-19 18:3x · 音频外设落地（CER 0.125）+ 内化路线冻结
+
+- **工业级音频外设已可用** `modules/polaris-audio-io/`（`kind=tool`，零参数、不挂主干、不受恒定维契约约束）：
+  听 = transformers 完整 Whisper-small（encoder+decoder 都在，`models/whisper-small/` 967MB）；
+  说 = edge-tts 神经音色（mp3）+ Windows SAPI Huihui（wav，断网回落，auto 自动切）。
+  用法 `audio_io.py say|hear|loop`。
+  **实测闭环 CER 0.125**（5.4s 音频→4.57s，RTF 0.78，三轮逐字相同），错在「权重→权众」类同音字。
+- **对比数据（这是关键）**：同一批 5464 条数据、train 20 小时的 0.3B prefix 方案 **CER 7.422、0/10 正确**。
+  外设比它好 **59 倍，且零训练**。⇒ 结论：听写需求用外设解决，不需要内化。
+- **内化路线冻结**（用户 18:32 决定）：prefix 接 346M 样本效率不足。`aud-tokens 150→32` 后 step 160 loss 2.51，
+  step 250 仍 2.59（90 步零进展），而纯文本 NLL 基线 2.505~2.664 ⇒ **音频条件化贡献≈0**。
+  重启前提：先跑 2h 四条件诊断（无 prefix / oracle 文本 / 随机高斯 / 真实音频），判据看 CER 不看 loss。
+  诊断报告 `docs/audio-align-diagnosis-2026-10-19.md`；外部解答 `tmp/answers.md`（Q1 首选方案=中层 gated cross-attention + CTC 辅助头）。
+- **三个坑**：①Whisper 中文默认吐繁体，必须给简体 prompt；②`max_new_tokens` 要减 `len(prompt_ids)` 再减 8，否则报 `max_target_positions 448`；③beam=1 与 beam=3 CER 相同但快一倍 ⇒ 默认 1。
+
+---
+
+## 2026-10-18 22:40 · 音频模块计划书（听+说）+ 本地训练按 9 点约定停机
+
+- **本地训练停机**：`train_queue.py run`（8692/8820）+ `audio_attach.py --precompute`（7724/9252）**未设 9 点停训逻辑，照常跑到 22:40**。按用户"9 点应已停"约定手动 `taskkill` 全部进程 + 删 `.train_lock`，本机 CPU 腾空。ASR align 训练可随时接回 `train_queue` 续跑（features 已落 `data/audio/aud_feats.pt` 346MB）。
+- **音频模块计划书** `docs/audio-module-plan.md`（v1）：用户要求"音频不光识别还能发声"。定位=ASR(听)+TTS(说)+语音对话闭环，按模块契约接主干。TTS 选型调研结论：**主选 F5-TTS(0.3B,MIT,flow-matching DiT,零样本~10s克隆,易训练,RTF0.15)**；中文强化备选 **GPT-SoVITS(MIT,最强中文+情绪)**；兜底 **Kokoro-82M**。论文清单含 F5-TTS(2410.06885)/E2-TTS/CosyVoice2(2412.10117)/NaturalSpeech3/MaskGCT(2409.00750)/FlowMatching/ Fast F5-TTS-EPSS(2505.19931)。本地开源管线范式：VAD→Whisper→LLM(北极星替换)→TTS，CPU 端到端 ~2s。里程碑 M1 接回ASR align→M2 TTS落地→M3 闭环→M4 认主音色。
+
+---
+
 ## 2026-10-18 21:2x · 本地自动流铺满 + chat_v7 盲测验收 + node1 通道异常
 
 - **chat_v7 盲测验收**（`logs/chat_blind_v7.json`，队列自动接训练完）：30 题 avg_hit **11.3%** / mid 3.6% / full 0% / avg_chars 61.3 / 460s。**判据**：对话线内容层仍归底座（0.3B 预训练是中文网页无对话语料），LoRA 只教得会格式——与编程线同结论。另一台电脑今晚接手中文对话 v7 收尾 + 感情模块。
