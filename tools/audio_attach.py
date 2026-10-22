@@ -12,6 +12,12 @@
     joint  放开 LLM（lr*0.1）与 Whisper（lr*0.05），学"读音频 token"
     asr    同 joint，但训练目标固定为转录（本项目当前只用到这一档）
 
+全参 SFT（--full，2026-10-19 用户裁定）：
+    LoRA/适配器只能在已有能力上做格式对齐; 教新能力(听觉)必须直接改主干
+    => Whisper 冻(预训练 ASR 特征提取器) + 投影 + LLM 全参可训,
+       Adafactor + lr 2e-4 + 有效 batch 32 + cosine(配方同 tools/sft_full.py)
+    投影层可用 --init 接 align 阶段的热身权重(视觉线同款三阶段路线)
+
 验收（禁信 loss）：字符错误率 CER + 盲测样本对照。
 
 用法：
@@ -31,6 +37,7 @@
 """
 import argparse
 import json
+import math
 import os
 import sys
 import time
@@ -132,6 +139,30 @@ def load_pairs(limit=None):
             line = line.strip()
             if line:
                 rows.append(json.loads(line))
+    # 🔴 跨机器坑：pairs 里存的是**生成机的绝对路径**（本机是 D:\work\...，远程是 /mnt/...），
+    #    直接搬过去全部 FileNotFound。这里按 utt/文件名重建一次索引，找不到才剔除。
+    if any(r.get("audio") and not os.path.exists(r["audio"]) for r in rows):
+        index, miss = {}, 0
+        base = os.path.join(ROOT, "data", "audio", "wav")
+        for dp, _, fs in os.walk(base):
+            for fn in fs:
+                if fn.lower().endswith(".wav"):
+                    index.setdefault(os.path.splitext(fn)[0], os.path.join(dp, fn))
+        fixed = []
+        for r in rows:
+            if r.get("audio") and os.path.exists(r["audio"]):
+                fixed.append(r)
+                continue
+            key = r.get("utt") or os.path.splitext(os.path.basename(r.get("audio") or ""))[0]
+            p = index.get(key)
+            if p:
+                r["audio"] = p
+                fixed.append(r)
+            else:
+                miss += 1
+        if miss:
+            print("[pairs] %d 条在 %s 下找不到，已剔除（剩 %d 条）" % (miss, base, len(fixed)))
+        rows = fixed
     if limit:
         rows = rows[:limit]
     return rows
@@ -197,9 +228,24 @@ def main():
     ap.add_argument("--eval-n", type=int, default=30, help="训练后自动盲测条数")
     ap.add_argument("--val-speakers", default="S0024,S0025",
                     help="留作验证的说话人(逗号分隔)，训练时不使用；空串=不切分")
+    ap.add_argument("--full", action="store_true",
+                    help="全参 SFT(2026-10-19 用户裁定): Whisper 冻, 投影+LLM 全参可训, "
+                         "Adafactor+cosine; 教新能力必须直接改主干")
+    ap.add_argument("--sft-lr", type=float, default=2e-4, help="full 模式学习率")
+    ap.add_argument("--threads", type=int, default=0,
+                    help="CPU 线程(0=自动: full 模式 6 留 2 核给用户, 其余 8)")
+    ap.add_argument("--save-every", type=int, default=40, help="full 模式每几步存全量权重")
     a = ap.parse_args()
 
-    torch.set_num_threads(min(8, os.cpu_count() or 4))
+    # 🔴 设备与线程一律自适应（用户要求：换机器/换到 GPU 实例都不许改参数）
+    try:
+        from dev_pick import setup as dev_setup
+    except ImportError:
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        from dev_pick import setup as dev_setup
+    device, n_threads = dev_setup()
+    if a.threads:
+        torch.set_num_threads(a.threads)
     os.makedirs(a.save, exist_ok=True)
 
     # ---- 1. Whisper 编码器（冻结）----
@@ -209,8 +255,13 @@ def main():
         return 2
     t0 = time.time()
     fe = WhisperFeatureExtractor.from_pretrained(a.whisper)
-    wm = WhisperModel.from_pretrained(a.whisper, dtype=torch.float32)
-    whisper = wm.encoder.eval()
+    # 🔴 不传 dtype=：不同版本 transformers 对 WhisperModel 的参数名不一致
+    #    （实测远程 4.55 直接报 WhisperModel.__init__() got an unexpected keyword 'dtype'）。
+    #    加载后判一次再 .float()，版本无关。
+    wm = WhisperModel.from_pretrained(a.whisper)
+    if next(wm.parameters()).dtype != torch.float32:
+        wm = wm.float()
+    whisper = wm.encoder.eval().to(device)
     for p in whisper.parameters():
         p.requires_grad = False
     a_dim = whisper.config.d_model
@@ -226,9 +277,9 @@ def main():
             arr = np.pad(arr, (0, 400 - len(arr)))
         inp = fe(arr, sampling_rate=SR, return_tensors="pt")
         with torch.no_grad():
-            enc = whisper(input_features=inp.input_features)
+            enc = whisper(input_features=inp.input_features.to(device))
         h = enc.last_hidden_state[0]                     # (1500, d)
-        return pool_audio(h.unsqueeze(0), a.aud_tokens)[0]   # (n_tok, d)
+        return pool_audio(h.unsqueeze(0), a.aud_tokens)[0].cpu()   # (n_tok, d) 缓存一律存 CPU
 
     # ---- 2. 预计算 ----
     if a.precompute:
@@ -278,17 +329,24 @@ def main():
     # ---- 3. LLM（0.3B）----
     from transformers import AutoModelForCausalLM, AutoTokenizer
     tok = AutoTokenizer.from_pretrained(a.llm)
-    llm = AutoModelForCausalLM.from_pretrained(a.llm, dtype=torch.float32).eval()
+    llm = AutoModelForCausalLM.from_pretrained(a.llm)
+    if next(llm.parameters()).dtype != torch.float32:
+        llm = llm.float()
+    llm = llm.eval().to(device)
     l_dim = llm.config.hidden_size
     print("[LLM] hidden=%d params=%.1fM" % (l_dim, sum(p.numel() for p in llm.parameters()) / 1e6))
 
-    proj = MLPProjector(a_dim, l_dim)
+    proj = MLPProjector(a_dim, l_dim).to(device)
     if a.init and os.path.exists(a.init):
         proj.load_state_dict(torch.load(a.init, map_location="cpu"))
         print("[init] projector <- %s" % a.init)
 
     # ---- 4. 冻结策略 ----
-    if a.stage == "align":
+    if a.full:
+        # 全参 SFT: Whisper 始终冻结(预训练 ASR 特征提取器), 投影 + LLM 全部可训
+        for p in llm.parameters():
+            p.requires_grad = True
+    elif a.stage == "align":
         for p in llm.parameters():
             p.requires_grad = False
     else:
@@ -296,16 +354,34 @@ def main():
             p.requires_grad = True
     for p in proj.parameters():
         p.requires_grad = True
-    params = [{"params": proj.parameters(), "lr": a.lr}]
-    if a.stage != "align":
-        params.append({"params": llm.parameters(), "lr": a.lr * 0.1})
-    opt = torch.optim.AdamW(params, weight_decay=0.0)
-    sched = torch.optim.lr_scheduler.LambdaLR(
-        opt, lambda s: min(1.0, (s + 1) / max(1, a.warmup)))
     n_train = sum(p.numel() for p in proj.parameters() if p.requires_grad)
-    if a.stage != "align":
+    if a.full:
+        from transformers.optimization import Adafactor
+        opt = Adafactor(list(proj.parameters()) + list(llm.parameters()),
+                        lr=a.sft_lr, scale_parameter=False, relative_step=False,
+                        warmup_init=False, weight_decay=0.0)
+        sched = None
+        _total = max(1, a.steps)
+
+        def lr_at(s):
+            if s < 20:
+                return a.sft_lr * (s + 1) / 20
+            p = (s - 20) / max(1, _total - 20)
+            return a.sft_lr * 0.1 + (a.sft_lr * 0.9) * 0.5 * (1 + math.cos(math.pi * min(1.0, p)))
+
+        llm.gradient_checkpointing_enable()   # CPU 16GB: 激活重算省 ~1.5GB
+        llm.config.use_cache = False
+    else:
+        params = [{"params": proj.parameters(), "lr": a.lr}]
+        if a.stage != "align":
+            params.append({"params": llm.parameters(), "lr": a.lr * 0.1})
+        opt = torch.optim.AdamW(params, weight_decay=0.0)
+        sched = torch.optim.lr_scheduler.LambdaLR(
+            opt, lambda s: min(1.0, (s + 1) / max(1, a.warmup)))
+    if a.stage != "align" or a.full:
         n_train += sum(p.numel() for p in llm.parameters() if p.requires_grad)
-    print("[TRAIN] stage=%s 可训练=%.2fM" % (a.stage, n_train / 1e6))
+    print("[TRAIN] stage=%s%s 可训练=%.2fM"
+          % (a.stage, " +full" if a.full else "", n_train / 1e6))
 
     cache = None
     if a.use_cache and os.path.exists(a.cache):
@@ -315,9 +391,9 @@ def main():
 
     def get_atok(wav_path, utt=None):
         if cache is not None and utt and utt in cache:
-            f = cache[utt].float().unsqueeze(0)
+            f = cache[utt].float().unsqueeze(0).to(device)
         else:
-            f = audio_feat(wav_path).unsqueeze(0).float()
+            f = audio_feat(wav_path).unsqueeze(0).float().to(device)
         return proj(f)                                     # (1,n_tok,l_dim)
 
     def make_prompt():
@@ -326,9 +402,9 @@ def main():
     def forward_step(wav_path, text, utt=None):
         atok = get_atok(wav_path, utt)
         prompt = make_prompt()
-        pids = tok(prompt, return_tensors="pt", add_special_tokens=False).input_ids
-        tgt = tok(text, return_tensors="pt", add_special_tokens=False).input_ids
-        eos = tok("<|im_end|>", return_tensors="pt", add_special_tokens=False).input_ids
+        pids = tok(prompt, return_tensors="pt", add_special_tokens=False).input_ids.to(device)
+        tgt = tok(text, return_tensors="pt", add_special_tokens=False).input_ids.to(device)
+        eos = tok("<|im_end|>", return_tensors="pt", add_special_tokens=False).input_ids.to(device)
         tgt = torch.cat([tgt, eos], dim=1)
         temb = llm.get_input_embeddings()(torch.cat([pids, tgt], dim=1))
         inputs = torch.cat([atok, temb], dim=1)             # early fusion
@@ -342,7 +418,7 @@ def main():
     def generate(wav_path, utt=None, proj_path=None):
         atok = get_atok(wav_path, utt)
         prompt = make_prompt()
-        pids = tok(prompt, return_tensors="pt", add_special_tokens=False).input_ids
+        pids = tok(prompt, return_tensors="pt", add_special_tokens=False).input_ids.to(device)
         temb = llm.get_input_embeddings()(pids)
         inputs = torch.cat([atok, temb], dim=1)
         with torch.no_grad():
@@ -379,10 +455,13 @@ def main():
     print("[data] 训练 %d 条 | 验证(没见过的说话人) %d 条 | val=%s"
           % (len(train_rows), len(val_rows), a.val_speakers or "无"))
     proj.train()
-    if a.stage != "align":
+    if a.stage != "align" or a.full:
         llm.train()
 
-    step, loss_acc, t0 = 0, 0.0, time.time()
+    # 🔴 loss_acc 必须除以「实际累积的样本数」，不能硬除 10：
+    #    累积窗口 = accum × 10 条样本，硬除 10 会把 loss 放大 accum 倍
+    #    （2026-10-19 实测：真实 3.8 被显示成 14.1，差点误判成"训练崩了"）。
+    step, loss_acc, acc_n, t0 = 0, 0.0, 0, time.time()
     import random
     rng = random.Random(7)
     order = list(range(len(train_rows)))
@@ -397,26 +476,51 @@ def main():
                 continue
             (loss / a.accum).backward()
             loss_acc += float(loss)
+            acc_n += 1
             if (i + 1) % a.accum == 0 or i == order[-1]:
                 torch.nn.utils.clip_grad_norm_(proj.parameters(), 1.0)
-                if a.stage != "align":
+                if a.stage != "align" or a.full:
                     torch.nn.utils.clip_grad_norm_(llm.parameters(), 1.0)
+                if a.full:
+                    for g in opt.param_groups:
+                        g["lr"] = lr_at(step)
                 opt.step()
-                sched.step()
+                if sched is not None:
+                    sched.step()
                 opt.zero_grad(set_to_none=True)
                 step += 1
                 if step % 10 == 0:
                     el = time.time() - t0
                     print("[step %4d/%d] loss=%.4f  %.0fs (%.1fs/步)"
-                          % (step, a.steps, loss_acc / 10, el, el / step), flush=True)
+                          % (step, a.steps, loss_acc / max(1, acc_n), el, el / step), flush=True)
                     loss_acc = 0.0
-                if step % 250 == 0:
+                    acc_n = 0
+                if a.full and step % a.save_every == 0:
+                    torch.save(proj.state_dict(),
+                               os.path.join(a.save, "projector_%d.pt" % step))
+                    llm.save_pretrained(a.save, safe_serialization=True)
+                    tok.save_pretrained(a.save)
+                    with open(os.path.join(a.save, "sft_meta.json"), "w", encoding="utf-8") as g:
+                        json.dump({"step": step, "lr": a.sft_lr, "accum": a.accum,
+                                   "rows": len(train_rows), "val_speakers": a.val_speakers,
+                                   "optimizer": "Adafactor", "full_param": True,
+                                   "init": a.init}, g, ensure_ascii=False, indent=1)
+                    print("[save] full ckpt @ step %d -> %s" % (step, a.save), flush=True)
+                elif not a.full and step % 250 == 0:
                     torch.save(proj.state_dict(),
                                os.path.join(a.save, "projector_%d.pt" % step))
                 if step >= a.steps:
                     break
 
     torch.save(proj.state_dict(), os.path.join(a.save, "projector.pt"))
+    if a.full:
+        llm.save_pretrained(a.save, safe_serialization=True)
+        tok.save_pretrained(a.save)
+        with open(os.path.join(a.save, "sft_meta.json"), "w", encoding="utf-8") as g:
+            json.dump({"step": a.steps, "lr": a.sft_lr, "accum": a.accum,
+                       "rows": len(train_rows), "val_speakers": a.val_speakers,
+                       "optimizer": "Adafactor", "full_param": True, "init": a.init,
+                       "final": True}, g, ensure_ascii=False, indent=1)
     print("[save] %s" % os.path.join(a.save, "projector.pt"))
 
     # ---- 7. 训练后盲测（禁信 loss：直接用 CER 说话）----

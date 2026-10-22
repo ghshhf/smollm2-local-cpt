@@ -28,6 +28,16 @@ DST_DIR = os.path.join(HERE, "data", "fuel_relay")
 DST = os.path.join(DST_DIR, "dream_fuel.jsonl")
 LOG = os.path.join(HERE, "logs", "fuel_relay.log")
 
+# 🔴 SYSTEM 上下文（schtasks）没有 WorkBuddy 注入的 PATH，git 是 PortableGit，
+#    直接调 "git" 会抛 FileNotFoundError —— 且崩在第一个 log() 之前，表现为
+#    「Result=1 且日志一条不写」，排查时极易误判成网络问题。故显式定位绝对路径。
+_GIT_CANDIDATES = [
+    r"C:\Program Files\WorkBuddy\resources\vendor\PortableGit\mingw64\bin\git.exe",
+    r"C:\Program Files\Git\cmd\git.exe",
+    "git",
+]
+GIT = next((p for p in _GIT_CANDIDATES if p == "git" or os.path.exists(p)), "git")
+
 
 def log(msg):
     os.makedirs(os.path.dirname(LOG), exist_ok=True)
@@ -43,9 +53,15 @@ def fetch(url, timeout=60):
         return r.read()
 
 
-def git(*args):
-    subprocess.run(["git", "-C", HERE] + list(args),
-                   capture_output=True, timeout=120)
+def git(*args, **kw):
+    """安全 git 调用：任何失败都只记日志、不抛出（宁可漏归档，不可静默崩）。"""
+    timeout = kw.get("timeout", 120)
+    try:
+        return subprocess.run([GIT, "-C", HERE] + list(args),
+                              capture_output=True, text=True, timeout=timeout)
+    except Exception as e:
+        log("[relay] git %s 失败(%s)，跳过" % (" ".join(args[:2]), e))
+        return None
 
 
 def main():
@@ -56,15 +72,14 @@ def main():
     # 兜底: 上轮若落盘成功但归档失败(如 gitignore 漏改)，此后每轮都会因
     # "无新增"早退而永久漏档——开跑先查一次未归档旧档。
     if os.path.exists(DST) and not a.no_git:
-        r = subprocess.run(["git", "-C", HERE, "status", "--porcelain",
-                            "--", "data/fuel_relay/dream_fuel.jsonl"],
-                           capture_output=True, text=True)
-        if r.stdout.strip():
+        r = git("status", "--porcelain", "--",
+                "data/fuel_relay/dream_fuel.jsonl", timeout=60)
+        if r is not None and r.stdout.strip():
             log("[relay] 发现未归档旧档，先补档")
             git("add", "-f", "data/fuel_relay/dream_fuel.jsonl")
             git("commit", "-m", "fuel_relay: 补档(上轮落盘未归档)")
-            subprocess.run(["git", "-C", HERE, "push", "origin", "main"],
-                           capture_output=True, timeout=180)
+            p = git("push", "origin", "main", timeout=180)
+            log("[relay] 补档推送 rc=%s" % (p.returncode if p else "skip"))
 
     # 1) 拉 ECS 信箱上的新燃料
     try:
@@ -120,16 +135,14 @@ def main():
     #    标准必须入库; 绝不 git add -a)
     if not a.no_git:
         git("add", "-f", "data/fuel_relay/dream_fuel.jsonl")
-        r = subprocess.run(["git", "-C", HERE, "diff", "--cached", "--quiet"],
-                           capture_output=True)
-        if r.returncode != 0:
+        r = git("diff", "--cached", "--quiet")
+        if r is not None and r.returncode != 0:
             git("commit", "-m",
                 "fuel_relay: +%d 条 node1 自进化燃料(自动归档)" % added)
-            p = subprocess.run(["git", "-C", HERE, "push", "origin", "main"],
-                               capture_output=True, timeout=180)
-            log("[relay] 已归档并推送(rc=%d)" % p.returncode)
+            p = git("push", "origin", "main", timeout=180)
+            log("[relay] 已归档并推送(rc=%s)" % (p.returncode if p else "skip"))
         else:
-            log("[relay] 无差异，跳过提交")
+            log("[relay] 无差异或 git 不可用，跳过提交")
     return 0
 
 

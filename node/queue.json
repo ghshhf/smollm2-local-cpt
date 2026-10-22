@@ -1,0 +1,16 @@
+{
+ "slots": 1,
+ "items": [
+  {
+   "id": "1",
+   "name": "audio_precompute",
+   "cmd": "python3 -u tools/audio_attach.py --stage align --precompute --whisper models/whisper-small --val-speakers S0018,S0019",
+   "pattern": "audio_attach.py --stage align --precompute",
+   "prio": 1,
+   "state": "pending",
+   "attempts": 0,
+   "added": "2026-10-19 14:20:00",
+   "log": "logs/audio_pre.log"
+  }
+ ]
+}

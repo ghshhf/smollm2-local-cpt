@@ -1,0 +1,13 @@
+{
+  "_note": "常驻服务表（不是作业）：pattern 命中即视为活着；protect=true 表示控制通道，STOP 时不剪断；done_file 存在则不再拉起。一次性作业请进 node/queue.json（用 node/q.py 管）。",
+  "tasks": [
+    {
+      "name": "tunnel",
+      "pattern": "node/tunnel.sh",
+      "cmd": "bash node/tunnel.sh",
+      "log": "logs/tunnel.log",
+      "protect": true,
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,5156 @@
+{
+ "generated": "2026-10-19T13:22:39+0800",
+ "host": "node1",
+ "root": "/mnt/workspace/node1",
+ "sys": {
+  "date": "2026-10-19T13:22:32+0800",
+  "disk": "000104872f-caf15.cn-hangzhou.nas.aliyuncs.com:/7cfedfb0-8ff0-4a8a-a337-c316b2f9d8d8/  1.0P   49T  976T    5% /mnt/workspace",
+  "cpu_mem": [
+   "8",
+   "31569 1587 29656"
+  ],
+  "python": "torch 2.3.1+cpu tf 4.55.4"
+ },
+ "repo": {
+  "url": "git@github.com:ghshhf/smollm2-local-cpt.git",
+  "branch": "main",
+  "head": "f465dfb 2026-10-11 情感路线: 需求即函数schema + 双版本行为档(主人分数开关/增长飞轮)"
+ },
+ "du": [
+  [
+   "20K",
+   "refine_reserve.py"
+  ],
+  [
+   "21K",
+   "mdl"
+  ],
+  [
+   "33K",
+   "__pycache__"
+  ],
+  [
+   "549K",
+   "logs"
+  ],
+  [
+   "604K",
+   "cloudflared"
+  ],
+  [
+   "2.0M",
+   "corpus_shard_01.txt"
+  ],
+  [
+   "4.7M",
+   "sftrun"
+  ],
+  [
+   "5.0M",
+   "t8.bin"
+  ],
+  [
+   "6.0M",
+   "sftboot"
+  ],
+  [
+   "7.7M",
+   "relay_dl"
+  ],
+  [
+   "13M",
+   "fl.tar.gz"
+  ],
+  [
+   "15M",
+   "frpc"
+  ],
+  [
+   "34M",
+   "frp_0.61.1_linux_amd64"
+  ],
+  [
+   "127M",
+   "dream"
+  ],
+  [
+   "201M",
+   "bench_dl"
+  ],
+  [
+   "201M",
+   "cli_dl"
+  ],
+  [
+   "883M",
+   "audio_parts"
+  ],
+  [
+   "911M",
+   "data"
+  ],
+  [
+   "933M",
+   "corpus_wiki"
+  ],
+  [
+   "1.1G",
+   "smoke_ckpt"
+  ],
+  [
+   "3.0G",
+   "gh_repo"
+  ],
+  [
+   "5.0G",
+   "models"
+  ],
+  [
+   "6.9G",
+   "chain"
+  ],
+  [
+   "14G",
+   "corpus_04b"
+  ],
+  [
+   "15G",
+   "archive"
+  ]
+ ],
+ "entries": [
+  {
+   "path": ".cmd_seq",
+   "type": "f",
+   "size": 3,
+   "mtime": "2026-10-15 18:47",
+   "kind": "other"
+  },
+  {
+   "path": ".ipynb_checkpoints",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 14:01",
+   "kind": ".ipynb_checkpoints"
+  },
+  {
+   "path": ".ipynb_checkpoints/node-checkpoint.log",
+   "type": "f",
+   "size": 92,
+   "mtime": "2026-10-11 14:00",
+   "kind": ".ipynb_checkpoints"
+  },
+  {
+   "path": ".ipynb_checkpoints/node2-checkpoint.log",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-11 14:00",
+   "kind": ".ipynb_checkpoints"
+  },
+  {
+   "path": ".ipynb_checkpoints/train-checkpoint.log",
+   "type": "f",
+   "size": 8698,
+   "mtime": "2026-10-11 13:48",
+   "kind": ".ipynb_checkpoints"
+  },
+  {
+   "path": ".mail_seq",
+   "type": "f",
+   "size": 5,
+   "mtime": "2026-10-18 21:10",
+   "kind": "other"
+  },
+  {
+   "path": "__pycache__",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 06:00",
+   "kind": "__pycache__"
+  },
+  {
+   "path": "__pycache__/refine_reserve.cpython-311.pyc",
+   "type": "f",
+   "size": 28876,
+   "mtime": "2026-10-15 06:00",
+   "kind": "__pycache__"
+  },
+  {
+   "path": "adaptive_coarse2.log",
+   "type": "f",
+   "size": 382,
+   "mtime": "2026-10-15 04:40",
+   "kind": "other"
+  },
+  {
+   "path": "adaptive_cpu.log",
+   "type": "f",
+   "size": 992,
+   "mtime": "2026-10-15 04:49",
+   "kind": "other"
+  },
+  {
+   "path": "adaptive_fine.log",
+   "type": "f",
+   "size": 799,
+   "mtime": "2026-10-15 04:40",
+   "kind": "other"
+  },
+  {
+   "path": "adaptive_pool.sh",
+   "type": "f",
+   "size": 2067,
+   "mtime": "2026-10-15 04:45",
+   "kind": "other"
+  },
+  {
+   "path": "archive",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "archive/2026-10-19",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "archive/2026-10-19/README.md",
+   "type": "f",
+   "size": 2366,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "archive/2026-10-19/legacy_base",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "archive/2026-10-19/legacy_cache",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "archive/2026-10-19/legacy_chain",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "archive/2026-10-19/legacy_qwen",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "archive/2026-10-19/legacy_smollm135",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "archive"
+  },
+  {
+   "path": "audio_parts",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 11:54",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_aa",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:41",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ab",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:42",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ac",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:42",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ad",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:42",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ae",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:42",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_af",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:43",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ag",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:43",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ah",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:43",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ai",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:44",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_aj",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:44",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ak",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:44",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_al",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:44",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_am",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:45",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_an",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:45",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ao",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:45",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ap",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:46",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_aq",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:46",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ar",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:46",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_as",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:46",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_at",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:47",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_au",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:47",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_av",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:47",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_aw",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:48",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ax",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:48",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ay",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:48",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_az",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:48",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_ba",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:49",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bb",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:49",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bc",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:49",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bd",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:50",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_be",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:50",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bf",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:50",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bg",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:50",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bh",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:51",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bi",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:51",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bj",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:51",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bk",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:52",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bl",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:52",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bm",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:52",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bn",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:52",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bo",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:53",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bp",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:53",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bq",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:53",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_br",
+   "type": "f",
+   "size": 20971520,
+   "mtime": "2026-10-18 11:54",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "audio_parts/ap_bs",
+   "type": "f",
+   "size": 2740932,
+   "mtime": "2026-10-18 11:54",
+   "kind": "audio_parts"
+  },
+  {
+   "path": "bench_dl",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:12",
+   "kind": "bench_dl"
+  },
+  {
+   "path": "bench_dl/bench",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:13",
+   "kind": "bench_dl"
+  },
+  {
+   "path": "bench_dl/bench/t200.bin",
+   "type": "f",
+   "size": 209715200,
+   "mtime": "2026-10-18 14:13",
+   "kind": "bench_dl"
+  },
+  {
+   "path": "boot_resume.py",
+   "type": "f",
+   "size": 15228,
+   "mtime": "2026-10-19 12:36",
+   "kind": "other"
+  },
+  {
+   "path": "bootstrap_all.py",
+   "type": "f",
+   "size": 5820,
+   "mtime": "2026-10-19 05:33",
+   "kind": "other"
+  },
+  {
+   "path": "bootstrap_all.py.bak_20261019",
+   "type": "f",
+   "size": 5330,
+   "mtime": "2026-10-19 03:17",
+   "kind": "other"
+  },
+  {
+   "path": "build_wiki_knowledge.py",
+   "type": "f",
+   "size": 5035,
+   "mtime": "2026-10-15 06:26",
+   "kind": "other"
+  },
+  {
+   "path": "chain",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/__pycache__",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-14 07:35",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/__pycache__/tr.cpython-311.pyc",
+   "type": "f",
+   "size": 20218,
+   "mtime": "2026-10-14 07:35",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/__pycache__/train_remote_v4.cpython-311.pyc",
+   "type": "f",
+   "size": 19157,
+   "mtime": "2026-10-13 01:13",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/__pycache__/train_remote_v4.py.cpython-311.pyc",
+   "type": "f",
+   "size": 20203,
+   "mtime": "2026-10-14 06:14",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 03:17",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/chain.log",
+   "type": "f",
+   "size": 3850965,
+   "mtime": "2026-10-19 03:06",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/chain.pid",
+   "type": "f",
+   "size": 7,
+   "mtime": "2026-10-19 03:06",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/chain_v1.sh",
+   "type": "f",
+   "size": 11990,
+   "mtime": "2026-10-14 11:23",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/chain_v2.log",
+   "type": "f",
+   "size": 20041,
+   "mtime": "2026-10-19 03:11",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/chain_v2.sh",
+   "type": "f",
+   "size": 7503,
+   "mtime": "2026-10-19 03:06",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/chain_watch.sh",
+   "type": "f",
+   "size": 1820,
+   "mtime": "2026-10-14 03:38",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/train_remote_v2.py",
+   "type": "f",
+   "size": 7394,
+   "mtime": "2026-10-12 04:38",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/_legacy_R7/train_remote_v4.py",
+   "type": "f",
+   "size": 12509,
+   "mtime": "2026-10-14 07:35",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/backup_corpus",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-14 02:25",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/backup_corpus/corpus_r5__zh_text_r5.jsonl",
+   "type": "f",
+   "size": 230917741,
+   "mtime": "2026-10-13 21:45",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/backup_corpus/corpus_r6__zh_text_r6.jsonl",
+   "type": "f",
+   "size": 272827077,
+   "mtime": "2026-10-13 22:55",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/backup_corpus/corpus_reserve__zh_r_ancient.jsonl",
+   "type": "f",
+   "size": 262108832,
+   "mtime": "2026-10-13 23:18",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/backup_corpus/corpus_reserve__zh_r_knowledge.jsonl",
+   "type": "f",
+   "size": 272827077,
+   "mtime": "2026-10-13 23:12",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/backup_corpus/corpus_reserve__zh_r_novels.jsonl",
+   "type": "f",
+   "size": 320033658,
+   "mtime": "2026-10-14 00:22",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/backup_corpus/corpus_reserve__zh_r_weixin.jsonl",
+   "type": "f",
+   "size": 320089796,
+   "mtime": "2026-10-14 00:33",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/base_check.py",
+   "type": "f",
+   "size": 3161,
+   "mtime": "2026-10-13 04:16",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/base_tok",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 11:21",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/base_tok/special_tokens_map.json",
+   "type": "f",
+   "size": 86,
+   "mtime": "2026-10-18 11:21",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/base_tok/tokenizer.json",
+   "type": "f",
+   "size": 3522871,
+   "mtime": "2026-10-12 04:38",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/base_tok/tokenizer_config.json",
+   "type": "f",
+   "size": 407,
+   "mtime": "2026-10-14 02:04",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/bootstrap.log",
+   "type": "f",
+   "size": 550,
+   "mtime": "2026-10-12 23:31",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/cache_R4.npy",
+   "type": "f",
+   "size": 375627552,
+   "mtime": "2026-10-13 03:01",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/chain_fixrun.log",
+   "type": "f",
+   "size": 16166,
+   "mtime": "2026-10-13 00:17",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/chain_fixrun2.log",
+   "type": "f",
+   "size": 236,
+   "mtime": "2026-10-13 03:01",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/chain_reset.log",
+   "type": "f",
+   "size": 11564,
+   "mtime": "2026-10-13 00:05",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/chain_resume_025419.log",
+   "type": "f",
+   "size": 84,
+   "mtime": "2026-10-17 02:54",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/chain_resume_105335.log",
+   "type": "f",
+   "size": 84,
+   "mtime": "2026-10-18 10:53",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/chain_resume_131322.log",
+   "type": "f",
+   "size": 84,
+   "mtime": "2026-10-18 13:13",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/chain_resume_192322.log",
+   "type": "f",
+   "size": 84,
+   "mtime": "2026-10-16 19:23",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/clean_corpus.py",
+   "type": "f",
+   "size": 4449,
+   "mtime": "2026-10-14 02:21",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/convert_st.py",
+   "type": "f",
+   "size": 2376,
+   "mtime": "2026-10-13 00:49",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_R4",
+   "type": "f",
+   "size": 36,
+   "mtime": "2026-10-12 23:52",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_R5",
+   "type": "f",
+   "size": 36,
+   "mtime": "2026-10-14 04:51",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_R6",
+   "type": "f",
+   "size": 36,
+   "mtime": "2026-10-15 00:57",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r4",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-12 23:52",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r4/zh_text_R4.jsonl",
+   "type": "f",
+   "size": 53,
+   "mtime": "2026-10-12 23:52",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r4/zh_text_r4.jsonl",
+   "type": "f",
+   "size": 77329784,
+   "mtime": "2026-10-12 04:38",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r5",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-14 04:51",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r5/zh_text_R5.jsonl",
+   "type": "f",
+   "size": 53,
+   "mtime": "2026-10-14 04:51",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r5/zh_text_r5.jsonl",
+   "type": "f",
+   "size": 230770132,
+   "mtime": "2026-10-14 02:24",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r6",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 00:57",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r6/zh_text_R6.jsonl",
+   "type": "f",
+   "size": 53,
+   "mtime": "2026-10-15 00:57",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_r6/zh_text_r6.jsonl",
+   "type": "f",
+   "size": 272645628,
+   "mtime": "2026-10-14 02:24",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 06:43",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_ancient.jsonl",
+   "type": "f",
+   "size": 19335368,
+   "mtime": "2026-10-15 06:09",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_ancient.jsonl.raw",
+   "type": "f",
+   "size": 262104819,
+   "mtime": "2026-10-14 02:25",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_knowledge.jsonl",
+   "type": "f",
+   "size": 41603805,
+   "mtime": "2026-10-15 06:48",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_knowledge.jsonl.pre_wiki",
+   "type": "f",
+   "size": 18615082,
+   "mtime": "2026-10-15 06:09",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_knowledge.jsonl.raw",
+   "type": "f",
+   "size": 272645628,
+   "mtime": "2026-10-14 02:25",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_novels.jsonl",
+   "type": "f",
+   "size": 18565922,
+   "mtime": "2026-10-15 06:09",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_novels.jsonl.raw",
+   "type": "f",
+   "size": 319441691,
+   "mtime": "2026-10-14 02:25",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_weixin.jsonl",
+   "type": "f",
+   "size": 18633059,
+   "mtime": "2026-10-15 06:09",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_r_weixin.jsonl.raw",
+   "type": "f",
+   "size": 314053430,
+   "mtime": "2026-10-14 02:25",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve/zh_wiki_all.jsonl",
+   "type": "f",
+   "size": 1511935459,
+   "mtime": "2026-10-15 06:27",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve_refined",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 06:40",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve_refined/refine_report.txt",
+   "type": "f",
+   "size": 233,
+   "mtime": "2026-10-15 06:40",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve_refined/zh_r_ancient.jsonl",
+   "type": "f",
+   "size": 19335368,
+   "mtime": "2026-10-15 06:02",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve_refined/zh_r_knowledge.jsonl",
+   "type": "f",
+   "size": 41603805,
+   "mtime": "2026-10-15 06:40",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve_refined/zh_r_novels.jsonl",
+   "type": "f",
+   "size": 18565922,
+   "mtime": "2026-10-15 06:04",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/corpus_reserve_refined/zh_r_weixin.jsonl",
+   "type": "f",
+   "size": 18633059,
+   "mtime": "2026-10-15 06:05",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/done_steps.txt",
+   "type": "f",
+   "size": 5,
+   "mtime": "2026-10-16 19:23",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/expand_300m_node1.py",
+   "type": "f",
+   "size": 6263,
+   "mtime": "2026-10-16 01:59",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/expand_run.log",
+   "type": "f",
+   "size": 386,
+   "mtime": "2026-10-16 01:59",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/heartbeat",
+   "type": "f",
+   "size": 45,
+   "mtime": "2026-10-19 03:06",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/ladder_budget.txt",
+   "type": "f",
+   "size": 7,
+   "mtime": "2026-10-18 02:33",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/node1_boot.sh",
+   "type": "f",
+   "size": 2422,
+   "mtime": "2026-10-12 23:06",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/node1_gen.py",
+   "type": "f",
+   "size": 2811,
+   "mtime": "2026-10-14 02:03",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/r4base_std",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-13 00:24",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/r4base_std/config.json",
+   "type": "f",
+   "size": 835,
+   "mtime": "2026-10-12 23:31",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/r4base_std/generation_config.json",
+   "type": "f",
+   "size": 111,
+   "mtime": "2026-10-12 23:31",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/r4base_std/model.safetensors",
+   "type": "f",
+   "size": 969841664,
+   "mtime": "2026-10-13 00:24",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/r4base_std/pytorch_model.bin",
+   "type": "f",
+   "size": 856674211,
+   "mtime": "2026-10-12 23:31",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/r4base_std/tokenizer.json",
+   "type": "f",
+   "size": 3522871,
+   "mtime": "2026-10-12 23:31",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/r4base_std/tokenizer_config.json",
+   "type": "f",
+   "size": 377,
+   "mtime": "2026-10-13 00:37",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/repair.log",
+   "type": "f",
+   "size": 2955,
+   "mtime": "2026-10-13 00:00",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/repair_chain.sh",
+   "type": "f",
+   "size": 2118,
+   "mtime": "2026-10-12 23:59",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/train_remote_v4.py.bak.1791929699",
+   "type": "f",
+   "size": 10663,
+   "mtime": "2026-10-14 06:14",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/train_remote_v4.py.v3bak",
+   "type": "f",
+   "size": 11456,
+   "mtime": "2026-10-14 06:28",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/watchdog.log",
+   "type": "f",
+   "size": 146,
+   "mtime": "2026-10-19 03:06",
+   "kind": "chain"
+  },
+  {
+   "path": "chain/watchdog_boot.log",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-19 03:06",
+   "kind": "chain"
+  },
+  {
+   "path": "chain_resume.txt",
+   "type": "f",
+   "size": 205,
+   "mtime": "2026-10-15 04:04",
+   "kind": "chain"
+  },
+  {
+   "path": "chain_v1.sh",
+   "type": "f",
+   "size": 11684,
+   "mtime": "2026-10-18 22:28",
+   "kind": "chain"
+  },
+  {
+   "path": "chain_v2.sh",
+   "type": "f",
+   "size": 7503,
+   "mtime": "2026-10-18 22:28",
+   "kind": "chain"
+  },
+  {
+   "path": "chain_watch.sh",
+   "type": "f",
+   "size": 1820,
+   "mtime": "2026-10-18 22:28",
+   "kind": "chain"
+  },
+  {
+   "path": "clean_report.txt",
+   "type": "f",
+   "size": 2938,
+   "mtime": "2026-10-15 05:15",
+   "kind": "other"
+  },
+  {
+   "path": "cli_dl",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:14",
+   "kind": "cli_dl"
+  },
+  {
+   "path": "cli_dl/bench",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:15",
+   "kind": "cli_dl"
+  },
+  {
+   "path": "cli_dl/bench/t200.bin",
+   "type": "f",
+   "size": 209715200,
+   "mtime": "2026-10-18 14:15",
+   "kind": "cli_dl"
+  },
+  {
+   "path": "cloudflared",
+   "type": "f",
+   "size": 615371,
+   "mtime": "2026-10-18 13:31",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000001.out",
+   "type": "f",
+   "size": 22,
+   "mtime": "2026-10-15 03:47",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000002.out",
+   "type": "f",
+   "size": 39,
+   "mtime": "2026-10-15 03:53",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000003.out",
+   "type": "f",
+   "size": 33,
+   "mtime": "2026-10-15 03:54",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000004.out",
+   "type": "f",
+   "size": 33,
+   "mtime": "2026-10-15 03:56",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000005.out",
+   "type": "f",
+   "size": 33,
+   "mtime": "2026-10-15 03:58",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000006.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:03",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000007.out",
+   "type": "f",
+   "size": 14,
+   "mtime": "2026-10-15 04:03",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000008.out",
+   "type": "f",
+   "size": 15,
+   "mtime": "2026-10-15 04:03",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000009.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:06",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000010.out",
+   "type": "f",
+   "size": 48,
+   "mtime": "2026-10-15 04:08",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000011.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:10",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000012.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:14",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000013.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:20",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000014.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:20",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000015.out",
+   "type": "f",
+   "size": 9,
+   "mtime": "2026-10-15 04:24",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000016.out",
+   "type": "f",
+   "size": 2,
+   "mtime": "2026-10-15 04:25",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000017.out",
+   "type": "f",
+   "size": 26,
+   "mtime": "2026-10-15 04:29",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000018.out",
+   "type": "f",
+   "size": 23,
+   "mtime": "2026-10-15 04:28",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000019.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:28",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000020.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:29",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000021.out",
+   "type": "f",
+   "size": 243,
+   "mtime": "2026-10-15 04:32",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000022.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:34",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000023.out",
+   "type": "f",
+   "size": 27,
+   "mtime": "2026-10-15 04:38",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000024.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:36",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000025.out",
+   "type": "f",
+   "size": 179,
+   "mtime": "2026-10-15 04:37",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000026.out",
+   "type": "f",
+   "size": 13,
+   "mtime": "2026-10-15 04:43",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000027.out",
+   "type": "f",
+   "size": 96,
+   "mtime": "2026-10-15 04:43",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000028.out",
+   "type": "f",
+   "size": 702,
+   "mtime": "2026-10-15 04:44",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000029.out",
+   "type": "f",
+   "size": 8,
+   "mtime": "2026-10-15 04:45",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000030.out",
+   "type": "f",
+   "size": 260,
+   "mtime": "2026-10-15 04:45",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000031.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:46",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000032.out",
+   "type": "f",
+   "size": 16,
+   "mtime": "2026-10-15 04:52",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000033.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:52",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000034.out",
+   "type": "f",
+   "size": 13,
+   "mtime": "2026-10-15 04:54",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000035.out",
+   "type": "f",
+   "size": 21,
+   "mtime": "2026-10-15 04:54",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000036.out",
+   "type": "f",
+   "size": 11,
+   "mtime": "2026-10-15 04:54",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000037.out",
+   "type": "f",
+   "size": 400,
+   "mtime": "2026-10-15 05:01",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000038.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:58",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000039.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:59",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000040.out",
+   "type": "f",
+   "size": 117,
+   "mtime": "2026-10-15 05:01",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000041.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 05:05",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000042.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 05:07",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000043.out",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 05:15",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000044.out",
+   "type": "f",
+   "size": 5,
+   "mtime": "2026-10-15 05:25",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000045.out",
+   "type": "f",
+   "size": 1033,
+   "mtime": "2026-10-15 05:32",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000046.out",
+   "type": "f",
+   "size": 3,
+   "mtime": "2026-10-15 05:49",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000047.out",
+   "type": "f",
+   "size": 3,
+   "mtime": "2026-10-15 06:38",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000048.out",
+   "type": "f",
+   "size": 3,
+   "mtime": "2026-10-15 06:41",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000049.out",
+   "type": "f",
+   "size": 3,
+   "mtime": "2026-10-15 06:42",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000050.out",
+   "type": "f",
+   "size": 921,
+   "mtime": "2026-10-15 06:43",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000051.out",
+   "type": "f",
+   "size": 921,
+   "mtime": "2026-10-15 06:45",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000052.out",
+   "type": "f",
+   "size": 3,
+   "mtime": "2026-10-15 18:45",
+   "kind": "other"
+  },
+  {
+   "path": "cmd_000053.out",
+   "type": "f",
+   "size": 1806,
+   "mtime": "2026-10-15 18:47",
+   "kind": "other"
+  },
+  {
+   "path": "coarse_check.txt",
+   "type": "f",
+   "size": 230,
+   "mtime": "2026-10-15 04:36",
+   "kind": "other"
+  },
+  {
+   "path": "conv_poetry.py",
+   "type": "f",
+   "size": 1085,
+   "mtime": "2026-10-16 01:06",
+   "kind": "other"
+  },
+  {
+   "path": "conv_poetry_csv.py",
+   "type": "f",
+   "size": 838,
+   "mtime": "2026-10-16 01:09",
+   "kind": "other"
+  },
+  {
+   "path": "corpus_04b",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 03:34",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/creative_articles_novel.jsonl",
+   "type": "f",
+   "size": 338945855,
+   "mtime": "2026-10-18 02:32",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/creative_refined",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-17 00:50",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/l3_ms",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-17 00:11",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/l3_ms/l3_multistyle.jsonl",
+   "type": "f",
+   "size": 4641251864,
+   "mtime": "2026-10-17 00:22",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/l3_ms/ms000.parquet",
+   "type": "f",
+   "size": 1076052735,
+   "mtime": "2026-10-17 00:09",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/l3_ms/ms001.parquet",
+   "type": "f",
+   "size": 1077326495,
+   "mtime": "2026-10-17 00:10",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/l3_ms/ms002.parquet",
+   "type": "f",
+   "size": 1077164045,
+   "mtime": "2026-10-17 00:11",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/l3_qa",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-16 00:44",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/local_sft_20261019",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 03:34",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/local_sft_20261019/data",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 03:34",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-16 00:54",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry/.git",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-16 00:54",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry/README.md",
+   "type": "f",
+   "size": 628,
+   "mtime": "2026-10-16 00:54",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry/chinese-poetry-collection.json",
+   "type": "f",
+   "size": 124,
+   "mtime": "2026-10-16 00:54",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry/dataset_infos.json",
+   "type": "f",
+   "size": 197,
+   "mtime": "2026-10-16 00:54",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry/test.csv",
+   "type": "f",
+   "size": 208172,
+   "mtime": "2026-10-16 00:54",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry/train.csv",
+   "type": "f",
+   "size": 43411829,
+   "mtime": "2026-10-16 00:54",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/poetry_zh.jsonl",
+   "type": "f",
+   "size": 55773587,
+   "mtime": "2026-10-16 01:09",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/ufw",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-16 00:49",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/ufw/ultrafineweb-zh-part-001-of-256.parquet",
+   "type": "f",
+   "size": 1269012674,
+   "mtime": "2026-10-16 00:49",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/ufw/ultrafineweb-zh-part-002-of-256.parquet",
+   "type": "f",
+   "size": 1268857869,
+   "mtime": "2026-10-16 00:50",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b/ufw_zh.jsonl",
+   "type": "f",
+   "size": 3923725685,
+   "mtime": "2026-10-16 00:51",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b_dl.log",
+   "type": "f",
+   "size": 74,
+   "mtime": "2026-10-16 00:44",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b_l3.log",
+   "type": "f",
+   "size": 74,
+   "mtime": "2026-10-16 00:44",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_04b_ms.log",
+   "type": "f",
+   "size": 597,
+   "mtime": "2026-10-16 00:51",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_report.txt",
+   "type": "f",
+   "size": 824,
+   "mtime": "2026-10-15 05:07",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_shard_01.txt",
+   "type": "f",
+   "size": 2012797,
+   "mtime": "2026-10-11 14:19",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_wiki",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 06:26",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_wiki/train-00000-of-00006.parquet",
+   "type": "f",
+   "size": 587109027,
+   "mtime": "2026-10-15 06:26",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_wiki/train-00001-of-00006.parquet",
+   "type": "f",
+   "size": 263629009,
+   "mtime": "2026-10-15 06:26",
+   "kind": "corpus"
+  },
+  {
+   "path": "corpus_wiki/train-00002-of-00006.parquet",
+   "type": "f",
+   "size": 126796358,
+   "mtime": "2026-10-15 06:26",
+   "kind": "corpus"
+  },
+  {
+   "path": "cpu_diag.txt",
+   "type": "f",
+   "size": 3240,
+   "mtime": "2026-10-15 04:14",
+   "kind": "other"
+  },
+  {
+   "path": "cpu_now.txt",
+   "type": "f",
+   "size": 1958,
+   "mtime": "2026-10-15 04:28",
+   "kind": "other"
+  },
+  {
+   "path": "cpu_v2.txt",
+   "type": "f",
+   "size": 1502,
+   "mtime": "2026-10-15 04:46",
+   "kind": "other"
+  },
+  {
+   "path": "creative_fill.log",
+   "type": "f",
+   "size": 843,
+   "mtime": "2026-10-17 02:28",
+   "kind": "other"
+  },
+  {
+   "path": "data",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:36",
+   "kind": "data"
+  },
+  {
+   "path": "data/audio",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 11:54",
+   "kind": "data"
+  },
+  {
+   "path": "data/audio/wav",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 11:56",
+   "kind": "data"
+  },
+  {
+   "path": "data/seed_code_200.jsonl",
+   "type": "f",
+   "size": 92713,
+   "mtime": "2026-10-19 12:40",
+   "kind": "data"
+  },
+  {
+   "path": "data/triple_bank.db",
+   "type": "f",
+   "size": 356352,
+   "mtime": "2026-10-19 12:36",
+   "kind": "data"
+  },
+  {
+   "path": "diag2.txt",
+   "type": "f",
+   "size": 5643,
+   "mtime": "2026-10-15 03:54",
+   "kind": "other"
+  },
+  {
+   "path": "diag3.txt",
+   "type": "f",
+   "size": 4459,
+   "mtime": "2026-10-15 03:56",
+   "kind": "other"
+  },
+  {
+   "path": "diag4.txt",
+   "type": "f",
+   "size": 9510,
+   "mtime": "2026-10-15 03:58",
+   "kind": "other"
+  },
+  {
+   "path": "diag_cp.py",
+   "type": "f",
+   "size": 977,
+   "mtime": "2026-10-17 02:27",
+   "kind": "other"
+  },
+  {
+   "path": "diag_cpu.py",
+   "type": "f",
+   "size": 1088,
+   "mtime": "2026-10-17 02:44",
+   "kind": "other"
+  },
+  {
+   "path": "diag_creative.log",
+   "type": "f",
+   "size": 999,
+   "mtime": "2026-10-17 00:27",
+   "kind": "other"
+  },
+  {
+   "path": "diag_creative.py",
+   "type": "f",
+   "size": 1805,
+   "mtime": "2026-10-17 00:27",
+   "kind": "other"
+  },
+  {
+   "path": "diag_creative_002.log",
+   "type": "f",
+   "size": 1845,
+   "mtime": "2026-10-17 00:23",
+   "kind": "other"
+  },
+  {
+   "path": "diag_creative_now.py",
+   "type": "f",
+   "size": 2251,
+   "mtime": "2026-10-17 00:37",
+   "kind": "other"
+  },
+  {
+   "path": "diag_div.py",
+   "type": "f",
+   "size": 1639,
+   "mtime": "2026-10-15 05:56",
+   "kind": "other"
+  },
+  {
+   "path": "diag_prog.py",
+   "type": "f",
+   "size": 795,
+   "mtime": "2026-10-17 00:57",
+   "kind": "other"
+  },
+  {
+   "path": "diag_prog3.py",
+   "type": "f",
+   "size": 916,
+   "mtime": "2026-10-17 02:38",
+   "kind": "other"
+  },
+  {
+   "path": "diag_timeout.py",
+   "type": "f",
+   "size": 1895,
+   "mtime": "2026-10-17 02:21",
+   "kind": "other"
+  },
+  {
+   "path": "diag_v4.py",
+   "type": "f",
+   "size": 1517,
+   "mtime": "2026-10-17 00:46",
+   "kind": "other"
+  },
+  {
+   "path": "diag_verify.py",
+   "type": "f",
+   "size": 902,
+   "mtime": "2026-10-17 00:50",
+   "kind": "other"
+  },
+  {
+   "path": "dl.log",
+   "type": "f",
+   "size": 6287,
+   "mtime": "2026-10-11 15:19",
+   "kind": "other"
+  },
+  {
+   "path": "dl_frp.log",
+   "type": "f",
+   "size": 24,
+   "mtime": "2026-10-18 13:50",
+   "kind": "other"
+  },
+  {
+   "path": "dl_l3.sh",
+   "type": "f",
+   "size": 2855,
+   "mtime": "2026-10-16 00:44",
+   "kind": "other"
+  },
+  {
+   "path": "dl_qwen05b.log",
+   "type": "f",
+   "size": 9160,
+   "mtime": "2026-10-18 13:19",
+   "kind": "other"
+  },
+  {
+   "path": "dl_ufw.sh",
+   "type": "f",
+   "size": 2180,
+   "mtime": "2026-10-16 00:44",
+   "kind": "other"
+  },
+  {
+   "path": "dl_ufw_ms.sh",
+   "type": "f",
+   "size": 2200,
+   "mtime": "2026-10-16 00:48",
+   "kind": "other"
+  },
+  {
+   "path": "dream",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 03:06",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/.evolve_state.json",
+   "type": "f",
+   "size": 583,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:36",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/dream_code_sft.jsonl",
+   "type": "f",
+   "size": 187190,
+   "mtime": "2026-10-19 01:57",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/dream_elite.db",
+   "type": "f",
+   "size": 73728,
+   "mtime": "2026-10-19 02:43",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/dream_pool.json",
+   "type": "f",
+   "size": 32833,
+   "mtime": "2026-10-18 20:33",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/dream_pool.json.bak",
+   "type": "f",
+   "size": 32488,
+   "mtime": "2026-10-18 20:33",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/dream_temp.txt",
+   "type": "f",
+   "size": 4,
+   "mtime": "2026-10-18 20:28",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/dreams",
+   "type": "d",
+   "size": 28672,
+   "mtime": "2026-10-19 03:06",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/evolve_dataset_last.jsonl",
+   "type": "f",
+   "size": 31401,
+   "mtime": "2026-10-19 02:17",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/seeds",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 13:24",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/data/triple_bank.db",
+   "type": "f",
+   "size": 3788800,
+   "mtime": "2026-10-19 03:06",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/dream_daemon.sh",
+   "type": "f",
+   "size": 5554,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/dream_daemon.sh.bak_20261019",
+   "type": "f",
+   "size": 5548,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/dreampkg.tar.gz",
+   "type": "f",
+   "size": 42780,
+   "mtime": "2026-10-18 13:22",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/evolve_cycle.sh",
+   "type": "f",
+   "size": 8091,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/evolve_cycle.sh.bak_20261019",
+   "type": "f",
+   "size": 8085,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/evolve_loop.sh",
+   "type": "f",
+   "size": 587,
+   "mtime": "2026-10-18 17:54",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/evolve_train.py",
+   "type": "f",
+   "size": 7027,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/evolve_train.py.bak_20261019",
+   "type": "f",
+   "size": 7021,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 02:21",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/ab_bare.log",
+   "type": "f",
+   "size": 5016,
+   "mtime": "2026-10-18 17:24",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/ab_lora.log",
+   "type": "f",
+   "size": 5043,
+   "mtime": "2026-10-18 17:26",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/bank_growth.log",
+   "type": "f",
+   "size": 9082,
+   "mtime": "2026-10-19 03:05",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/daemon.log",
+   "type": "f",
+   "size": 785,
+   "mtime": "2026-10-19 03:26",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/dl_coder15b.log",
+   "type": "f",
+   "size": 49118,
+   "mtime": "2026-10-19 02:23",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/dream_loop_run.log",
+   "type": "f",
+   "size": 129456,
+   "mtime": "2026-10-18 16:31",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/ev_ab_bare.log",
+   "type": "f",
+   "size": 4517,
+   "mtime": "2026-10-19 01:52",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/ev_ab_lora.log",
+   "type": "f",
+   "size": 4484,
+   "mtime": "2026-10-19 01:57",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/evolve_boot.log",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-18 17:54",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/evolve_history.log",
+   "type": "f",
+   "size": 484,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/evolve_loop.log",
+   "type": "f",
+   "size": 11120,
+   "mtime": "2026-10-19 03:26",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/evolve_manual.log",
+   "type": "f",
+   "size": 228,
+   "mtime": "2026-10-18 23:43",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/evolve_train.log",
+   "type": "f",
+   "size": 334,
+   "mtime": "2026-10-19 02:23",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/exec.log",
+   "type": "f",
+   "size": 47,
+   "mtime": "2026-10-18 13:52",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/qwen_probe.log",
+   "type": "f",
+   "size": 971,
+   "mtime": "2026-10-18 14:20",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/seeds_run.log",
+   "type": "f",
+   "size": 4728,
+   "mtime": "2026-10-18 13:24",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/semantic_probe.json",
+   "type": "f",
+   "size": 3685,
+   "mtime": "2026-10-19 01:54",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/semantic_probe.log",
+   "type": "f",
+   "size": 10088,
+   "mtime": "2026-10-19 00:19",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/semantic_probe_full.log",
+   "type": "f",
+   "size": 903,
+   "mtime": "2026-10-19 01:32",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/semantic_probe_r1.log",
+   "type": "f",
+   "size": 960,
+   "mtime": "2026-10-19 01:54",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/verify_n8_run.log",
+   "type": "f",
+   "size": 5014,
+   "mtime": "2026-10-18 16:18",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_1.log",
+   "type": "f",
+   "size": 218949,
+   "mtime": "2026-10-19 03:06",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_2.log",
+   "type": "f",
+   "size": 217357,
+   "mtime": "2026-10-19 03:04",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_3.log",
+   "type": "f",
+   "size": 222582,
+   "mtime": "2026-10-19 03:06",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_4.log",
+   "type": "f",
+   "size": 213557,
+   "mtime": "2026-10-19 03:04",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_5.log",
+   "type": "f",
+   "size": 211398,
+   "mtime": "2026-10-19 03:05",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_6.log",
+   "type": "f",
+   "size": 197017,
+   "mtime": "2026-10-19 03:06",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_7.log",
+   "type": "f",
+   "size": 184371,
+   "mtime": "2026-10-19 03:06",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/logs/worker_8.log",
+   "type": "f",
+   "size": 204428,
+   "mtime": "2026-10-19 03:04",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/models",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 02:25",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/models/evolve_lora_legacy_qwen05b_20261019",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 19:55",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/n1_ab_test.sh",
+   "type": "f",
+   "size": 3977,
+   "mtime": "2026-10-18 17:23",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/n1_daemon_start.sh",
+   "type": "f",
+   "size": 1599,
+   "mtime": "2026-10-18 17:28",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/n1_evolve_cycle.sh",
+   "type": "f",
+   "size": 6990,
+   "mtime": "2026-10-18 17:52",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/n1_evolve_loop.sh",
+   "type": "f",
+   "size": 587,
+   "mtime": "2026-10-18 17:52",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/n1_evolve_train.py",
+   "type": "f",
+   "size": 6952,
+   "mtime": "2026-10-18 17:52",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/n1_swarm_ctl.sh",
+   "type": "f",
+   "size": 2418,
+   "mtime": "2026-10-18 16:38",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/patch_sys.py",
+   "type": "f",
+   "size": 1579,
+   "mtime": "2026-10-18 14:49",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 02:16",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/__pycache__",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 04:59",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/bank_profile.py",
+   "type": "f",
+   "size": 2175,
+   "mtime": "2026-10-19 02:16",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/bank_purge.py",
+   "type": "f",
+   "size": 4727,
+   "mtime": "2026-10-18 13:21",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/bank_purge_stale.py",
+   "type": "f",
+   "size": 2168,
+   "mtime": "2026-10-19 00:37",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/bank_rule_ab.py",
+   "type": "f",
+   "size": 2826,
+   "mtime": "2026-10-19 02:14",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/dream_autorun.py",
+   "type": "f",
+   "size": 15741,
+   "mtime": "2026-10-18 13:21",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/dream_elite.py",
+   "type": "f",
+   "size": 15291,
+   "mtime": "2026-10-18 16:38",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/dream_loop.py",
+   "type": "f",
+   "size": 61058,
+   "mtime": "2026-10-18 20:28",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/dream_seeds.py",
+   "type": "f",
+   "size": 16544,
+   "mtime": "2026-10-18 13:21",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/exec_server.py",
+   "type": "f",
+   "size": 8164,
+   "mtime": "2026-10-18 13:52",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/export_triples_to_sft.py",
+   "type": "f",
+   "size": 3574,
+   "mtime": "2026-10-18 18:17",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/ms_relay.py",
+   "type": "f",
+   "size": 7281,
+   "mtime": "2026-10-18 14:16",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/semantic_probe.py",
+   "type": "f",
+   "size": 7616,
+   "mtime": "2026-10-19 01:53",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/task_verify.py",
+   "type": "f",
+   "size": 53237,
+   "mtime": "2026-10-19 02:15",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/task_verify.py.bak_20261019",
+   "type": "f",
+   "size": 46479,
+   "mtime": "2026-10-19 02:15",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/task_verify_new.py",
+   "type": "f",
+   "size": 53237,
+   "mtime": "2026-10-19 02:15",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/triple_bank.py",
+   "type": "f",
+   "size": 12978,
+   "mtime": "2026-10-19 01:50",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tools/vid_verify.py",
+   "type": "f",
+   "size": 12803,
+   "mtime": "2026-10-19 01:50",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/triple_bank.db",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-18 19:20",
+   "kind": "dream"
+  },
+  {
+   "path": "dream/tunnel_up.sh",
+   "type": "f",
+   "size": 1543,
+   "mtime": "2026-10-18 14:15",
+   "kind": "dream"
+  },
+  {
+   "path": "dream_daemon.sh",
+   "type": "f",
+   "size": 5548,
+   "mtime": "2026-10-18 22:28",
+   "kind": "dream"
+  },
+  {
+   "path": "e1_status.txt",
+   "type": "f",
+   "size": 1798,
+   "mtime": "2026-10-15 04:10",
+   "kind": "other"
+  },
+  {
+   "path": "e1_v1_status.txt",
+   "type": "f",
+   "size": 1245,
+   "mtime": "2026-10-15 04:24",
+   "kind": "other"
+  },
+  {
+   "path": "eval_remote.py",
+   "type": "f",
+   "size": 4857,
+   "mtime": "2026-10-11 18:36",
+   "kind": "other"
+  },
+  {
+   "path": "evolve_cycle.sh",
+   "type": "f",
+   "size": 8085,
+   "mtime": "2026-10-18 22:28",
+   "kind": "other"
+  },
+  {
+   "path": "evolve_loop.sh",
+   "type": "f",
+   "size": 587,
+   "mtime": "2026-10-18 22:28",
+   "kind": "other"
+  },
+  {
+   "path": "exp_logs.txt",
+   "type": "f",
+   "size": 2288,
+   "mtime": "2026-10-15 04:06",
+   "kind": "other"
+  },
+  {
+   "path": "exp_v2.log",
+   "type": "f",
+   "size": 192,
+   "mtime": "2026-10-15 03:47",
+   "kind": "other"
+  },
+  {
+   "path": "exp_v3.log",
+   "type": "f",
+   "size": 502,
+   "mtime": "2026-10-15 04:20",
+   "kind": "other"
+  },
+  {
+   "path": "expand_300m_node1.py",
+   "type": "f",
+   "size": 6263,
+   "mtime": "2026-10-18 22:28",
+   "kind": "other"
+  },
+  {
+   "path": "fine.log",
+   "type": "f",
+   "size": 263,
+   "mtime": "2026-10-15 04:29",
+   "kind": "other"
+  },
+  {
+   "path": "fl.tar.gz",
+   "type": "f",
+   "size": 13040253,
+   "mtime": "2026-10-18 13:50",
+   "kind": "other"
+  },
+  {
+   "path": "frp_0.61.1_linux_amd64",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2024-12-16 19:47",
+   "kind": "frp"
+  },
+  {
+   "path": "frp_0.61.1_linux_amd64/LICENSE",
+   "type": "f",
+   "size": 11358,
+   "mtime": "2024-12-16 19:47",
+   "kind": "frp"
+  },
+  {
+   "path": "frp_0.61.1_linux_amd64/frpc",
+   "type": "f",
+   "size": 15245464,
+   "mtime": "2024-12-16 19:44",
+   "kind": "frp"
+  },
+  {
+   "path": "frp_0.61.1_linux_amd64/frpc.toml",
+   "type": "f",
+   "size": 142,
+   "mtime": "2024-12-16 19:47",
+   "kind": "frp"
+  },
+  {
+   "path": "frp_0.61.1_linux_amd64/frps",
+   "type": "f",
+   "size": 19394712,
+   "mtime": "2024-12-16 19:44",
+   "kind": "frp"
+  },
+  {
+   "path": "frp_0.61.1_linux_amd64/frps.toml",
+   "type": "f",
+   "size": 16,
+   "mtime": "2024-12-16 19:47",
+   "kind": "frp"
+  },
+  {
+   "path": "frpc",
+   "type": "f",
+   "size": 15245464,
+   "mtime": "2026-10-18 13:51",
+   "kind": "frp"
+  },
+  {
+   "path": "frpc.log",
+   "type": "f",
+   "size": 747,
+   "mtime": "2026-10-18 13:53",
+   "kind": "frp"
+  },
+  {
+   "path": "frpc.toml",
+   "type": "f",
+   "size": 401,
+   "mtime": "2026-10-18 13:53",
+   "kind": "frp"
+  },
+  {
+   "path": "full_check.txt",
+   "type": "f",
+   "size": 2306,
+   "mtime": "2026-10-15 04:34",
+   "kind": "other"
+  },
+  {
+   "path": "gh_repo",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.chain_lock",
+   "type": "f",
+   "size": 5,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 04:04",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/HEAD",
+   "type": "f",
+   "size": 21,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/branches",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:44",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/config",
+   "type": "f",
+   "size": 297,
+   "mtime": "2026-10-15 04:04",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/description",
+   "type": "f",
+   "size": 73,
+   "mtime": "2026-10-11 19:44",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/hooks",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:44",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/index",
+   "type": "f",
+   "size": 15088,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/info",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:44",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/logs",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/objects",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:44",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/packed-refs",
+   "type": "f",
+   "size": 112,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.git/refs",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/.gitignore",
+   "type": "f",
+   "size": 409,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/0.2B",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/CONSTITUTION.md",
+   "type": "f",
+   "size": 1813,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/README.md",
+   "type": "f",
+   "size": 3777,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/_train_chain.err",
+   "type": "f",
+   "size": 3350,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/_vec_index_done.flag",
+   "type": "f",
+   "size": 6,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/_wait_and_bench.bat",
+   "type": "f",
+   "size": 1292,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/_wait_and_index.bat",
+   "type": "f",
+   "size": 736,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/article_test_v2_report.html",
+   "type": "f",
+   "size": 9884,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/backups",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:54",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/backups/0.1B",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 04:04",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_book_yingchuan.py",
+   "type": "f",
+   "size": 5221,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_cards_by_domain.py",
+   "type": "f",
+   "size": 4113,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_code_subcards.py",
+   "type": "f",
+   "size": 6111,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_corpus_v2.py",
+   "type": "f",
+   "size": 9355,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_corpus_v3_edu.py",
+   "type": "f",
+   "size": 5183,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_corpus_v3_novel.py",
+   "type": "f",
+   "size": 5224,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_dataset_v2.py",
+   "type": "f",
+   "size": 13397,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_dataset_v3.py",
+   "type": "f",
+   "size": 14939,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_dataset_v4.py",
+   "type": "f",
+   "size": 5626,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_dataset_v5.py",
+   "type": "f",
+   "size": 6266,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_dataset_v6.py",
+   "type": "f",
+   "size": 30629,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_dataset_v7_reason.py",
+   "type": "f",
+   "size": 6296,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_novel_delta.py",
+   "type": "f",
+   "size": 2629,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_prose_subcards.py",
+   "type": "f",
+   "size": 5045,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_r3_corpus.py",
+   "type": "f",
+   "size": 2721,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_r45_corpus.py",
+   "type": "f",
+   "size": 3117,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_r_level_corpora.py",
+   "type": "f",
+   "size": 2880,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_rft_loop.py",
+   "type": "f",
+   "size": 6769,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_role_data.py",
+   "type": "f",
+   "size": 5910,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_v7_extra_cot.py",
+   "type": "f",
+   "size": 17705,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_v7_extra_cot2.py",
+   "type": "f",
+   "size": 54770,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_v7_extra_cot3.py",
+   "type": "f",
+   "size": 20868,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_v7_seed_selfteacher.py",
+   "type": "f",
+   "size": 14590,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_v7_selftaught.py",
+   "type": "f",
+   "size": 6729,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_v8_structured.py",
+   "type": "f",
+   "size": 6131,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/build_vector_index.py",
+   "type": "f",
+   "size": 5312,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/cards",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/cards/README.md",
+   "type": "f",
+   "size": 1907,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/cards/lora_combine.py",
+   "type": "f",
+   "size": 4717,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/cards/merge_card.py",
+   "type": "f",
+   "size": 3313,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/cards/mount.py",
+   "type": "f",
+   "size": 9332,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/check_base_loss.py",
+   "type": "f",
+   "size": 1100,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/classify_r2_novels.py",
+   "type": "f",
+   "size": 3840,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/compare200.py",
+   "type": "f",
+   "size": 1260,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/compare_layers.py",
+   "type": "f",
+   "size": 1420,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/data",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/data/article_test_v2.json",
+   "type": "f",
+   "size": 10907,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/dedup_corpus.py",
+   "type": "f",
+   "size": 1803,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/dedup_paragraphs.py",
+   "type": "f",
+   "size": 1644,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/diag_135m.py",
+   "type": "f",
+   "size": 1151,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/diag_logits.py",
+   "type": "f",
+   "size": 1108,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/diag_logits2.py",
+   "type": "f",
+   "size": 1201,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/diag_r2ckpt.py",
+   "type": "f",
+   "size": 1281,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/dl_4b.sh",
+   "type": "f",
+   "size": 1112,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/docs",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/docs/emotion-roadmap.md",
+   "type": "f",
+   "size": 13930,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/docs/identity-memory-roadmap.md",
+   "type": "f",
+   "size": 6075,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/embedding_model_path.txt",
+   "type": "f",
+   "size": 81,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/epub_probe.py",
+   "type": "f",
+   "size": 1739,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-15 04:49",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/_bak",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/bench_cards_batch.py",
+   "type": "f",
+   "size": 8091,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/bench_dtype.py",
+   "type": "f",
+   "size": 1267,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/bench_hf_card.py",
+   "type": "f",
+   "size": 6479,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/check_token_len.py",
+   "type": "f",
+   "size": 2555,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/e1_run.log",
+   "type": "f",
+   "size": 497,
+   "mtime": "2026-10-15 04:37",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/e1_subliminal_proxy.py",
+   "type": "f",
+   "size": 12038,
+   "mtime": "2026-10-15 04:20",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/eval_v7.py",
+   "type": "f",
+   "size": 6324,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/exp_status_1792005861.txt",
+   "type": "f",
+   "size": 470,
+   "mtime": "2026-10-15 03:39",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/exp_status_1792006761.txt",
+   "type": "f",
+   "size": 113,
+   "mtime": "2026-10-15 03:47",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/hfcard_base.json",
+   "type": "f",
+   "size": 1197,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/hfcard_hf_code_r16.json",
+   "type": "f",
+   "size": 1083,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/result_base_v3.json",
+   "type": "f",
+   "size": 11995,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/run_bench.bat",
+   "type": "f",
+   "size": 934,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_alpha_ladder.py",
+   "type": "f",
+   "size": 12366,
+   "mtime": "2026-10-15 04:44",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_merge.py",
+   "type": "f",
+   "size": 2380,
+   "mtime": "2026-10-15 04:28",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_merge_fine.log",
+   "type": "f",
+   "size": 10,
+   "mtime": "2026-10-15 04:29",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_run.log",
+   "type": "f",
+   "size": 664,
+   "mtime": "2026-10-15 04:19",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_0.0.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:20",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_0.2.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:20",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_0.4.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:20",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_0.7.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:20",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_0.9.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:20",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_1.0.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:20",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_coarse2_0.0.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:41",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_coarse2_0.2.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:40",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_coarse2_0.4.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:39",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_coarse2_0.7.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:38",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_coarse2_0.9.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:38",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.905.log",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-15 04:49",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.91.log",
+   "type": "f",
+   "size": 237,
+   "mtime": "2026-10-15 04:49",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.92.log",
+   "type": "f",
+   "size": 425,
+   "mtime": "2026-10-15 04:49",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.93.log",
+   "type": "f",
+   "size": 425,
+   "mtime": "2026-10-15 04:49",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.94.log",
+   "type": "f",
+   "size": 425,
+   "mtime": "2026-10-15 04:48",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.95.log",
+   "type": "f",
+   "size": 425,
+   "mtime": "2026-10-15 04:48",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.96.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:49",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.97.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:48",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.975.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:48",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.98.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:47",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.985.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:46",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.99.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:46",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_0.995.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:45",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_1.0.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:45",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_cpu_2.log",
+   "type": "f",
+   "size": 267,
+   "mtime": "2026-10-15 04:44",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.91.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:29",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.92.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:29",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.93.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:41",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.94.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:40",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.95.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:39",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.96.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:38",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.97.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:37",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.975.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:36",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.98.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:35",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.985.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:34",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.99.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:33",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_0.995.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:33",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/eval/v1_02_shard_fine_1.0.log",
+   "type": "f",
+   "size": 455,
+   "mtime": "2026-10-15 04:32",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/expand_300m.py",
+   "type": "f",
+   "size": 4391,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/expand_to_200m.py",
+   "type": "f",
+   "size": 4108,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/fetch_embedding_model.py",
+   "type": "f",
+   "size": 2229,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/fetch_hf_cards.py",
+   "type": "f",
+   "size": 3134,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/fetch_wiki.py",
+   "type": "f",
+   "size": 1331,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/filter_len.py",
+   "type": "f",
+   "size": 2311,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/gen_holdout_v3.py",
+   "type": "f",
+   "size": 8473,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/Qwen2.5-1.5B-Instruct-Code-LoRA-r16",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/Qwen2.5-1.5B-Instruct-Code-LoRA-r16v2",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/Qwen2.5-1.5B-Instruct-Code-LoRA-r16v3",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/Qwen2.5-1.5B-Instruct-SFT",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/Qwen2.5-1.5B-Instruct-medmcqa-val",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-1k",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/hf_cards/qwen2.5-1.5b-instruct-orchamat-lora",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/inbox_server.py",
+   "type": "f",
+   "size": 4356,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/infer.py",
+   "type": "f",
+   "size": 1577,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/infer_base.py",
+   "type": "f",
+   "size": 1098,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/infer_fp32.py",
+   "type": "f",
+   "size": 1043,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/infer_now.py",
+   "type": "f",
+   "size": 2124,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/install_train_task.bat",
+   "type": "f",
+   "size": 1189,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/launch_v4.sh",
+   "type": "f",
+   "size": 843,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/model",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/model/Qwen2.5-1.5B-Instruct",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/owner_corpus",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/owner_corpus/build_owner_corpus.py",
+   "type": "f",
+   "size": 2714,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/owner_corpus/diag_first_tags.py",
+   "type": "f",
+   "size": 1739,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/owner_corpus/harvest_workbuddy_chats.py",
+   "type": "f",
+   "size": 10006,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/preprocess_pretrain_corpus.py",
+   "type": "f",
+   "size": 2223,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/resume_and_rechain.bat",
+   "type": "f",
+   "size": 1031,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/round6.done",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/run_smollm2_chunk.sh",
+   "type": "f",
+   "size": 1205,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/run_v2.sh",
+   "type": "f",
+   "size": 828,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/sample_now.py",
+   "type": "f",
+   "size": 1140,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/shennulv_raw.txt",
+   "type": "f",
+   "size": 3005267,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/test_article_v2.py",
+   "type": "f",
+   "size": 4268,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/test_compare.py",
+   "type": "f",
+   "size": 1281,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/train_chain.py",
+   "type": "f",
+   "size": 19820,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/train_chain.sh",
+   "type": "f",
+   "size": 3029,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/train_lora.py",
+   "type": "f",
+   "size": 6815,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/train_smollm2_pt.py",
+   "type": "f",
+   "size": 14522,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/v6_report.html",
+   "type": "f",
+   "size": 34136,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/v6_stats.py",
+   "type": "f",
+   "size": 5122,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/verify_v2.py",
+   "type": "f",
+   "size": 2802,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "gh_repo/watch_smollm2.bat",
+   "type": "f",
+   "size": 6802,
+   "mtime": "2026-10-11 19:55",
+   "kind": "gh_repo"
+  },
+  {
+   "path": "http_8010.log",
+   "type": "f",
+   "size": 60,
+   "mtime": "2026-10-18 13:33",
+   "kind": "other"
+  },
+  {
+   "path": "l3_creative_fill.py",
+   "type": "f",
+   "size": 15642,
+   "mtime": "2026-10-17 02:26",
+   "kind": "other"
+  },
+  {
+   "path": "logs",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:40",
+   "kind": "logs"
+  },
+  {
+   "path": "logs/boot_resume_20261019_123046.log",
+   "type": "f",
+   "size": 1434,
+   "mtime": "2026-10-19 12:31",
+   "kind": "logs"
+  },
+  {
+   "path": "logs/boot_resume_20261019_123625.log",
+   "type": "f",
+   "size": 1434,
+   "mtime": "2026-10-19 12:37",
+   "kind": "logs"
+  },
+  {
+   "path": "logs/frpc.log",
+   "type": "f",
+   "size": 101,
+   "mtime": "2026-10-18 13:53",
+   "kind": "logs"
+  },
+  {
+   "path": "logs/seed200_remote_v1.log",
+   "type": "f",
+   "size": 2092,
+   "mtime": "2026-10-19 12:55",
+   "kind": "logs"
+  },
+  {
+   "path": "logs/sft_oneclick.log",
+   "type": "f",
+   "size": 1262,
+   "mtime": "2026-10-19 05:33",
+   "kind": "logs"
+  },
+  {
+   "path": "logs/sft_run.log",
+   "type": "f",
+   "size": 1837,
+   "mtime": "2026-10-19 06:41",
+   "kind": "logs"
+  },
+  {
+   "path": "logs/tunnel.log",
+   "type": "f",
+   "size": 536477,
+   "mtime": "2026-10-19 13:17",
+   "kind": "logs"
+  },
+  {
+   "path": "maild.log",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-18 13:13",
+   "kind": "other"
+  },
+  {
+   "path": "maild.sh",
+   "type": "f",
+   "size": 1623,
+   "mtime": "2026-10-15 04:52",
+   "kind": "other"
+  },
+  {
+   "path": "mdl",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:16",
+   "kind": "mdl"
+  },
+  {
+   "path": "mdl/tools",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:16",
+   "kind": "mdl"
+  },
+  {
+   "path": "mdl/tools/dream_seeds.py",
+   "type": "f",
+   "size": 16544,
+   "mtime": "2026-10-18 14:16",
+   "kind": "mdl"
+  },
+  {
+   "path": "mem_check.txt",
+   "type": "f",
+   "size": 752,
+   "mtime": "2026-10-15 04:30",
+   "kind": "other"
+  },
+  {
+   "path": "models",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/data",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:30",
+   "kind": "models"
+  },
+  {
+   "path": "models/data/seed_code_200.jsonl",
+   "type": "f",
+   "size": 92713,
+   "mtime": "2026-10-19 12:30",
+   "kind": "models"
+  },
+  {
+   "path": "models/data/triple_bank.db",
+   "type": "f",
+   "size": 356352,
+   "mtime": "2026-10-19 12:30",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 06:11",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/config.json",
+   "type": "f",
+   "size": 791,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/generation_config.json",
+   "type": "f",
+   "size": 111,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/merges.txt",
+   "type": "f",
+   "size": 466391,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/model.safetensors",
+   "type": "f",
+   "size": 1387470856,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/sft_meta.json",
+   "type": "f",
+   "size": 225,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/special_tokens_map.json",
+   "type": "f",
+   "size": 441,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/tokenizer.json",
+   "type": "f",
+   "size": 3522871,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/tokenizer_config.json",
+   "type": "f",
+   "size": 3418,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_code_03b/vocab.json",
+   "type": "f",
+   "size": 800662,
+   "mtime": "2026-10-19 06:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:48",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/config.json",
+   "type": "f",
+   "size": 791,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/generation_config.json",
+   "type": "f",
+   "size": 111,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/merges.txt",
+   "type": "f",
+   "size": 466391,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/model.safetensors",
+   "type": "f",
+   "size": 1387470856,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/sft_meta.json",
+   "type": "f",
+   "size": 285,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/special_tokens_map.json",
+   "type": "f",
+   "size": 441,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/tokenizer.json",
+   "type": "f",
+   "size": 3522871,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/tokenizer_config.json",
+   "type": "f",
+   "size": 3418,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/sft_seed200_remote/vocab.json",
+   "type": "f",
+   "size": 800662,
+   "mtime": "2026-10-19 12:55",
+   "kind": "models"
+  },
+  {
+   "path": "models/siglip2-base",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 01:00",
+   "kind": "models"
+  },
+  {
+   "path": "models/siglip2-base/config.json",
+   "type": "f",
+   "size": 253,
+   "mtime": "2026-10-19 00:16",
+   "kind": "models"
+  },
+  {
+   "path": "models/siglip2-base/model.safetensors",
+   "type": "f",
+   "size": 1500800904,
+   "mtime": "2026-10-19 00:59",
+   "kind": "models"
+  },
+  {
+   "path": "models/siglip2-base/preprocessor_config.json",
+   "type": "f",
+   "size": 394,
+   "mtime": "2026-10-19 00:16",
+   "kind": "models"
+  },
+  {
+   "path": "models/siglip2-base/special_tokens_map.json",
+   "type": "f",
+   "size": 636,
+   "mtime": "2026-10-19 00:16",
+   "kind": "models"
+  },
+  {
+   "path": "models/siglip2-base/tokenizer.json",
+   "type": "f",
+   "size": 34363039,
+   "mtime": "2026-10-19 00:45",
+   "kind": "models"
+  },
+  {
+   "path": "models/siglip2-base/tokenizer_config.json",
+   "type": "f",
+   "size": 47164,
+   "mtime": "2026-10-19 00:16",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 11:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/.cache",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/added_tokens.json",
+   "type": "f",
+   "size": 34604,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/config.json",
+   "type": "f",
+   "size": 1967,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/generation_config.json",
+   "type": "f",
+   "size": 3868,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/merges.txt",
+   "type": "f",
+   "size": 493869,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/model.safetensors",
+   "type": "f",
+   "size": 966995080,
+   "mtime": "2026-10-18 11:41",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/normalizer.json",
+   "type": "f",
+   "size": 52666,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/preprocessor_config.json",
+   "type": "f",
+   "size": 184990,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/special_tokens_map.json",
+   "type": "f",
+   "size": 2194,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/tokenizer_config.json",
+   "type": "f",
+   "size": 282683,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "models/whisper-small/vocab.json",
+   "type": "f",
+   "size": 835550,
+   "mtime": "2026-10-18 11:28",
+   "kind": "models"
+  },
+  {
+   "path": "node",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 13:11",
+   "kind": "node"
+  },
+  {
+   "path": "node/tunnel.sh",
+   "type": "f",
+   "size": 828,
+   "mtime": "2026-10-19 13:16",
+   "kind": "node"
+  },
+  {
+   "path": "node.log",
+   "type": "f",
+   "size": 92,
+   "mtime": "2026-10-11 14:00",
+   "kind": "node"
+  },
+  {
+   "path": "node2.log",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-11 14:00",
+   "kind": "node"
+  },
+  {
+   "path": "node_v2.py",
+   "type": "f",
+   "size": 977,
+   "mtime": "2026-10-11 13:43",
+   "kind": "node"
+  },
+  {
+   "path": "node_v3.log",
+   "type": "f",
+   "size": 600,
+   "mtime": "2026-10-11 14:19",
+   "kind": "node"
+  },
+  {
+   "path": "node_v3.py",
+   "type": "f",
+   "size": 3559,
+   "mtime": "2026-10-11 14:06",
+   "kind": "node"
+  },
+  {
+   "path": "node_v3.state.json",
+   "type": "f",
+   "size": 46,
+   "mtime": "2026-10-11 14:35",
+   "kind": "node"
+  },
+  {
+   "path": "node_v4.log",
+   "type": "f",
+   "size": 70,
+   "mtime": "2026-10-11 14:35",
+   "kind": "node"
+  },
+  {
+   "path": "node_v4.py",
+   "type": "f",
+   "size": 4998,
+   "mtime": "2026-10-11 14:35",
+   "kind": "node"
+  },
+  {
+   "path": "node_v5.log",
+   "type": "f",
+   "size": 4635,
+   "mtime": "2026-10-19 07:41",
+   "kind": "node"
+  },
+  {
+   "path": "node_v5.py",
+   "type": "f",
+   "size": 4468,
+   "mtime": "2026-10-19 05:30",
+   "kind": "node"
+  },
+  {
+   "path": "node_v6.log",
+   "type": "f",
+   "size": 18446,
+   "mtime": "2026-10-19 13:21",
+   "kind": "node"
+  },
+  {
+   "path": "node_v6.py",
+   "type": "f",
+   "size": 6629,
+   "mtime": "2026-10-18 02:15",
+   "kind": "node"
+  },
+  {
+   "path": "parallel_v1.log",
+   "type": "f",
+   "size": 88,
+   "mtime": "2026-10-15 04:20",
+   "kind": "other"
+  },
+  {
+   "path": "parallel_v1.sh",
+   "type": "f",
+   "size": 1044,
+   "mtime": "2026-10-15 04:20",
+   "kind": "other"
+  },
+  {
+   "path": "parallel_v1_fine.sh",
+   "type": "f",
+   "size": 1243,
+   "mtime": "2026-10-15 04:28",
+   "kind": "other"
+  },
+  {
+   "path": "past_cfg.txt",
+   "type": "f",
+   "size": 3658,
+   "mtime": "2026-10-15 04:58",
+   "kind": "other"
+  },
+  {
+   "path": "ping.txt",
+   "type": "f",
+   "size": 14,
+   "mtime": "2026-10-17 00:36",
+   "kind": "other"
+  },
+  {
+   "path": "ping_test.py",
+   "type": "f",
+   "size": 423,
+   "mtime": "2026-10-17 00:36",
+   "kind": "other"
+  },
+  {
+   "path": "poetry_clone.log",
+   "type": "f",
+   "size": 118,
+   "mtime": "2026-10-16 00:54",
+   "kind": "other"
+  },
+  {
+   "path": "probe_health.sh",
+   "type": "f",
+   "size": 720,
+   "mtime": "2026-10-15 20:11",
+   "kind": "other"
+  },
+  {
+   "path": "pull_siglip.log",
+   "type": "f",
+   "size": 709,
+   "mtime": "2026-10-19 01:28",
+   "kind": "other"
+  },
+  {
+   "path": "pull_siglip.sh",
+   "type": "f",
+   "size": 1050,
+   "mtime": "2026-10-19 01:07",
+   "kind": "other"
+  },
+  {
+   "path": "recv_aud.log",
+   "type": "f",
+   "size": 1336,
+   "mtime": "2026-10-18 11:54",
+   "kind": "other"
+  },
+  {
+   "path": "recv_aud.sh",
+   "type": "f",
+   "size": 2276,
+   "mtime": "2026-10-18 11:38",
+   "kind": "other"
+  },
+  {
+   "path": "refine_k.log",
+   "type": "f",
+   "size": 862,
+   "mtime": "2026-10-15 06:40",
+   "kind": "other"
+  },
+  {
+   "path": "refine_reserve.py",
+   "type": "f",
+   "size": 18084,
+   "mtime": "2026-10-15 06:30",
+   "kind": "other"
+  },
+  {
+   "path": "refine_run.log",
+   "type": "f",
+   "size": 2014,
+   "mtime": "2026-10-15 05:51",
+   "kind": "other"
+  },
+  {
+   "path": "refine_run2.log",
+   "type": "f",
+   "size": 2346,
+   "mtime": "2026-10-15 06:05",
+   "kind": "other"
+  },
+  {
+   "path": "relay_dl",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:08",
+   "kind": "relay_dl"
+  },
+  {
+   "path": "relay_dl/inbox",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-18 14:10",
+   "kind": "relay_dl"
+  },
+  {
+   "path": "relay_dl/inbox/t8.bin",
+   "type": "f",
+   "size": 8000000,
+   "mtime": "2026-10-18 14:10",
+   "kind": "relay_dl"
+  },
+  {
+   "path": "run_exps_v2.sh",
+   "type": "f",
+   "size": 3306,
+   "mtime": "2026-10-15 03:47",
+   "kind": "other"
+  },
+  {
+   "path": "run_exps_v3.sh",
+   "type": "f",
+   "size": 4135,
+   "mtime": "2026-10-15 04:03",
+   "kind": "other"
+  },
+  {
+   "path": "sft_boot.tgz",
+   "type": "f",
+   "size": 169,
+   "mtime": "2026-10-19 05:12",
+   "kind": "other"
+  },
+  {
+   "path": "sftboot",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:55",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/boot.sh",
+   "type": "f",
+   "size": 1790,
+   "mtime": "2026-10-19 04:57",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/data",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/data/card_code.jsonl",
+   "type": "f",
+   "size": 1297928,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/data/card_code_data.jsonl",
+   "type": "f",
+   "size": 169874,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/data/card_code_engine.jsonl",
+   "type": "f",
+   "size": 116249,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/data/card_code_lang.jsonl",
+   "type": "f",
+   "size": 568352,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/data/card_code_long.jsonl",
+   "type": "f",
+   "size": 51592,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/data/card_code_quant.jsonl",
+   "type": "f",
+   "size": 473385,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/pull_base.py",
+   "type": "f",
+   "size": 3653,
+   "mtime": "2026-10-19 04:57",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/tok",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/tok/tokenizer.json",
+   "type": "f",
+   "size": 3522871,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/tok/tokenizer_config.json",
+   "type": "f",
+   "size": 404,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/tools",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftboot/tools/sft_full.py",
+   "type": "f",
+   "size": 8841,
+   "mtime": "2026-10-19 04:40",
+   "kind": "sftboot"
+  },
+  {
+   "path": "sftrun",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 05:32",
+   "kind": "sftrun"
+  },
+  {
+   "path": "sftrun/ocpack",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 05:22",
+   "kind": "sftrun"
+  },
+  {
+   "path": "sftrun/ocpack/data",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 05:22",
+   "kind": "sftrun"
+  },
+  {
+   "path": "sftrun/ocpack/tok",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 05:22",
+   "kind": "sftrun"
+  },
+  {
+   "path": "sftrun/ocpack/tools",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 05:22",
+   "kind": "sftrun"
+  },
+  {
+   "path": "smoke_ckpt",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/config.json",
+   "type": "f",
+   "size": 838,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/generation_config.json",
+   "type": "f",
+   "size": 111,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/merges.txt",
+   "type": "f",
+   "size": 466391,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/model.safetensors",
+   "type": "f",
+   "size": 538090408,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/special_tokens_map.json",
+   "type": "f",
+   "size": 831,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/tokenizer.json",
+   "type": "f",
+   "size": 3522656,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/tokenizer_config.json",
+   "type": "f",
+   "size": 3658,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/final/vocab.json",
+   "type": "f",
+   "size": 800662,
+   "mtime": "2026-10-11 15:30",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/step30",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-11 15:27",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/step30/config.json",
+   "type": "f",
+   "size": 838,
+   "mtime": "2026-10-11 15:27",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/step30/generation_config.json",
+   "type": "f",
+   "size": 111,
+   "mtime": "2026-10-11 15:27",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "smoke_ckpt/step30/model.safetensors",
+   "type": "f",
+   "size": 538090408,
+   "mtime": "2026-10-11 15:27",
+   "kind": "smoke_ckpt"
+  },
+  {
+   "path": "speed_now.txt",
+   "type": "f",
+   "size": 713,
+   "mtime": "2026-10-15 04:59",
+   "kind": "other"
+  },
+  {
+   "path": "status_probe.txt",
+   "type": "f",
+   "size": 453,
+   "mtime": "2026-10-15 03:53",
+   "kind": "other"
+  },
+  {
+   "path": "t8.bin",
+   "type": "f",
+   "size": 5222400,
+   "mtime": "2026-10-18 14:02",
+   "kind": "other"
+  },
+  {
+   "path": "tok_cache.npy",
+   "type": "f",
+   "size": 132,
+   "mtime": "2026-10-12 00:58",
+   "kind": "other"
+  },
+  {
+   "path": "tools",
+   "type": "d",
+   "size": 4096,
+   "mtime": "2026-10-19 12:28",
+   "kind": "tools"
+  },
+  {
+   "path": "tools/sft_full.py",
+   "type": "f",
+   "size": 12618,
+   "mtime": "2026-10-19 12:40",
+   "kind": "tools"
+  },
+  {
+   "path": "train.log",
+   "type": "f",
+   "size": 1154,
+   "mtime": "2026-10-11 15:30",
+   "kind": "other"
+  },
+  {
+   "path": "train_live_push.py",
+   "type": "f",
+   "size": 2981,
+   "mtime": "2026-10-16 01:32",
+   "kind": "other"
+  },
+  {
+   "path": "train_remote.py",
+   "type": "f",
+   "size": 2814,
+   "mtime": "2026-10-11 14:19",
+   "kind": "other"
+  },
+  {
+   "path": "train_remote_v4.py",
+   "type": "f",
+   "size": 12509,
+   "mtime": "2026-10-18 22:28",
+   "kind": "other"
+  },
+  {
+   "path": "train_report.txt",
+   "type": "f",
+   "size": 1383,
+   "mtime": "2026-10-15 05:05",
+   "kind": "other"
+  },
+  {
+   "path": "verify_refine.py",
+   "type": "f",
+   "size": 2486,
+   "mtime": "2026-10-15 05:53",
+   "kind": "other"
+  },
+  {
+   "path": "waiter.log",
+   "type": "f",
+   "size": 1978,
+   "mtime": "2026-10-17 01:28",
+   "kind": "other"
+  },
+  {
+   "path": "waiter_creative.py",
+   "type": "f",
+   "size": 2864,
+   "mtime": "2026-10-17 00:43",
+   "kind": "other"
+  },
+  {
+   "path": "watchd.log",
+   "type": "f",
+   "size": 207,
+   "mtime": "2026-10-18 21:55",
+   "kind": "other"
+  },
+  {
+   "path": "watchd.sh",
+   "type": "f",
+   "size": 1222,
+   "mtime": "2026-10-19 03:11",
+   "kind": "other"
+  },
+  {
+   "path": "watchdog_v2.py",
+   "type": "f",
+   "size": 2810,
+   "mtime": "2026-10-17 02:42",
+   "kind": "other"
+  },
+  {
+   "path": "watcher.log",
+   "type": "f",
+   "size": 0,
+   "mtime": "2026-10-18 11:44",
+   "kind": "other"
+  },
+  {
+   "path": "wd2.log",
+   "type": "f",
+   "size": 42,
+   "mtime": "2026-10-17 02:42",
+   "kind": "other"
+  },
+  {
+   "path": "whisper_dl.log",
+   "type": "f",
+   "size": 6866,
+   "mtime": "2026-10-18 11:41",
+   "kind": "other"
+  },
+  {
+   "path": "why_drop.txt",
+   "type": "f",
+   "size": 1495,
+   "mtime": "2026-10-15 04:52",
+   "kind": "other"
+  },
+  {
+   "path": "wiki_build.log",
+   "type": "f",
+   "size": 1133,
+   "mtime": "2026-10-15 06:27",
+   "kind": "other"
+  }
+ ]
+}

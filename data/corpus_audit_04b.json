@@ -1,0 +1,642 @@
+[
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\_wiki_tmp.jsonl",
+  "mb": 117.0,
+  "lines": 14828,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 6575,
+    "head": "数学 数学是研究数量、结构以及空间等概念及其变化的一门学科，属于形式科学的一种。数学利用抽象化和逻辑推理，从计数、计算、量度、对物体形状及运动的观察发展而成。数学家们拓展这些概念，"
+   },
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 10813,
+    "head": "哲学 哲学是研究普遍的、基本问题的学科，包括存在、知识、价值、理智、心灵、语言、人生、道德等领域。哲学与其他学科不同之处在于哲学有独特之思考方式，例如批判的方式、通常是系统化的方法"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_r_novels.jsonl",
+  "mb": 305.2,
+  "lines": 26009,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 2559,
+    "head": "(种田文系列)无尽相思风 第一章 “水……”我站在无尽沙漠中，被大漠上骄阳燃烧起的飘渺烟波滚滚的蒸腾着，犹如烈火焚身。嘴里再也没有一丝湿润，我奔跑起来，只有一个念头，我要找到水源，"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 2282,
+    "head": "(种田文系列)无尽相思风 第二章 我穿越的这个国家叫大齐，现在是贞观十年，天下一统，君上清明，四海安逸。 这里的风俗与我们历史上的宋朝类似，男尊女卑，封建礼教一应具全，唯一应该庆幸"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_r_weixin.jsonl",
+  "mb": 305.3,
+  "lines": 78565,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 1399,
+    "head": "［天成］艺术精品公拍预展（4月2日 周六14:00） 公拍时间:4月2日 ( 周六 ) 14 ： 00 － 22 ： 00 参加平台公拍 ( 请搜索个人号 ) ： tianchen"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 612,
+    "head": "宝相庄严-佛在青州 1996年山东青州龙兴寺遗址窖藏佛像现世。 龙兴寺始建于北魏时期，是一处延续千余年的著名佛教寺院。窖藏坑位于寺院遗址的最北部。 青州佛像造像时间延伸南北朝，隋唐"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text.jsonl",
+  "mb": 24.6,
+  "lines": 16707,
+  "sample": [
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_know_edu.jsonl",
+  "mb": 126.4,
+  "lines": 141281,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 990,
+    "head": "Produced by Wan Jei Chen 閱微草堂筆記 紀曉嵐 著 序  原序 文以載道，儒者無不能言之。夫道豈深隱莫測，秘密不傳，如佛家之心印， 道家之口訣哉！萬事當然之"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 992,
+    "head": "乾隆己酉夏，以編排秘籍，于役灤陽，時校理久竟，特督視官吏，題簽庋架 而已，晝長無事，追錄見聞，憶及即書，都無體例，小說稗官，知無關於著述； 街談巷議，或有益於勸懲，聊付抄胥存之。命"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_know_full.jsonl",
+  "mb": 243.7,
+  "lines": 156109,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 990,
+    "head": "Produced by Wan Jei Chen 閱微草堂筆記 紀曉嵐 著 序  原序 文以載道，儒者無不能言之。夫道豈深隱莫測，秘密不傳，如佛家之心印， 道家之口訣哉！萬事當然之"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 992,
+    "head": "乾隆己酉夏，以編排秘籍，于役灤陽，時校理久竟，特督視官吏，題簽庋架 而已，晝長無事，追錄見聞，憶及即書，都無體例，小說稗官，知無關於著述； 街談巷議，或有益於勸懲，聊付抄胥存之。命"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_lang.jsonl",
+  "mb": 73.7,
+  "lines": 38917,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_next.jsonl",
+  "mb": 71.4,
+  "lines": 37750,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_next_dedup.jsonl",
+  "mb": 71.1,
+  "lines": 37721,
+  "sample": [
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_r2.jsonl",
+  "mb": 71.0,
+  "lines": 37721,
+  "sample": [
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_r2_cat.jsonl",
+  "mb": 72.3,
+  "lines": 37721,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_r3.jsonl",
+  "mb": 290.6,
+  "lines": 184207,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_r4.jsonl",
+  "mb": 73.7,
+  "lines": 38917,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_r5.jsonl",
+  "mb": 220.2,
+  "lines": 145290,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 990,
+    "head": "Produced by Wan Jei Chen 閱微草堂筆記 紀曉嵐 著 序  原序 文以載道，儒者無不能言之。夫道豈深隱莫測，秘密不傳，如佛家之心印， 道家之口訣哉！萬事當然之"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 992,
+    "head": "乾隆己酉夏，以編排秘籍，于役灤陽，時校理久竟，特督視官吏，題簽庋架 而已，晝長無事，追錄見聞，憶及即書，都無體例，小說稗官，知無關於著述； 街談巷議，或有益於勸懲，聊付抄胥存之。命"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_r6.jsonl",
+  "mb": 260.2,
+  "lines": 165531,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 990,
+    "head": "Produced by Wan Jei Chen 閱微草堂筆記 紀曉嵐 著 序  原序 文以載道，儒者無不能言之。夫道豈深隱莫測，秘密不傳，如佛家之心印， 道家之口訣哉！萬事當然之"
+   },
+   {
+    "keys": [
+     "text",
+     "src",
+     "cat"
+    ],
+    "len": 992,
+    "head": "乾隆己酉夏，以編排秘籍，于役灤陽，時校理久竟，特督視官吏，題簽庋架 而已，晝長無事，追錄見聞，憶及即書，都無體例，小說稗官，知無關於著述； 街談巷議，或有益於勸懲，聊付抄胥存之。命"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_v2.jsonl",
+  "mb": 30.9,
+  "lines": 18845,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 739,
+    "head": "继续写下去： 这一年，王杰十六岁。他是穿越过来的，穿越过程中，他还获得了一个系统。系统叫女神系统，可以通过推倒那些前世女明星演的人物就可以获得技能。因为他现在还是处男，所以技能没有"
+   },
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 715,
+    "head": "继续写下去： 在学校的大门口处，竖立着一座高大壮观的花岗岩石柱，石柱呈暗红色，看上去有数十年光景了，风雨在上面留下了岁月沧桑的痕迹。近十米高的石柱的正面上用英文写着“上海第一高中”"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_v2_ai.jsonl",
+  "mb": 10.4,
+  "lines": 6588,
+  "sample": [
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 1088,
+    "head": "# 单章小说生成执行指令（给接手 AI） > **⚠️ 分工（2026-10-05 作者明确）：两台机器分开，别串台。** > - **写正文的那台**：只按设定包出 prose。"
+   },
+   {
+    "keys": [
+     "text",
+     "src"
+    ],
+    "len": 945,
+    "head": "生成完数中文字，不足 2500 时：把「上一章末尾 1500 字 + 已写内容末尾 1500 字」拼进上下文，追加这句： > 继续写，不要重复上面已有内容，把本章补齐到至少 250"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_v3_edu.jsonl",
+  "mb": 121.4,
+  "lines": 141281,
+  "sample": [
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 990,
+    "head": "Produced by Wan Jei Chen 閱微草堂筆記 紀曉嵐 著 序  原序 文以載道，儒者無不能言之。夫道豈深隱莫測，秘密不傳，如佛家之心印， 道家之口訣哉！萬事當然之"
+   },
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 992,
+    "head": "乾隆己酉夏，以編排秘籍，于役灤陽，時校理久竟，特督視官吏，題簽庋架 而已，晝長無事，追錄見聞，憶及即書，都無體例，小說稗官，知無關於著述； 街談巷議，或有益於勸懲，聊付抄胥存之。命"
+   }
+  ]
+ },
+ {
+  "grp": "pretrain_corpus",
+  "file": "pretrain_corpus\\zh_text_v3_novel.jsonl",
+  "mb": 42.0,
+  "lines": 20075,
+  "sample": [
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 1067,
+    "head": "閱微草堂筆記 紀曉嵐 著 序  原序 文以載道，儒者無不能言之。夫道豈深隱莫測，秘密不傳，如佛家之心印， 道家之口訣哉！萬事當然之理，是即道矣。故道在天地，如汞瀉地，顆顆皆圓； 如"
+   },
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 1071,
+    "head": "胡御史牧亭言，其里有人畜一豬，見鄰叟輒瞋目狂吼，奔突欲噬，見他人則 否。鄰叟初甚怒之，欲買而啖其肉。既而憬然省曰：「此殆佛經所謂夙冤耶？世 無不可解之冤。」乃以善價贖得，送佛寺為長"
+   }
+  ]
+ },
+ {
+  "grp": "corpus_04b",
+  "file": "corpus_04b\\creative_articles_novel.jsonl",
+  "mb": 323.2,
+  "lines": 39476,
+  "sample": [
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 6123,
+    "head": "之后胡未虽然极力镇定，但一想到自己刚刚穿越就犯下了这么大的麻烦，心中还是不免患得患失，甚至有些恍惚，那白眉老者也就是所谓的首师大人之后说的话他也几乎没听进去，只是强颜欢笑，站在那里"
+   },
+   {
+    "keys": [
+     "text"
+    ],
+    "len": 3303,
+    "head": "等胡未在第二个木桶里洗完后，无为果真又请胡未去下一个房间，再洗第三遍。胡未刚刚听了无为所说，心情正有些抑郁，便说道：“我觉得已经挺干净的了，不用再洗了吧？” 胡未心想就算洁癖也不用"
+   }
+  ]
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg23817.txt",
+  "mb": 1.1,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg23835.txt",
+  "mb": 1.8,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg23863.txt",
+  "mb": 1.6,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg23910.txt",
+  "mb": 1.7,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg23950.txt",
+  "mb": 1.8,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg23962.txt",
+  "mb": 2.2,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg24141.txt",
+  "mb": 1.1,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg24226.txt",
+  "mb": 1.9,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg24230.txt",
+  "mb": 2.8,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg24233.txt",
+  "mb": 1.3,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg24264.txt",
+  "mb": 2.5,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg25350.txt",
+  "mb": 2.0,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg25393.txt",
+  "mb": 3.4,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg29032.txt",
+  "mb": 1.4,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg51828.txt",
+  "mb": 1.4,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\gutenberg\\pg52200.txt",
+  "mb": 2.2,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\vivym_sample.parquet",
+  "mb": 169.6,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "next_corpus_raw",
+  "file": "next_corpus_raw\\wiki_zh_shard2.parquet",
+  "mb": 120.9,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "data/l3_ms",
+  "file": "data\\l3_ms\\ms000.parquet",
+  "mb": 1026.2,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "data/l3_ms",
+  "file": "data\\l3_ms\\ms00001.parquet",
+  "mb": 1027.4,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "data/l3_ms",
+  "file": "data\\l3_ms\\ms00002.parquet",
+  "mb": 1027.3,
+  "lines": null,
+  "sample": null
+ },
+ {
+  "grp": "node/l3_local",
+  "file": "node\\l3_local\\qa000.parquet",
+  "mb": 532.0,
+  "lines": null,
+  "sample": null
+ }
+]

@@ -121,11 +121,21 @@ def jaccard(a, b):
     return len(A & B) / len(A | B)
 
 
-def verify(video, ffmpeg=None):
-    """跑 vid_verify.py --json，返回 (pass, json_dict)。"""
+def verify(video, ffmpeg=None, expect_fps=None, expect_frames=None, expect_duration=None):
+    """跑 vid_verify.py --json，返回 (pass, json_dict)。
+
+    expect_* 把任务的时间帧约束透传给 vid_verify（帧率/帧数/时长），
+    让产物层真验「帧对不对」，而不只是「能不能播」。默认 None=不查，向后兼容。
+    """
     cmd = [sys.executable, VERIFY, video, "--json"]
     if ffmpeg:
         cmd += ["--ffmpeg", ffmpeg]
+    if expect_fps is not None:
+        cmd += ["--expect-fps", str(expect_fps)]
+    if expect_frames is not None:
+        cmd += ["--expect-frames", str(expect_frames)]
+    if expect_duration is not None:
+        cmd += ["--expect-duration", str(expect_duration)]
     p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     out = (p.stdout or "").strip()
     try:
@@ -154,7 +164,27 @@ def cmd_add(a):
         c.commit()
         print("REJECT video_missing"); sys.exit(1)
 
-    ok, data = verify(a.video, a.ffmpeg)
+    code_text = open(a.code, encoding="utf-8", errors="replace").read()
+
+    # 任务符合度闸门（静态、快，先跑；顺带抽出时间帧约束给产物验收）
+    fit_ok, fit = check_task_fit(a.task, code_text)
+    if not fit_ok:
+        detail = json.dumps(fit, ensure_ascii=False)[:4000]
+        c.execute("INSERT INTO rejects(task,code_path,video_path,reason,detail) VALUES(?,?,?,?,?)",
+                  (a.task, a.code, a.video, "task_mismatch", detail))
+        c.commit()
+        print("REJECT task_mismatch")
+        for ch in fit.get("checks") or []:
+            if not ch.get("pass"):
+                print("   - %s: %s" % (ch.get("name"), ch.get("detail")))
+        sys.exit(1)
+
+    # 产物验收：把任务的时间帧约束（帧率/帧数）传下去，让 vid_verify 真验「帧对不对」。
+    # 不接 seconds：任务里「每 X 秒更新」的「秒」有歧义，会误杀，故只接无歧义的 fps/frames。
+    cons = fit.get("constraints") or {}
+    ok, data = verify(a.video, a.ffmpeg,
+                      expect_fps=cons.get("fps"),
+                      expect_frames=cons.get("frames"))
     blob = json.dumps(data, ensure_ascii=False)
     if not ok:
         fails = data.get("fails") or data.get("failed") or []
@@ -167,21 +197,6 @@ def cmd_add(a):
                 print("   -", f if isinstance(f, str) else json.dumps(f, ensure_ascii=False))
         else:
             print("   -", blob[:300])
-        sys.exit(1)
-
-    code_text = open(a.code, encoding="utf-8", errors="replace").read()
-
-    # 任务符合度闸门（在视频验签之后、写库之前）
-    fit_ok, fit = check_task_fit(a.task, code_text)
-    if not fit_ok:
-        detail = json.dumps(fit, ensure_ascii=False)[:4000]
-        c.execute("INSERT INTO rejects(task,code_path,video_path,reason,detail) VALUES(?,?,?,?,?)",
-                  (a.task, a.code, a.video, "task_mismatch", detail))
-        c.commit()
-        print("REJECT task_mismatch")
-        for ch in fit.get("checks") or []:
-            if not ch.get("pass"):
-                print("   - %s: %s" % (ch.get("name"), ch.get("detail")))
         sys.exit(1)
 
     # 定码去重：贪心/低温生成下同一任务会产出逐字节相同的代码，

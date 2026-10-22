@@ -145,6 +145,25 @@ def verify(ff, path, a):
         chk("高度符合", ok, "%s vs %s" % (info["height"], a.expect_height),
             1.0 if ok else 0.0)
 
+    # 🔴 时间帧验证（2026-10-19 补）：上面只查「时长」，不查「帧率/帧数」。
+    #    任务要求「100 帧 10fps」，代码静态写了 frames=100，但 ffmpeg 导出时
+    #    fps 设错（如默认 5fps），视频实际 20s/100帧，旧版查不出来。
+    #    帧数 = 时长 × 帧率（ffmpeg 解析值，VFR 下为近似），容差放宽避免误杀。
+    if a.expect_fps is not None:
+        got = info["fps"]
+        tol = max(0.5, a.expect_fps * 0.05)
+        ok = got is not None and abs(got - a.expect_fps) <= tol
+        chk("帧率符合", ok,
+            "实际 %.2f fps / 期望 %.2f (±%.2f)" % (got, a.expect_fps, tol),
+            1.0 if ok else 0.0)
+    if a.expect_frames is not None:
+        got = round((info["duration"] or 0) * (info["fps"] or 0))
+        tol = max(2, int(a.expect_frames * 0.10))
+        ok = abs(got - a.expect_frames) <= tol
+        chk("帧数符合", ok,
+            "实际约 %d 帧 / 期望 %d (±%d)" % (got, a.expect_frames, tol),
+            1.0 if ok else 0.0)
+
     # 软检查（partial credit，默认不硬 fail；--allow-* 时直接满分不计入缺陷）
     black_dur = sum(x[2] for x in blacks)
     black_score = 1.0 if a.allow_black else max(0.0, 1.0 - (black_dur / dur if dur > 0 else 0.0))
@@ -189,6 +208,10 @@ def main():
     ap.add_argument("--expect-duration", type=float, default=None)
     ap.add_argument("--expect-width", type=int, default=None)
     ap.add_argument("--expect-height", type=int, default=None)
+    ap.add_argument("--expect-fps", type=float, default=None,
+                    help="期望帧率（时间帧验证，默认不查）")
+    ap.add_argument("--expect-frames", type=int, default=None,
+                    help="期望总帧数（时间帧验证，默认不查）")
     ap.add_argument("--tol", type=float, default=0.5, help="时长容差(秒)")
     ap.add_argument("--min-quality", type=float, default=0.0,
                     help="quality 低于此值判 FAIL（做梦态挡低质自产任务，默认0=只看硬检查）")

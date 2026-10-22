@@ -119,28 +119,28 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
     open(os.path.join(args.output_dir, "train.pid"), "w").write(str(os.getpid()))
 
-    # CPU 优化: 用满物理核心
+    # 🔴 设备与线程一律自适应（换机器/换到 GPU 实例都不许改参数）
     try:
-        import os as _os
-        ncpu = _os.cpu_count() or 4
-        torch.set_num_threads(ncpu)
-        log(f"CPU 线程数: {ncpu} / {ncpu}")
-    except Exception as e:
-        log("set_num_threads 跳过:", e)
-
-    device = torch.device("cpu")
-    log("设备:", device, "(CUDA 不可用, CPU 训练)")
+        from dev_pick import setup as dev_setup
+    except ImportError:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+        from dev_pick import setup as dev_setup
+    device, n_threads = dev_setup()
+    device = torch.device(device)
+    use_bf16 = (device.type == "cuda")     # GPU 上用 bf16，CPU 上恒 fp32
 
     # 加载底座
     log("加载 tokenizer / 模型:", args.model_dir)
     tokenizer = AutoTokenizer.from_pretrained(args.model_dir)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(
-        args.model_dir,
-        torch_dtype=torch.float32,
-        low_cpu_mem_usage=True,
-    )
+    _dt = torch.bfloat16 if use_bf16 else torch.float32
+    try:
+        model = AutoModelForCausalLM.from_pretrained(
+            args.model_dir, dtype=_dt, low_cpu_mem_usage=True)
+    except TypeError:      # 老版 transformers 不认 dtype=
+        model = AutoModelForCausalLM.from_pretrained(
+            args.model_dir, torch_dtype=_dt, low_cpu_mem_usage=True)
     model.train()
 
     # 可选 torch.compile (CPU 上通常显著加速小模型; 失败则降级 eager)
@@ -244,8 +244,9 @@ def main():
         for batch in loader:
             input_ids = batch["input_ids"].to(device)
             labels = batch["labels"].to(device)
-            outputs = model(input_ids=input_ids, labels=labels)
-            loss = outputs.loss / args.grad_accum   # 归一化, 累加 grad 等价大 batch
+            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=use_bf16):
+                outputs = model(input_ids=input_ids, labels=labels)
+                loss = outputs.loss / args.grad_accum   # 归一化, 累加 grad 等价大 batch
             loss.backward()
             micro += 1
             window_loss += outputs.loss.item()

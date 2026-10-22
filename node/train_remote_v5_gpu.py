@@ -101,14 +101,24 @@ def main():
     args = ap.parse_args()
 
     import torch
-    torch.set_num_threads(args.threads)
+    # 自适应（2026-10-19 用户要求：训练时自适应，一行入口）：
+    #   cuda > mps > cpu；CPU 侧线程走 dev_pick 现场标定（配额是上限不是保底）。
+    #   换机器（CPU 实例 / GPU 实例 / 本机）不改任何参数。
+    try:
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+        from dev_pick import setup as _dev_setup
+        _dev, _thr = _dev_setup()
+    except Exception as e:
+        _dev = "cuda" if torch.cuda.is_available() else "cpu"
+        _thr = args.threads
+        print(f"[dev] dev_pick 不可用({e!r})，退回内置判断")
+    device = _dev if args.device == "auto" else args.device
+    if device != "cuda":
+        args.threads = _thr
+        torch.set_num_threads(args.threads)
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
-
-    if args.device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    else:
-        device = args.device
     print(f"[device] {device}" + (f" = {torch.cuda.get_device_name(0)}" if device == "cuda" else ""))
     if device == "cuda":
         print(f"[device] 显存 {torch.cuda.get_device_properties(0).total_memory/1e9:.1f} GB")

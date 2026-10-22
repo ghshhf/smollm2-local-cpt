@@ -101,16 +101,9 @@ sh(f"curl -s -o {OWNER} '{ECS}/file/owner_corpus.jsonl?key={KEY}'")
 os.makedirs(RUNL, exist_ok=True)
 os.makedirs(RUN03, exist_ok=True)
 
-SMALL = [                                    # 阶段 A: 0.3B 课程补完, 各吃该档语料一遍
-    ("R8",  [f"{RES}/zh_r_ancient.jsonl"], 8, 4),
-    ("R9",  [f"{RES}/zh_r_novels.jsonl"],  8, 4),
-    ("R10", [f"{RES}/zh_r_weixin.jsonl"],  8, 4),
-]
+SMALL = []                                   # 2026-10-19: 本轮直接 04B, 跳过 0.3B 课程补完
 BIG = [                                      # 阶段 B: 04B 用准备好的全部资料(合并单文件)
     ("04B", 400, [MIX] + [OWNER] * 4, 8, 4),
-    ("05B", 500, [f"{W}/corpus_04b/ufw"] + [OWNER] * 4, 4, 6),
-    ("06B", 600, [f"{RES}/zh_r_knowledge.jsonl", f"{RES}/zh_r_ancient.jsonl",
-                  f"{RES}/zh_r_novels.jsonl", f"{RES}/zh_r_weixin.jsonl"] + [OWNER] * 4, 3, 6),
 ]
 
 
@@ -124,6 +117,9 @@ def build_stage(name, paths):
                 if f.endswith(".jsonl") or f.endswith(".txt"):
                     sh(f"ln -sf {p}/{f} {d}/m{i}.jsonl"); i += 1
         else:
+            if not os.path.exists(p):
+                say(f"[{name}] 跳过不存在: {p}")
+                continue
             sh(f"ln -sf {p} {d}/m{i}.jsonl"); i += 1
     say(f"[{name}] 链接 {i} 个语料文件")
     return d
@@ -211,7 +207,10 @@ for name, tgt, paths, batch, accum in BIG:
         # 准备好的资料合成单文件: 建库器只 tokenize 最大单文件, 分开会漏
         srcs = [f"{W}/corpus_04b/ufw_zh.jsonl",
                 f"{W}/corpus_04b/creative_articles_novel.jsonl",
-                f"{W}/corpus_04b/poetry_zh.jsonl"]
+                f"{W}/corpus_04b/poetry_zh.jsonl",
+                f"{W}/corpus_04b/code_pretrain.jsonl",
+                f"{W}/corpus_04b/code_instruct.jsonl"]
+        srcs = [s for s in srcs if os.path.exists(s) and os.path.getsize(s) > 0]
         miss = [s for s in srcs if not os.path.exists(s)]
         if miss:
             say(f"!! 04B 语料缺失: {miss}"); report(); sys.exit(1)
@@ -222,7 +221,8 @@ for name, tgt, paths, batch, accum in BIG:
         say(f"[04B] 合并文件 {os.path.getsize(MIX)/1e9:.2f}GB 就绪")
         report()
     src = f"/root/r4work/base_{name}"
-    sh(f"rm -rf {src} && cp -r {CK03 if name == '04B' else RUNL + '/checkpoint-latest'} {src}")
+    # 04B 底模: CK03 不在 NAS 时, 用 NAS 上的 0.3B 本体 (models/polaris-03b) 组装
+    sh(f"rm -rf {src} && cp -r {CK03 if (name == '04B' and os.path.isdir(CK03)) else BASE0} {src}")
     r = sh(f"cd /root && timeout 3600 python3 /root/expand_to_target.py {src} {tgt} 2>&1 | tail -6")
     say(f"[expand {name}] " + (r.stdout or "").strip()[-260:].replace("\n", " | "))
     report()

@@ -114,3 +114,27 @@ node/health_state.json
 
 # 数据库临时备份（可重建，不入库）
 data/*.db.bak-*
+
+# === 2026-10-22 归档收尾：只入代码与文本，运行态/二进制/语料不入 ===
+*.db
+*.tgz
+corpus_*/
+data/audio_assets/
+data/frontier/_seen_ids.json
+data/frontier/digest/_digested.json
+_tmp_*.txt
+_mk_*.py
+node/parts/
+logs/
+backups/
+hf_cards/
+
+# 节点运行时告警与本地任务队列（每机不同、每天新增，无归档价值）
+node/alerts/
+node/_local_tasks.txt
+node/_local_tasks.csv
+node/_*.err
+node/_*.flag
+data/dream_elite.db
+data/triple_bank.db
+
